@@ -99,3 +99,54 @@ class RelationshipProjectorTestCase(TestCase):
                 "owner": {"name": "test owner", "group": {"name": "test group"}},
             },
         )
+
+    def test_many_relationships(self):
+        group = Group.objects.create(name="test group")
+        owner_1 = Owner.objects.create(name="owner 1", group=group)
+        owner_2 = Owner.objects.create(name="owner 2", group=group)
+        Widget.objects.create(name="widget 1", owner=owner_1)
+        Widget.objects.create(name="widget 2", owner=owner_1)
+        Widget.objects.create(name="widget 3", owner=owner_2)
+
+        project = projectors.compose(
+            projectors.field("name"),
+            projectors.field(
+                "owners",
+                lambda instance: [
+                    projectors.compose(
+                        projectors.field("name"),
+                        projectors.field(
+                            "widgets",
+                            lambda instance: [
+                                projectors.field("name")(widget)
+                                for widget in instance.widget_set.all()
+                            ],
+                        ),
+                    )(owner)
+                    for owner in instance.owner_set.all()
+                ],
+            ),
+        )
+
+        result = project(group)
+        self.assertEqual(
+            result,
+            {
+                "name": "test group",
+                "owners": [
+                    {
+                        "name": "owner 1",
+                        "widgets": [
+                            {"name": "widget 1"},
+                            {"name": "widget 2"},
+                        ],
+                    },
+                    {
+                        "name": "owner 2",
+                        "widgets": [
+                            {"name": "widget 3"},
+                        ],
+                    },
+                ],
+            },
+        )
