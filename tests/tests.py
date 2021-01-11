@@ -79,11 +79,11 @@ class RelationshipProjectorTestCase(TestCase):
 
         project = projectors.compose(
             projectors.field("name"),
-            projectors.field(
+            projectors.wrap(
                 "owner",
                 lambda instance: projectors.compose(
                     projectors.field("name"),
-                    projectors.field(
+                    projectors.wrap(
                         "group",
                         lambda instance: projectors.field("name")(instance.group),
                     ),
@@ -110,12 +110,12 @@ class RelationshipProjectorTestCase(TestCase):
 
         project = projectors.compose(
             projectors.field("name"),
-            projectors.field(
+            projectors.wrap(
                 "owners",
                 lambda instance: [
                     projectors.compose(
                         projectors.field("name"),
-                        projectors.field(
+                        projectors.wrap(
                             "widgets",
                             lambda instance: [
                                 projectors.field("name")(widget)

@@ -1,13 +1,15 @@
 import operator
 
 
-def field(name, value_getter=None):
-    value_getter = value_getter or operator.attrgetter(name)
-
+def wrap(name, value_getter):
     def projector(instance):
         return {name: value_getter(instance)}
 
     return projector
+
+
+def field(name):
+    return wrap(name, operator.attrgetter(name))
 
 
 def compose(*projectors):
