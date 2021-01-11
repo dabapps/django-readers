@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+set -e
+
+black --check djunc tests
+flake8 djunc tests
+isort --check --diff djunc tests
+python manage.py test --noinput $@

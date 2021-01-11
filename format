@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -e
+
+black djunc tests
+flake8 djunc tests
+isort djunc tests
