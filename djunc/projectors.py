@@ -1,14 +1,11 @@
-def field(name):
+import operator
+
+
+def field(name, value_getter=None):
+    value_getter = value_getter or operator.attrgetter(name)
+
     def projector(instance):
-        return {name: getattr(instance, name)}
-
-    return projector
-
-
-def relationship(name, related_projector):
-    def projector(instance):
-        related = getattr(instance, name)
-        return {name: related_projector(related)}
+        return {name: value_getter(instance)}
 
     return projector
 
