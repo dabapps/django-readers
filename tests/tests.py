@@ -1,6 +1,6 @@
 from django.test import TestCase
 from djunc import pairs, projectors, qs
-from tests.models import Widget
+from tests.models import Group, Owner, Widget
 
 
 class QuerySetTestCase(TestCase):
@@ -65,4 +65,34 @@ class PairsTestCase(TestCase):
                 {"name": "second", "other": "other-second"},
                 {"name": "third", "other": "other-third"},
             ],
+        )
+
+
+class RelationshipProjectorTestCase(TestCase):
+    def test_relationship_projector(self):
+        widget = Widget.objects.create(
+            name="test widget",
+            owner=Owner.objects.create(
+                name="test owner", group=Group.objects.create(name="test group")
+            ),
+        )
+
+        project = projectors.compose(
+            projectors.field("name"),
+            projectors.relationship(
+                "owner",
+                projectors.compose(
+                    projectors.field("name"),
+                    projectors.relationship("group", projectors.field("name")),
+                ),
+            ),
+        )
+
+        result = project(widget)
+        self.assertEqual(
+            result,
+            {
+                "name": "test widget",
+                "owner": {"name": "test owner", "group": {"name": "test group"}},
+            },
         )
