@@ -8,12 +8,13 @@ class PairsTestCase(TestCase):
         for name in ["first", "second", "third"]:
             Widget.objects.create(name=name, other=f"other-{name}")
 
-        spec = [
-            pairs.field("name"),
-            pairs.field("other"),
-        ]
+        prepare, project = pairs.unzip(
+            [
+                pairs.field("name"),
+                pairs.field("other"),
+            ]
+        )
 
-        prepare, project = pairs.process(spec)
         queryset = prepare(Widget.objects.all())
         result = [project(instance) for instance in queryset]
 
