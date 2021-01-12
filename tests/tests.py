@@ -68,6 +68,14 @@ class PairsTestCase(TestCase):
         )
 
 
+class AliasTestCase(TestCase):
+    def test_alias(self):
+        widget = Widget.objects.create(name="test")
+        project = projectors.alias(projectors.field("name"), {"name": "new_name"})
+        result = project(widget)
+        self.assertEqual(result, {"new_name": "test"})
+
+
 class RelationshipProjectorTestCase(TestCase):
     def test_relationship_projector(self):
         widget = Widget.objects.create(

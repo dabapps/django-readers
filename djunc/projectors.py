@@ -34,3 +34,13 @@ def compose(*projectors):
         return result
 
     return composed
+
+
+def alias(projector, aliases):
+    def aliaser(instance):
+        projected = projector(instance)
+        for old, new in aliases.items():
+            projected[new] = projected.pop(old)
+        return projected
+
+    return aliaser
