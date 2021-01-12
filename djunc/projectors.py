@@ -13,17 +13,15 @@ def field(name):
 
 
 def relationship(name, related_projector, many=False):
-    def projector(instance):
+    def value_getter(instance):
         related = attrgetter(name)(instance)
 
         if many:
-            value = [related_projector(instance) for instance in related.all()]
+            return [related_projector(instance) for instance in related.all()]
         else:
-            value = related_projector(related)
+            return related_projector(related)
 
-        return {name: value}
-
-    return projector
+    return wrap(name, value_getter)
 
 
 def compose(*projectors):
