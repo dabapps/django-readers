@@ -12,6 +12,20 @@ def field(name):
     return wrap(name, attrgetter(name))
 
 
+def relationship(name, related_projector, many=False):
+    def projector(instance):
+        related = attrgetter(name)(instance)
+
+        if many:
+            value = [related_projector(instance) for instance in related.all()]
+        else:
+            value = related_projector(related)
+
+        return {name: value}
+
+    return projector
+
+
 def compose(*projectors):
     def composed(instance):
         result = {}

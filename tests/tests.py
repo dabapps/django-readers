@@ -79,15 +79,12 @@ class RelationshipProjectorTestCase(TestCase):
 
         project = projectors.compose(
             projectors.field("name"),
-            projectors.wrap(
+            projectors.relationship(
                 "owner",
-                lambda instance: projectors.compose(
+                projectors.compose(
                     projectors.field("name"),
-                    projectors.wrap(
-                        "group",
-                        lambda instance: projectors.field("name")(instance.group),
-                    ),
-                )(instance.owner),
+                    projectors.relationship("group", projectors.field("name")),
+                ),
             ),
         )
 
@@ -110,21 +107,15 @@ class RelationshipProjectorTestCase(TestCase):
 
         project = projectors.compose(
             projectors.field("name"),
-            projectors.wrap(
-                "owners",
-                lambda instance: [
-                    projectors.compose(
-                        projectors.field("name"),
-                        projectors.wrap(
-                            "widgets",
-                            lambda instance: [
-                                projectors.field("name")(widget)
-                                for widget in instance.widget_set.all()
-                            ],
-                        ),
-                    )(owner)
-                    for owner in instance.owner_set.all()
-                ],
+            projectors.relationship(
+                "owner_set",
+                projectors.compose(
+                    projectors.field("name"),
+                    projectors.relationship(
+                        "widget_set", projectors.field("name"), many=True
+                    ),
+                ),
+                many=True,
             ),
         )
 
@@ -133,17 +124,17 @@ class RelationshipProjectorTestCase(TestCase):
             result,
             {
                 "name": "test group",
-                "owners": [
+                "owner_set": [
                     {
                         "name": "owner 1",
-                        "widgets": [
+                        "widget_set": [
                             {"name": "widget 1"},
                             {"name": "widget 2"},
                         ],
                     },
                     {
                         "name": "owner 2",
-                        "widgets": [
+                        "widget_set": [
                             {"name": "widget 3"},
                         ],
                     },
