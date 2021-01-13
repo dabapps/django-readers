@@ -48,8 +48,13 @@ class PairsTestCase(TestCase):
             ]
         )
 
-        queryset = prepare(Widget.objects.all())
-        result = project(queryset.get())
+        with self.assertNumQueries(0):
+            queryset = prepare(Widget.objects.all())
+
+        instance = queryset.get()
+
+        with self.assertNumQueries(0):
+            result = project(instance)
 
         self.assertEqual(
             result,
