@@ -79,3 +79,15 @@ def reverse_one_to_one_relationship(
 
     projector = projectors.relationship(name, project_relationship, many=False)
     return queryset_function, projector
+
+
+def many_to_many_relationship(name, related_queryset, relationship_pair):
+    prepare_related_queryset, project_relationship = relationship_pair
+
+    def queryset_function(queryset):
+        return qs.prefetch_related(
+            Prefetch(name, prepare_related_queryset(related_queryset))
+        )(queryset)
+
+    projector = projectors.relationship(name, project_relationship, many=True)
+    return queryset_function, projector

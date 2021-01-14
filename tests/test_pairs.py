@@ -1,6 +1,6 @@
 from django.test import TestCase
 from djunc import pairs
-from tests.models import Group, Owner, Widget
+from tests.models import Category, Group, Owner, Thing, Widget
 
 
 class PairsTestCase(TestCase):
@@ -173,5 +173,49 @@ class PairsTestCase(TestCase):
             {
                 "name": "test thing",
                 "widget": {"name": "test widget", "thing": {"name": "test thing"}},
+            },
+        )
+
+    def test_many_to_many_relationship(self):
+        widget = Widget.objects.create(name="test widget")
+        category = Category.objects.create(name="test category")
+        category.widgets.add(widget)
+
+        prepare, project = pairs.unzip(
+            [
+                pairs.field("name"),
+                pairs.many_to_many_relationship(
+                    "widgets",
+                    Widget.objects.all(),
+                    pairs.unzip(
+                        [
+                            pairs.field("name"),
+                            pairs.many_to_many_relationship(
+                                "category_set",
+                                Category.objects.all(),
+                                pairs.unzip([pairs.field("name")]),
+                            ),
+                        ]
+                    ),
+                ),
+            ]
+        )
+
+        with self.assertNumQueries(0):
+            queryset = prepare(Category.objects.all())
+
+        with self.assertNumQueries(3):
+            instance = queryset.first()
+
+        with self.assertNumQueries(0):
+            result = project(instance)
+
+        self.assertEqual(
+            result,
+            {
+                "name": "test category",
+                "widgets": [
+                    {"name": "test widget", "category_set": [{"name": "test category"}]}
+                ],
             },
         )
