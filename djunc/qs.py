@@ -40,11 +40,3 @@ def pipe(*fns):
         return queryset
 
     return queryset_function
-
-
-def prefetch_and_include_fields(*field_specifiers):
-    fns = []
-    for specifier in field_specifiers:
-        fns.append(include_fields(specifier))
-        fns.append(prefetch_related("__".join(specifier.split("__")[:-1])))
-    return pipe(*fns)
