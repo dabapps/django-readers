@@ -133,3 +133,45 @@ class PairsTestCase(TestCase):
                 ],
             },
         )
+
+    def test_one_to_one_relationship(self):
+        widget = Widget.objects.create(name="test widget")
+        Thing.objects.create(name="test thing", widget=widget)
+
+        prepare, project = pairs.unzip(
+            [
+                pairs.field("name"),
+                pairs.forward_one_to_one_relationship(
+                    "widget",
+                    Widget.objects.all(),
+                    pairs.unzip(
+                        [
+                            pairs.field("name"),
+                            pairs.reverse_one_to_one_relationship(
+                                "thing",
+                                "widget",
+                                Thing.objects.all(),
+                                pairs.unzip([pairs.field("name")]),
+                            ),
+                        ]
+                    ),
+                ),
+            ]
+        )
+
+        with self.assertNumQueries(0):
+            queryset = prepare(Thing.objects.all())
+
+        with self.assertNumQueries(3):
+            instance = queryset.first()
+
+        with self.assertNumQueries(0):
+            result = project(instance)
+
+        self.assertEqual(
+            result,
+            {
+                "name": "test thing",
+                "widget": {"name": "test widget", "thing": {"name": "test thing"}},
+            },
+        )

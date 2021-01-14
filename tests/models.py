@@ -14,3 +14,8 @@ class Widget(models.Model):
     name = models.CharField(max_length=100)
     other = models.CharField(max_length=100)
     owner = models.ForeignKey(Owner, null=True, on_delete=models.SET_NULL)
+
+
+class Thing(models.Model):
+    name = models.CharField(max_length=100)
+    widget = models.OneToOneField(Widget, null=True, on_delete=models.SET_NULL)
