@@ -1,5 +1,5 @@
 from django.test import TestCase
-from djunc import pairs, projectors, qs
+from djunc import pairs
 from tests.models import Group, Owner, Widget
 
 
@@ -35,14 +35,16 @@ class PairsTestCase(TestCase):
         prepare, project = pairs.unzip(
             [
                 pairs.field("name"),
-                (
-                    qs.prefetch_and_include_fields("owner__name", "owner__group__name"),
-                    projectors.relationship(
-                        "owner",
-                        projectors.compose(
-                            projectors.field("name"),
-                            projectors.relationship("group", projectors.field("name")),
-                        ),
+                pairs.relationship(
+                    "owner",
+                    pairs.unzip(
+                        [
+                            pairs.field("name"),
+                            pairs.relationship(
+                                "group",
+                                pairs.unzip([pairs.field("name")]),
+                            ),
+                        ]
                     ),
                 ),
             ]
