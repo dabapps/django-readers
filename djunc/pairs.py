@@ -17,15 +17,13 @@ def reverse_many_to_one_relationship(
     prepare_related_queryset, project_relationship = relationship_pair
 
     def queryset_function(queryset):
-        return qs.pipe(
-            qs.prefetch_related(
-                Prefetch(
-                    name,
-                    qs.pipe(
-                        qs.include_fields(related_name),
-                        prepare_related_queryset,
-                    )(related_queryset),
-                )
+        return qs.prefetch_related(
+            Prefetch(
+                name,
+                qs.pipe(
+                    qs.include_fields(related_name),
+                    prepare_related_queryset,
+                )(related_queryset),
             )
         )(queryset)
 
@@ -69,15 +67,13 @@ def reverse_one_to_one_relationship(
     prepare_related_queryset, project_relationship = relationship_pair
 
     def queryset_function(queryset):
-        return qs.pipe(
-            qs.prefetch_related(
-                Prefetch(
-                    name,
-                    qs.pipe(
-                        qs.include_fields(related_name),
-                        prepare_related_queryset,
-                    )(related_queryset),
-                )
+        return qs.prefetch_related(
+            Prefetch(
+                name,
+                qs.pipe(
+                    qs.include_fields(related_name),
+                    prepare_related_queryset,
+                )(related_queryset),
             )
         )(queryset)
 
