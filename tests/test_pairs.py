@@ -35,13 +35,15 @@ class PairsTestCase(TestCase):
         prepare, project = pairs.unzip(
             [
                 pairs.field("name"),
-                pairs.relationship(
+                pairs.forward_many_to_one_relationship(
                     "owner",
+                    Owner.objects.all(),
                     pairs.unzip(
                         [
                             pairs.field("name"),
-                            pairs.relationship(
+                            pairs.forward_many_to_one_relationship(
                                 "group",
+                                Group.objects.all(),
                                 pairs.unzip([pairs.field("name")]),
                             ),
                         ]
@@ -53,7 +55,8 @@ class PairsTestCase(TestCase):
         with self.assertNumQueries(0):
             queryset = prepare(Widget.objects.all())
 
-        instance = queryset.get()
+        with self.assertNumQueries(3):
+            instance = queryset.first()
 
         with self.assertNumQueries(0):
             result = project(instance)
@@ -63,5 +66,70 @@ class PairsTestCase(TestCase):
             {
                 "name": "test widget",
                 "owner": {"name": "test owner", "group": {"name": "test group"}},
+            },
+        )
+
+    def test_many_relationships(self):
+        group = Group.objects.create(name="test group")
+        owner_1 = Owner.objects.create(name="owner 1", group=group)
+        owner_2 = Owner.objects.create(name="owner 2", group=group)
+        Widget.objects.create(name="widget 1", owner=owner_1)
+        Widget.objects.create(name="widget 2", owner=owner_1)
+        Widget.objects.create(name="widget 3", owner=owner_2)
+
+        prepare, project = pairs.unzip(
+            [
+                pairs.field("name"),
+                pairs.reverse_many_to_one_relationship(
+                    "owner_set",
+                    "group",
+                    Owner.objects.all(),
+                    pairs.unzip(
+                        [
+                            pairs.field("name"),
+                            pairs.reverse_many_to_one_relationship(
+                                "widget_set",
+                                "owner",
+                                Widget.objects.all(),
+                                pairs.unzip(
+                                    [
+                                        pairs.field("name"),
+                                    ]
+                                ),
+                            ),
+                        ]
+                    ),
+                ),
+            ]
+        )
+
+        with self.assertNumQueries(0):
+            queryset = prepare(Group.objects.all())
+
+        with self.assertNumQueries(3):
+            instance = queryset.first()
+
+        with self.assertNumQueries(0):
+            result = project(instance)
+
+        self.assertEqual(
+            result,
+            {
+                "name": "test group",
+                "owner_set": [
+                    {
+                        "name": "owner 1",
+                        "widget_set": [
+                            {"name": "widget 1"},
+                            {"name": "widget 2"},
+                        ],
+                    },
+                    {
+                        "name": "owner 2",
+                        "widget_set": [
+                            {"name": "widget 3"},
+                        ],
+                    },
+                ],
             },
         )

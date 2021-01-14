@@ -11,18 +11,38 @@ def unzip(pairs):
     return qs.pipe(*prepare_fns), projectors.compose(*project_fns)
 
 
-def relationship(name, prepare_and_project_relationship):
-    prepare_related_queryset, project_relationship = prepare_and_project_relationship
+def reverse_many_to_one_relationship(
+    name, related_name, related_queryset, relationship_pair
+):
+    prepare_related_queryset, project_relationship = relationship_pair
 
     def queryset_function(queryset):
-        related_field = queryset.model._meta.get_field(name)
-        related_queryset = related_field.related_model.objects.all()
-        related_queryset = prepare_related_queryset(related_queryset)
-        prepare_main_queryset = qs.pipe(
-            qs.include_fields(name),
-            qs.prefetch_related(Prefetch(name, related_queryset)),
-        )
-        return prepare_main_queryset(queryset)
+        return qs.pipe(
+            qs.prefetch_related(
+                Prefetch(
+                    name,
+                    qs.pipe(
+                        qs.include_fields(related_name),
+                        prepare_related_queryset,
+                    )(related_queryset),
+                )
+            )
+        )(queryset)
 
-    projector = projectors.relationship(name, project_relationship)
+    projector = projectors.relationship(name, project_relationship, many=True)
+    return queryset_function, projector
+
+
+def forward_many_to_one_relationship(name, related_queryset, relationship_pair):
+    prepare_related_queryset, project_relationship = relationship_pair
+
+    def queryset_function(queryset):
+        return qs.pipe(
+            qs.include_fields(name),
+            qs.prefetch_related(
+                Prefetch(name, prepare_related_queryset(related_queryset))
+            ),
+        )(queryset)
+
+    projector = projectors.relationship(name, project_relationship, many=False)
     return queryset_function, projector
