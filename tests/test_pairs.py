@@ -27,7 +27,7 @@ class PairsTestCase(TestCase):
             ],
         )
 
-    def test_relationship(self):
+    def test_forward_many_to_one_relationship(self):
         group = Group.objects.create(name="test group")
         owner = Owner.objects.create(name="test owner", group=group)
         Widget.objects.create(name="test widget", owner=owner)
@@ -35,13 +35,13 @@ class PairsTestCase(TestCase):
         prepare, project = pairs.unzip(
             [
                 pairs.field("name"),
-                pairs.forward_many_to_one_relationship(
+                pairs.forward_relationship(
                     "owner",
                     Owner.objects.all(),
                     *pairs.unzip(
                         [
                             pairs.field("name"),
-                            pairs.forward_many_to_one_relationship(
+                            pairs.forward_relationship(
                                 "group",
                                 Group.objects.all(),
                                 *pairs.unzip([pairs.field("name")]),
@@ -69,7 +69,7 @@ class PairsTestCase(TestCase):
             },
         )
 
-    def test_many_relationships(self):
+    def test_reverse_many_to_one_relationship(self):
         group = Group.objects.create(name="test group")
         owner_1 = Owner.objects.create(name="owner 1", group=group)
         owner_2 = Owner.objects.create(name="owner 2", group=group)
@@ -80,14 +80,14 @@ class PairsTestCase(TestCase):
         prepare, project = pairs.unzip(
             [
                 pairs.field("name"),
-                pairs.reverse_many_to_one_relationship(
+                pairs.reverse_relationship(
                     "owner_set",
                     "group",
                     Owner.objects.all(),
                     *pairs.unzip(
                         [
                             pairs.field("name"),
-                            pairs.reverse_many_to_one_relationship(
+                            pairs.reverse_relationship(
                                 "widget_set",
                                 "owner",
                                 Widget.objects.all(),
@@ -141,13 +141,13 @@ class PairsTestCase(TestCase):
         prepare, project = pairs.unzip(
             [
                 pairs.field("name"),
-                pairs.forward_one_to_one_relationship(
+                pairs.forward_relationship(
                     "widget",
                     Widget.objects.all(),
                     *pairs.unzip(
                         [
                             pairs.field("name"),
-                            pairs.reverse_one_to_one_relationship(
+                            pairs.reverse_relationship(
                                 "thing",
                                 "widget",
                                 Thing.objects.all(),

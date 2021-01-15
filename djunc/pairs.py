@@ -36,15 +36,17 @@ ManyToManyFields are symmetrical, so the latter two collapse down to the same th
 The forward one-to-one and many-to-one are identical as they both relate a single
 related object to the main object. The reverse one-to-one and many-to-one are identical
 except the former relates the main object to a single related object, and the latter
-relates the main object to many related objects.
+relates the main object to many related objects. Because the projectors.relationship
+function already infers whether to iterate or project a single instance, we can collapse
+these two functions into one as well.
 
-There is a function for manually specifying each of these relationship types, and then
+There are functions for forward, reverse or many-to-many relationships, and then
 an `auto_relationship` function which selects the correct one by introspecting the
-relationships.
+model.
 """
 
 
-def _forward_relationship(
+def forward_relationship(
     name, related_queryset, prepare_related_queryset, project_relationship
 ):
     related_queryset = prepare_related_queryset(related_queryset)
@@ -52,7 +54,7 @@ def _forward_relationship(
     return queryset_function, projectors.relationship(name, project_relationship)
 
 
-def _reverse_relationship(
+def reverse_relationship(
     name, related_name, related_queryset, prepare_related_queryset, project_relationship
 ):
     related_queryset = prepare_related_queryset(related_queryset)
@@ -60,12 +62,6 @@ def _reverse_relationship(
         name, related_name, related_queryset
     )
     return queryset_function, projectors.relationship(name, project_relationship)
-
-
-forward_one_to_one_relationship = _forward_relationship
-forward_many_to_one_relationship = _forward_relationship
-reverse_one_to_one_relationship = _reverse_relationship
-reverse_many_to_one_relationship = _reverse_relationship
 
 
 def many_to_many_relationship(
@@ -82,21 +78,21 @@ def auto_relationship(name, prepare_related_queryset, project_relationship):
         related_descriptor = getattr(queryset.model, name)
 
         if type(related_descriptor) is ForwardOneToOneDescriptor:
-            inferred_queryset_function, _ = forward_one_to_one_relationship(
+            inferred_queryset_function, _ = forward_relationship(
                 name,
                 related_descriptor.field.related_model.objects.all(),
                 prepare_related_queryset,
                 project_relationship,
             )
         if type(related_descriptor) is ForwardManyToOneDescriptor:
-            inferred_queryset_function, _ = forward_many_to_one_relationship(
+            inferred_queryset_function, _ = forward_relationship(
                 name,
                 related_descriptor.field.related_model.objects.all(),
                 prepare_related_queryset,
                 project_relationship,
             )
         if type(related_descriptor) is ReverseOneToOneDescriptor:
-            inferred_queryset_function, _ = reverse_one_to_one_relationship(
+            inferred_queryset_function, _ = reverse_relationship(
                 name,
                 related_descriptor.related.field.name,
                 related_descriptor.related.field.model.objects.all(),
@@ -104,7 +100,7 @@ def auto_relationship(name, prepare_related_queryset, project_relationship):
                 project_relationship,
             )
         if type(related_descriptor) is ReverseManyToOneDescriptor:
-            inferred_queryset_function, _ = reverse_many_to_one_relationship(
+            inferred_queryset_function, _ = reverse_relationship(
                 name,
                 related_descriptor.rel.field.name,
                 related_descriptor.rel.field.model.objects.all(),
