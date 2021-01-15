@@ -1,6 +1,6 @@
 from django.test import TestCase
 from djunc import spec
-from tests.models import Widget
+from tests.models import Category, Owner, Thing, Widget
 
 
 class SpecTestCase(TestCase):
@@ -20,4 +20,44 @@ class SpecTestCase(TestCase):
                 {"name": "second", "other": "other-second"},
                 {"name": "third", "other": "other-third"},
             ],
+        )
+
+    def test_relationships(self):
+        owner = Owner.objects.create(name="test owner")
+        widget = Widget.objects.create(name="test widget", owner=owner)
+        category = Category.objects.create(name="test category")
+        category.widget_set.add(widget)
+        Thing.objects.create(name="test thing", widget=widget)
+
+        prepare, project = spec.process(
+            [
+                "name",
+                {"owner": ["name", {"widget_set": ["name"]}]},
+                {"category_set": ["name", {"widget_set": ["name"]}]},
+                {"thing": ["name", {"widget": ["name"]}]},
+            ]
+        )
+
+        with self.assertNumQueries(0):
+            queryset = prepare(Widget.objects.all())
+
+        with self.assertNumQueries(7):
+            instance = queryset.first()
+
+        with self.assertNumQueries(0):
+            result = project(instance)
+
+        self.assertEqual(
+            result,
+            {
+                "name": "test widget",
+                "owner": {
+                    "name": "test owner",
+                    "widget_set": [{"name": "test widget"}],
+                },
+                "category_set": [
+                    {"name": "test category", "widget_set": [{"name": "test widget"}]},
+                ],
+                "thing": {"name": "test thing", "widget": {"name": "test widget"}},
+            },
         )
