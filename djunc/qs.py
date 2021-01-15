@@ -1,7 +1,7 @@
 from django.db.models import Prefetch, QuerySet
 
 
-def method_to_function(method):
+def _method_to_function(method):
     def make_function(*args, **kwargs):
         def function(queryset):
             return method(queryset, *args, **kwargs)
@@ -11,18 +11,18 @@ def method_to_function(method):
     return make_function
 
 
-filter = method_to_function(QuerySet.filter)
-all = noop = method_to_function(QuerySet.all)
-exclude = method_to_function(QuerySet.exclude)
-select_related = method_to_function(QuerySet.select_related)
-prefetch_related = method_to_function(QuerySet.prefetch_related)
-annotate = method_to_function(QuerySet.annotate)
-order_by = method_to_function(QuerySet.order_by)
-distinct = method_to_function(QuerySet.distinct)
-extra = method_to_function(QuerySet.extra)
-defer = method_to_function(QuerySet.defer)
-only = method_to_function(QuerySet.only)
-using = method_to_function(QuerySet.using)
+filter = _method_to_function(QuerySet.filter)
+all = noop = _method_to_function(QuerySet.all)
+exclude = _method_to_function(QuerySet.exclude)
+select_related = _method_to_function(QuerySet.select_related)
+prefetch_related = _method_to_function(QuerySet.prefetch_related)
+annotate = _method_to_function(QuerySet.annotate)
+order_by = _method_to_function(QuerySet.order_by)
+distinct = _method_to_function(QuerySet.distinct)
+extra = _method_to_function(QuerySet.extra)
+defer = _method_to_function(QuerySet.defer)
+only = _method_to_function(QuerySet.only)
+using = _method_to_function(QuerySet.using)
 
 
 def include_fields(*fields):
