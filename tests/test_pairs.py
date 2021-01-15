@@ -290,3 +290,37 @@ class PairsTestCase(TestCase):
                 "thing": {"name": "test thing", "widget": {"name": "test widget"}},
             },
         )
+
+    def test_alias(self):
+        owner = Owner.objects.create(name="test owner")
+        Widget.objects.create(name="test widget", owner=owner)
+
+        prepare, project = pairs.unzip(
+            [
+                pairs.alias(pairs.field("name"), {"name": "name_alias"}),
+                pairs.alias(
+                    pairs.auto_relationship(
+                        "widget_set",
+                        *pairs.unzip(
+                            [
+                                pairs.alias(pairs.field("name"), {"name": "alias"}),
+                            ]
+                        ),
+                    ),
+                    {"widget_set": "widgets"},
+                ),
+            ]
+        )
+
+        with self.assertNumQueries(0):
+            queryset = prepare(Owner.objects.all())
+
+        with self.assertNumQueries(2):
+            instance = queryset.first()
+
+        with self.assertNumQueries(0):
+            result = project(instance)
+
+        self.assertEqual(
+            result, {"name_alias": "test owner", "widgets": [{"alias": "test widget"}]}
+        )

@@ -17,6 +17,11 @@ def unzip(pairs):
     return qs.pipe(*prepare_fns), projectors.compose(*project_fns)
 
 
+def alias(pair, aliases):
+    queryset_function, projector = pair
+    return queryset_function, projectors.alias(projector, aliases)
+
+
 """
 Below are functions which return pairs that use `prefetch_related` to efficiently load
 related objects, and then project those related objects. We use `prefetch_related` to
