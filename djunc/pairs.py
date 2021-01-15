@@ -16,16 +16,15 @@ def reverse_many_to_one_relationship(
 ):
     prepare_related_queryset, project_relationship = relationship_pair
 
-    def queryset_function(queryset):
-        return qs.prefetch_related(
-            Prefetch(
-                name,
-                qs.pipe(
-                    qs.include_fields(related_name),
-                    prepare_related_queryset,
-                )(related_queryset),
-            )
-        )(queryset)
+    queryset_function = qs.prefetch_related(
+        Prefetch(
+            name,
+            qs.pipe(
+                qs.include_fields(related_name),
+                prepare_related_queryset,
+            )(related_queryset),
+        )
+    )
 
     projector = projectors.relationship(name, project_relationship, many=True)
     return queryset_function, projector
@@ -34,13 +33,10 @@ def reverse_many_to_one_relationship(
 def forward_many_to_one_relationship(name, related_queryset, relationship_pair):
     prepare_related_queryset, project_relationship = relationship_pair
 
-    def queryset_function(queryset):
-        return qs.pipe(
-            qs.include_fields(name),
-            qs.prefetch_related(
-                Prefetch(name, prepare_related_queryset(related_queryset))
-            ),
-        )(queryset)
+    queryset_function = qs.pipe(
+        qs.include_fields(name),
+        qs.prefetch_related(Prefetch(name, prepare_related_queryset(related_queryset))),
+    )
 
     projector = projectors.relationship(name, project_relationship, many=False)
     return queryset_function, projector
@@ -49,13 +45,10 @@ def forward_many_to_one_relationship(name, related_queryset, relationship_pair):
 def forward_one_to_one_relationship(name, related_queryset, relationship_pair):
     prepare_related_queryset, project_relationship = relationship_pair
 
-    def queryset_function(queryset):
-        return qs.pipe(
-            qs.include_fields(name),
-            qs.prefetch_related(
-                Prefetch(name, prepare_related_queryset(related_queryset))
-            ),
-        )(queryset)
+    queryset_function = qs.pipe(
+        qs.include_fields(name),
+        qs.prefetch_related(Prefetch(name, prepare_related_queryset(related_queryset))),
+    )
 
     projector = projectors.relationship(name, project_relationship, many=False)
     return queryset_function, projector
@@ -66,16 +59,15 @@ def reverse_one_to_one_relationship(
 ):
     prepare_related_queryset, project_relationship = relationship_pair
 
-    def queryset_function(queryset):
-        return qs.prefetch_related(
-            Prefetch(
-                name,
-                qs.pipe(
-                    qs.include_fields(related_name),
-                    prepare_related_queryset,
-                )(related_queryset),
-            )
-        )(queryset)
+    queryset_function = qs.prefetch_related(
+        Prefetch(
+            name,
+            qs.pipe(
+                qs.include_fields(related_name),
+                prepare_related_queryset,
+            )(related_queryset),
+        )
+    )
 
     projector = projectors.relationship(name, project_relationship, many=False)
     return queryset_function, projector
@@ -84,10 +76,9 @@ def reverse_one_to_one_relationship(
 def many_to_many_relationship(name, related_queryset, relationship_pair):
     prepare_related_queryset, project_relationship = relationship_pair
 
-    def queryset_function(queryset):
-        return qs.prefetch_related(
-            Prefetch(name, prepare_related_queryset(related_queryset))
-        )(queryset)
+    queryset_function = qs.prefetch_related(
+        Prefetch(name, prepare_related_queryset(related_queryset))
+    )
 
     projector = projectors.relationship(name, project_relationship, many=True)
     return queryset_function, projector
