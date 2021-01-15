@@ -127,12 +127,11 @@ def auto_relationship(name, relationship_pair):
                 relationship_pair,
             )
         if type(related_descriptor) is ManyToManyDescriptor:
-            if not related_descriptor.reverse:
-                related_queryset = (
-                    related_descriptor.rel.field.target_field.model.objects.all()
-                )
+            field = related_descriptor.rel.field
+            if related_descriptor.reverse:
+                related_queryset = field.model.objects.all()
             else:
-                related_queryset = related_descriptor.rel.field.model.objects.all()
+                related_queryset = field.target_field.model.objects.all()
             (
                 inferred_queryset_function,
                 inferred_projector,
