@@ -74,39 +74,38 @@ def many_to_many_relationship(
 
 def auto_relationship(name, prepare_related_queryset, project_relationship):
     def queryset_function(queryset):
-        inferred_queryset_function = None
         related_descriptor = getattr(queryset.model, name)
 
         if type(related_descriptor) is ForwardOneToOneDescriptor:
-            inferred_queryset_function = qs.prefetch_forward_relationship(
+            return qs.prefetch_forward_relationship(
                 name,
                 prepare_related_queryset(
                     related_descriptor.field.related_model.objects.all()
                 ),
-            )
+            )(queryset)
         if type(related_descriptor) is ForwardManyToOneDescriptor:
-            inferred_queryset_function = qs.prefetch_forward_relationship(
+            return qs.prefetch_forward_relationship(
                 name,
                 prepare_related_queryset(
                     related_descriptor.field.related_model.objects.all()
                 ),
-            )
+            )(queryset)
         if type(related_descriptor) is ReverseOneToOneDescriptor:
-            inferred_queryset_function = qs.prefetch_reverse_relationship(
+            return qs.prefetch_reverse_relationship(
                 name,
                 related_descriptor.related.field.name,
                 prepare_related_queryset(
                     related_descriptor.related.field.model.objects.all()
                 ),
-            )
+            )(queryset)
         if type(related_descriptor) is ReverseManyToOneDescriptor:
-            inferred_queryset_function = qs.prefetch_reverse_relationship(
+            return qs.prefetch_reverse_relationship(
                 name,
                 related_descriptor.rel.field.name,
                 prepare_related_queryset(
                     related_descriptor.rel.field.model.objects.all()
                 ),
-            )
+            )(queryset)
         if type(related_descriptor) is ManyToManyDescriptor:
             field = related_descriptor.rel.field
             if related_descriptor.reverse:
@@ -114,10 +113,9 @@ def auto_relationship(name, prepare_related_queryset, project_relationship):
             else:
                 related_queryset = field.target_field.model.objects.all()
 
-            inferred_queryset_function = qs.prefetch_many_to_many_relationship(
+            return qs.prefetch_many_to_many_relationship(
                 name,
                 prepare_related_queryset(related_queryset),
-            )
-        return inferred_queryset_function(queryset)
+            )(queryset)
 
     return queryset_function, projectors.relationship(name, project_relationship)
