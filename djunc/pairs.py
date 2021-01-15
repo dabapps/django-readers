@@ -1,4 +1,3 @@
-from django.db.models import Prefetch
 from djunc import projectors, qs
 
 
@@ -35,15 +34,8 @@ def forward_many_to_one_relationship(name, related_queryset, relationship_pair):
     return queryset_function, projector
 
 
-def forward_one_to_one_relationship(name, related_queryset, relationship_pair):
-    prepare_related_queryset, project_relationship = relationship_pair
-
-    queryset_function = qs.prefetch_forward_relationship(
-        name, prepare_related_queryset(related_queryset)
-    )
-
-    projector = projectors.relationship(name, project_relationship, many=False)
-    return queryset_function, projector
+# These are identical
+forward_one_to_one_relationship = forward_many_to_one_relationship
 
 
 def reverse_one_to_one_relationship(
