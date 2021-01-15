@@ -38,13 +38,13 @@ class PairsTestCase(TestCase):
                 pairs.forward_many_to_one_relationship(
                     "owner",
                     Owner.objects.all(),
-                    pairs.unzip(
+                    *pairs.unzip(
                         [
                             pairs.field("name"),
                             pairs.forward_many_to_one_relationship(
                                 "group",
                                 Group.objects.all(),
-                                pairs.unzip([pairs.field("name")]),
+                                *pairs.unzip([pairs.field("name")]),
                             ),
                         ]
                     ),
@@ -84,14 +84,14 @@ class PairsTestCase(TestCase):
                     "owner_set",
                     "group",
                     Owner.objects.all(),
-                    pairs.unzip(
+                    *pairs.unzip(
                         [
                             pairs.field("name"),
                             pairs.reverse_many_to_one_relationship(
                                 "widget_set",
                                 "owner",
                                 Widget.objects.all(),
-                                pairs.unzip(
+                                *pairs.unzip(
                                     [
                                         pairs.field("name"),
                                     ]
@@ -144,14 +144,14 @@ class PairsTestCase(TestCase):
                 pairs.forward_one_to_one_relationship(
                     "widget",
                     Widget.objects.all(),
-                    pairs.unzip(
+                    *pairs.unzip(
                         [
                             pairs.field("name"),
                             pairs.reverse_one_to_one_relationship(
                                 "thing",
                                 "widget",
                                 Thing.objects.all(),
-                                pairs.unzip([pairs.field("name")]),
+                                *pairs.unzip([pairs.field("name")]),
                             ),
                         ]
                     ),
@@ -187,13 +187,13 @@ class PairsTestCase(TestCase):
                 pairs.many_to_many_relationship(
                     "widget_set",
                     Widget.objects.all(),
-                    pairs.unzip(
+                    *pairs.unzip(
                         [
                             pairs.field("name"),
                             pairs.many_to_many_relationship(
                                 "category_set",
                                 Category.objects.all(),
-                                pairs.unzip([pairs.field("name")]),
+                                *pairs.unzip([pairs.field("name")]),
                             ),
                         ]
                     ),
@@ -232,34 +232,34 @@ class PairsTestCase(TestCase):
                 pairs.field("name"),
                 pairs.auto_relationship(
                     "owner",
-                    pairs.unzip(
+                    *pairs.unzip(
                         [
                             pairs.field("name"),
                             pairs.auto_relationship(
                                 "widget_set",
-                                pairs.unzip([pairs.field("name")]),
+                                *pairs.unzip([pairs.field("name")]),
                             ),
                         ]
                     ),
                 ),
                 pairs.auto_relationship(
                     "category_set",
-                    pairs.unzip(
+                    *pairs.unzip(
                         [
                             pairs.field("name"),
                             pairs.auto_relationship(
-                                "widget_set", pairs.unzip([pairs.field("name")])
+                                "widget_set", *pairs.unzip([pairs.field("name")])
                             ),
                         ]
                     ),
                 ),
                 pairs.auto_relationship(
                     "thing",
-                    pairs.unzip(
+                    *pairs.unzip(
                         [
                             pairs.field("name"),
                             pairs.auto_relationship(
-                                "widget", pairs.unzip([pairs.field("name")])
+                                "widget", *pairs.unzip([pairs.field("name")])
                             ),
                         ]
                     ),
