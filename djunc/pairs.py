@@ -76,14 +76,10 @@ def auto_relationship(name, prepare_related_queryset, project_relationship):
     def queryset_function(queryset):
         related_descriptor = getattr(queryset.model, name)
 
-        if type(related_descriptor) is ForwardOneToOneDescriptor:
-            return qs.prefetch_forward_relationship(
-                name,
-                prepare_related_queryset(
-                    related_descriptor.field.related_model.objects.all()
-                ),
-            )(queryset)
-        if type(related_descriptor) is ForwardManyToOneDescriptor:
+        if type(related_descriptor) in (
+            ForwardOneToOneDescriptor,
+            ForwardManyToOneDescriptor,
+        ):
             return qs.prefetch_forward_relationship(
                 name,
                 prepare_related_queryset(
