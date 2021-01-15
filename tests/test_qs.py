@@ -25,3 +25,10 @@ class QuerySetTestCase(TestCase):
 
         self.assertEqual(queryset.count(), 1)
         self.assertEqual(queryset.get().name, "first")
+
+    def test_noop(self):
+        queryset = Widget.objects.all()
+        before = str(queryset.query)
+        queryset = qs.noop(queryset)
+        after = str(queryset.query)
+        self.assertEqual(before, after)

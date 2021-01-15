@@ -12,7 +12,7 @@ def _method_to_function(method):
 
 
 filter = _method_to_function(QuerySet.filter)
-all = noop = _method_to_function(QuerySet.all)
+all = _method_to_function(QuerySet.all)
 exclude = _method_to_function(QuerySet.exclude)
 select_related = _method_to_function(QuerySet.select_related)
 prefetch_related = _method_to_function(QuerySet.prefetch_related)
@@ -23,6 +23,9 @@ extra = _method_to_function(QuerySet.extra)
 defer = _method_to_function(QuerySet.defer)
 only = _method_to_function(QuerySet.only)
 using = _method_to_function(QuerySet.using)
+
+
+noop = all()  # a queryset function that does nothing
 
 
 def include_fields(*fields):
