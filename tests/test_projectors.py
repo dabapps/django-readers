@@ -71,11 +71,8 @@ class RelationshipTestCase(TestCase):
                 "owner_set",
                 projectors.compose(
                     projectors.field("name"),
-                    projectors.relationship(
-                        "widget_set", projectors.field("name"), many=True
-                    ),
+                    projectors.relationship("widget_set", projectors.field("name")),
                 ),
-                many=True,
             ),
         )
 

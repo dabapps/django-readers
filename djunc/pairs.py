@@ -48,79 +48,59 @@ def _forward_relationship(name, related_queryset, relationship_pair):
     prepare_related_queryset, project_relationship = relationship_pair
     related_queryset = prepare_related_queryset(related_queryset)
     queryset_function = qs.prefetch_forward_relationship(name, related_queryset)
-    projector = projectors.relationship(name, project_relationship, many=False)
-    return queryset_function, projector
+    return queryset_function, projectors.relationship(name, project_relationship)
 
 
-def _make_reverse_relationship(many):
-    def reverse_relationship(name, related_name, related_queryset, relationship_pair):
-        prepare_related_queryset, project_relationship = relationship_pair
-        related_queryset = prepare_related_queryset(related_queryset)
-        queryset_function = qs.prefetch_reverse_relationship(
-            name, related_name, related_queryset
-        )
-        projector = projectors.relationship(name, project_relationship, many=many)
-        return queryset_function, projector
-
-    return reverse_relationship
+def _reverse_relationship(name, related_name, related_queryset, relationship_pair):
+    prepare_related_queryset, project_relationship = relationship_pair
+    related_queryset = prepare_related_queryset(related_queryset)
+    queryset_function = qs.prefetch_reverse_relationship(
+        name, related_name, related_queryset
+    )
+    return queryset_function, projectors.relationship(name, project_relationship)
 
 
 forward_one_to_one_relationship = _forward_relationship
 forward_many_to_one_relationship = _forward_relationship
-reverse_one_to_one_relationship = _make_reverse_relationship(many=False)
-reverse_many_to_one_relationship = _make_reverse_relationship(many=True)
+reverse_one_to_one_relationship = _reverse_relationship
+reverse_many_to_one_relationship = _reverse_relationship
 
 
 def many_to_many_relationship(name, related_queryset, relationship_pair):
     prepare_related_queryset, project_relationship = relationship_pair
     related_queryset = prepare_related_queryset(related_queryset)
     queryset_function = qs.prefetch_many_to_many_relationship(name, related_queryset)
-    projector = projectors.relationship(name, project_relationship, many=True)
-    return queryset_function, projector
+    return queryset_function, projectors.relationship(name, project_relationship)
 
 
 def auto_relationship(name, relationship_pair):
-    inferred_projector = None
+    _, project_relationship = relationship_pair
 
     def queryset_function(queryset):
-        nonlocal inferred_projector
         inferred_queryset_function = None
-
         related_descriptor = getattr(queryset.model, name)
 
         if type(related_descriptor) is ForwardOneToOneDescriptor:
-            (
-                inferred_queryset_function,
-                inferred_projector,
-            ) = forward_one_to_one_relationship(
+            inferred_queryset_function, _ = forward_one_to_one_relationship(
                 name,
                 related_descriptor.field.related_model.objects.all(),
                 relationship_pair,
             )
         if type(related_descriptor) is ForwardManyToOneDescriptor:
-            (
-                inferred_queryset_function,
-                inferred_projector,
-            ) = forward_many_to_one_relationship(
+            inferred_queryset_function, _ = forward_many_to_one_relationship(
                 name,
                 related_descriptor.field.related_model.objects.all(),
                 relationship_pair,
             )
         if type(related_descriptor) is ReverseOneToOneDescriptor:
-            (
-                inferred_queryset_function,
-                inferred_projector,
-            ) = reverse_one_to_one_relationship(
+            inferred_queryset_function, _ = reverse_one_to_one_relationship(
                 name,
                 related_descriptor.related.field.name,
                 related_descriptor.related.field.model.objects.all(),
                 relationship_pair,
             )
         if type(related_descriptor) is ReverseManyToOneDescriptor:
-            (
-                inferred_queryset_function,
-                inferred_projector,
-            ) = reverse_many_to_one_relationship(
+            inferred_queryset_function, _ = reverse_many_to_one_relationship(
                 name,
                 related_descriptor.rel.field.name,
                 related_descriptor.rel.field.model.objects.all(),
@@ -132,17 +112,12 @@ def auto_relationship(name, relationship_pair):
                 related_queryset = field.model.objects.all()
             else:
                 related_queryset = field.target_field.model.objects.all()
-            (
-                inferred_queryset_function,
-                inferred_projector,
-            ) = many_to_many_relationship(
+
+            inferred_queryset_function, _ = many_to_many_relationship(
                 name,
                 related_queryset,
                 relationship_pair,
             )
         return inferred_queryset_function(queryset)
 
-    def projector(instance):
-        return inferred_projector(instance)
-
-    return queryset_function, projector
+    return queryset_function, projectors.relationship(name, project_relationship)
