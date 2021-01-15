@@ -1,4 +1,4 @@
-from django.db.models import QuerySet
+from django.db.models import Prefetch, QuerySet
 
 
 def method_to_function(method):
@@ -40,3 +40,39 @@ def pipe(*fns):
         return queryset
 
     return queryset_function
+
+
+def prefetch_forward_relationship(name, related_queryset):
+    """
+    Efficiently prefetch a forward relationship (ie one where the field on the "parent"
+    queryset is a concrete field). We need to include this field in the query.
+    """
+    return pipe(
+        include_fields(name),
+        prefetch_related(Prefetch(name, related_queryset)),
+    )
+
+
+def prefetch_reverse_relationship(name, related_name, related_queryset):
+    """
+    Efficiently prefetch a reverse relationship (ie one where the field on the "parent"
+    queryset is not a concrete field - a foreign key from another object points at it).
+    We need the `related_name` (ie the name of the relationship field on the related
+    object) so that we can include this field in the query for the related objects,
+    as Django will need it when it comes to stitch them together.
+    """
+    return prefetch_related(
+        Prefetch(
+            name,
+            include_fields(related_name)(related_queryset),
+        )
+    )
+
+
+def prefetch_many_to_many_relationship(name, related_queryset):
+    """
+    For many-to-many relationships, both sides of the relationship are non-concrete,
+    so we don't need to do anything special with including fields. They are also
+    symmetrical, so no need to differentiate between forward and reverse direction.
+    """
+    return prefetch_related(Prefetch(name, related_queryset))
