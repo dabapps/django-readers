@@ -50,3 +50,7 @@ def alias(projector, aliases):
         return projected
 
     return aliaser
+
+
+def noop(instance):
+    return {}

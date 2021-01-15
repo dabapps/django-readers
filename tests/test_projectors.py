@@ -19,8 +19,12 @@ class ProjectorTestCase(TestCase):
         result = project(widget)
         self.assertEqual(result, {"name": "test", "other": "other"})
 
+    def test_noop(self):
+        widget = Widget.objects.create(name="test")
+        project = projectors.noop
+        result = project(widget)
+        self.assertEqual(result, {})
 
-class AliasTestCase(TestCase):
     def test_alias(self):
         widget = Widget.objects.create(name="test")
         project = projectors.alias(projectors.field("name"), {"name": "new_name"})
