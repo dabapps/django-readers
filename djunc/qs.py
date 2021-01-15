@@ -2,13 +2,13 @@ from django.db.models import Prefetch, QuerySet
 
 
 def method_to_function(method):
-    def make_queryset_function(*args, **kwargs):
-        def queryset_function(queryset):
+    def make_function(*args, **kwargs):
+        def function(queryset):
             return method(queryset, *args, **kwargs)
 
-        return queryset_function
+        return function
 
-    return make_queryset_function
+    return make_function
 
 
 filter = method_to_function(QuerySet.filter)
@@ -26,20 +26,20 @@ using = method_to_function(QuerySet.using)
 
 
 def include_fields(*fields):
-    def queryset_function(queryset):
+    def fields_included(queryset):
         """ Extend an already-`.only()`d queryset with more fields """
         return queryset.only(*queryset.query.deferred_loading[0], *fields)
 
-    return queryset_function
+    return fields_included
 
 
 def pipe(*fns):
-    def queryset_function(queryset):
+    def piped(queryset):
         for fn in fns:
             queryset = fn(queryset)
         return queryset
 
-    return queryset_function
+    return piped
 
 
 def prefetch_forward_relationship(name, related_queryset):

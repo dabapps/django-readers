@@ -15,13 +15,13 @@ class QuerySetTestCase(TestCase):
         for name in ["first", "second", "third"]:
             Widget.objects.create(name=name)
 
-        queryset_function = qs.pipe(
+        prepare = qs.pipe(
             qs.filter(name__in=["first", "third"]),
             qs.exclude(name="third"),
             qs.include_fields("name"),
         )
 
-        queryset = queryset_function(Widget.objects.all())
+        queryset = prepare(Widget.objects.all())
 
         self.assertEqual(queryset.count(), 1)
         self.assertEqual(queryset.get().name, "first")

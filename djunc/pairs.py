@@ -18,8 +18,8 @@ def combine(*pairs):
 
 
 def alias(pair, aliases):
-    queryset_function, projector = pair
-    return queryset_function, projectors.alias(projector, aliases)
+    prepare, project = pair
+    return prepare, projectors.alias(project, aliases)
 
 
 """
@@ -55,30 +55,28 @@ def forward_relationship(
     name, related_queryset, prepare_related_queryset, project_relationship
 ):
     related_queryset = prepare_related_queryset(related_queryset)
-    queryset_function = qs.prefetch_forward_relationship(name, related_queryset)
-    return queryset_function, projectors.relationship(name, project_relationship)
+    prepare = qs.prefetch_forward_relationship(name, related_queryset)
+    return prepare, projectors.relationship(name, project_relationship)
 
 
 def reverse_relationship(
     name, related_name, related_queryset, prepare_related_queryset, project_relationship
 ):
     related_queryset = prepare_related_queryset(related_queryset)
-    queryset_function = qs.prefetch_reverse_relationship(
-        name, related_name, related_queryset
-    )
-    return queryset_function, projectors.relationship(name, project_relationship)
+    prepare = qs.prefetch_reverse_relationship(name, related_name, related_queryset)
+    return prepare, projectors.relationship(name, project_relationship)
 
 
 def many_to_many_relationship(
     name, related_queryset, prepare_related_queryset, project_relationship
 ):
     related_queryset = prepare_related_queryset(related_queryset)
-    queryset_function = qs.prefetch_many_to_many_relationship(name, related_queryset)
-    return queryset_function, projectors.relationship(name, project_relationship)
+    prepare = qs.prefetch_many_to_many_relationship(name, related_queryset)
+    return prepare, projectors.relationship(name, project_relationship)
 
 
 def auto_relationship(name, prepare_related_queryset, project_relationship):
-    def queryset_function(queryset):
+    def prepare(queryset):
         related_descriptor = getattr(queryset.model, name)
 
         if type(related_descriptor) in (
@@ -119,4 +117,4 @@ def auto_relationship(name, prepare_related_queryset, project_relationship):
                 prepare_related_queryset(related_queryset),
             )(queryset)
 
-    return queryset_function, projectors.relationship(name, project_relationship)
+    return prepare, projectors.relationship(name, project_relationship)
