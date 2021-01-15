@@ -179,13 +179,13 @@ class PairsTestCase(TestCase):
     def test_many_to_many_relationship(self):
         widget = Widget.objects.create(name="test widget")
         category = Category.objects.create(name="test category")
-        category.widgets.add(widget)
+        category.widget_set.add(widget)
 
         prepare, project = pairs.unzip(
             [
                 pairs.field("name"),
                 pairs.many_to_many_relationship(
-                    "widgets",
+                    "widget_set",
                     Widget.objects.all(),
                     pairs.unzip(
                         [
@@ -214,8 +214,79 @@ class PairsTestCase(TestCase):
             result,
             {
                 "name": "test category",
-                "widgets": [
+                "widget_set": [
                     {"name": "test widget", "category_set": [{"name": "test category"}]}
                 ],
+            },
+        )
+
+    def test_auto_relationship(self):
+        owner = Owner.objects.create(name="test owner")
+        widget = Widget.objects.create(name="test widget", owner=owner)
+        category = Category.objects.create(name="test category")
+        category.widget_set.add(widget)
+        Thing.objects.create(name="test thing", widget=widget)
+
+        prepare, project = pairs.unzip(
+            [
+                pairs.field("name"),
+                pairs.auto_relationship(
+                    "owner",
+                    pairs.unzip(
+                        [
+                            pairs.field("name"),
+                            pairs.auto_relationship(
+                                "widget_set",
+                                pairs.unzip([pairs.field("name")]),
+                            ),
+                        ]
+                    ),
+                ),
+                pairs.auto_relationship(
+                    "category_set",
+                    pairs.unzip(
+                        [
+                            pairs.field("name"),
+                            pairs.auto_relationship(
+                                "widget_set", pairs.unzip([pairs.field("name")])
+                            ),
+                        ]
+                    ),
+                ),
+                pairs.auto_relationship(
+                    "thing",
+                    pairs.unzip(
+                        [
+                            pairs.field("name"),
+                            pairs.auto_relationship(
+                                "widget", pairs.unzip([pairs.field("name")])
+                            ),
+                        ]
+                    ),
+                ),
+            ]
+        )
+
+        with self.assertNumQueries(0):
+            queryset = prepare(Widget.objects.all())
+
+        with self.assertNumQueries(7):
+            instance = queryset.first()
+
+        with self.assertNumQueries(0):
+            result = project(instance)
+
+        self.assertEqual(
+            result,
+            {
+                "name": "test widget",
+                "owner": {
+                    "name": "test owner",
+                    "widget_set": [{"name": "test widget"}],
+                },
+                "category_set": [
+                    {"name": "test category", "widget_set": [{"name": "test widget"}]},
+                ],
+                "thing": {"name": "test thing", "widget": {"name": "test widget"}},
             },
         )

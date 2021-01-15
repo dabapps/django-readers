@@ -1,3 +1,10 @@
+from django.db.models.fields.related_descriptors import (
+    ForwardManyToOneDescriptor,
+    ForwardOneToOneDescriptor,
+    ManyToManyDescriptor,
+    ReverseManyToOneDescriptor,
+    ReverseOneToOneDescriptor,
+)
 from djunc import projectors, qs
 
 
@@ -69,4 +76,74 @@ def many_to_many_relationship(name, related_queryset, relationship_pair):
     related_queryset = prepare_related_queryset(related_queryset)
     queryset_function = qs.prefetch_many_to_many_relationship(name, related_queryset)
     projector = projectors.relationship(name, project_relationship, many=True)
+    return queryset_function, projector
+
+
+def auto_relationship(name, relationship_pair):
+    inferred_projector = None
+
+    def queryset_function(queryset):
+        nonlocal inferred_projector
+        inferred_queryset_function = None
+
+        related_descriptor = getattr(queryset.model, name)
+
+        if type(related_descriptor) is ForwardOneToOneDescriptor:
+            (
+                inferred_queryset_function,
+                inferred_projector,
+            ) = forward_one_to_one_relationship(
+                name,
+                related_descriptor.field.related_model.objects.all(),
+                relationship_pair,
+            )
+        if type(related_descriptor) is ForwardManyToOneDescriptor:
+            (
+                inferred_queryset_function,
+                inferred_projector,
+            ) = forward_many_to_one_relationship(
+                name,
+                related_descriptor.field.related_model.objects.all(),
+                relationship_pair,
+            )
+        if type(related_descriptor) is ReverseOneToOneDescriptor:
+            (
+                inferred_queryset_function,
+                inferred_projector,
+            ) = reverse_one_to_one_relationship(
+                name,
+                related_descriptor.related.field.name,
+                related_descriptor.related.field.model.objects.all(),
+                relationship_pair,
+            )
+        if type(related_descriptor) is ReverseManyToOneDescriptor:
+            (
+                inferred_queryset_function,
+                inferred_projector,
+            ) = reverse_many_to_one_relationship(
+                name,
+                related_descriptor.rel.field.name,
+                related_descriptor.rel.field.model.objects.all(),
+                relationship_pair,
+            )
+        if type(related_descriptor) is ManyToManyDescriptor:
+            if not related_descriptor.reverse:
+                related_queryset = (
+                    related_descriptor.rel.field.target_field.model.objects.all()
+                )
+            else:
+                related_queryset = related_descriptor.rel.field.model.objects.all()
+            (
+                inferred_queryset_function,
+                inferred_projector,
+            ) = many_to_many_relationship(
+                name,
+                related_queryset,
+                relationship_pair,
+            )
+        return inferred_queryset_function(queryset)
+
+    def projector(instance):
+        return inferred_projector(instance)
+
     return queryset_function, projector
