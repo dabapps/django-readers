@@ -6,17 +6,17 @@ from tests.models import Group, Owner, Widget
 class ProjectorTestCase(TestCase):
     def test_field(self):
         widget = Widget.objects.create(name="test")
-        projector = projectors.field("name")
-        result = projector(widget)
+        project = projectors.field("name")
+        result = project(widget)
         self.assertEqual(result, {"name": "test"})
 
-    def test_compose(self):
+    def test_combine(self):
         widget = Widget.objects.create(name="test", other="other")
-        projector = projectors.compose(
+        project = projectors.combine(
             projectors.field("name"),
             projectors.field("other"),
         )
-        result = projector(widget)
+        result = project(widget)
         self.assertEqual(result, {"name": "test", "other": "other"})
 
 
@@ -37,11 +37,11 @@ class RelationshipTestCase(TestCase):
             ),
         )
 
-        project = projectors.compose(
+        project = projectors.combine(
             projectors.field("name"),
             projectors.relationship(
                 "owner",
-                projectors.compose(
+                projectors.combine(
                     projectors.field("name"),
                     projectors.relationship("group", projectors.field("name")),
                 ),
@@ -65,11 +65,11 @@ class RelationshipTestCase(TestCase):
         Widget.objects.create(name="widget 2", owner=owner_1)
         Widget.objects.create(name="widget 3", owner=owner_2)
 
-        project = projectors.compose(
+        project = projectors.combine(
             projectors.field("name"),
             projectors.relationship(
                 "owner_set",
-                projectors.compose(
+                projectors.combine(
                     projectors.field("name"),
                     projectors.relationship("widget_set", projectors.field("name")),
                 ),

@@ -8,7 +8,7 @@ class PairsTestCase(TestCase):
         for name in ["first", "second", "third"]:
             Widget.objects.create(name=name, other=f"other-{name}")
 
-        prepare, project = pairs.unzip(
+        prepare, project = pairs.process(
             [
                 pairs.field("name"),
                 pairs.field("other"),
@@ -32,19 +32,19 @@ class PairsTestCase(TestCase):
         owner = Owner.objects.create(name="test owner", group=group)
         Widget.objects.create(name="test widget", owner=owner)
 
-        prepare, project = pairs.unzip(
+        prepare, project = pairs.process(
             [
                 pairs.field("name"),
                 pairs.forward_relationship(
                     "owner",
                     Owner.objects.all(),
-                    *pairs.unzip(
+                    *pairs.process(
                         [
                             pairs.field("name"),
                             pairs.forward_relationship(
                                 "group",
                                 Group.objects.all(),
-                                *pairs.unzip([pairs.field("name")]),
+                                *pairs.process([pairs.field("name")]),
                             ),
                         ]
                     ),
@@ -77,21 +77,21 @@ class PairsTestCase(TestCase):
         Widget.objects.create(name="widget 2", owner=owner_1)
         Widget.objects.create(name="widget 3", owner=owner_2)
 
-        prepare, project = pairs.unzip(
+        prepare, project = pairs.process(
             [
                 pairs.field("name"),
                 pairs.reverse_relationship(
                     "owner_set",
                     "group",
                     Owner.objects.all(),
-                    *pairs.unzip(
+                    *pairs.process(
                         [
                             pairs.field("name"),
                             pairs.reverse_relationship(
                                 "widget_set",
                                 "owner",
                                 Widget.objects.all(),
-                                *pairs.unzip(
+                                *pairs.process(
                                     [
                                         pairs.field("name"),
                                     ]
@@ -138,20 +138,20 @@ class PairsTestCase(TestCase):
         widget = Widget.objects.create(name="test widget")
         Thing.objects.create(name="test thing", widget=widget)
 
-        prepare, project = pairs.unzip(
+        prepare, project = pairs.process(
             [
                 pairs.field("name"),
                 pairs.forward_relationship(
                     "widget",
                     Widget.objects.all(),
-                    *pairs.unzip(
+                    *pairs.process(
                         [
                             pairs.field("name"),
                             pairs.reverse_relationship(
                                 "thing",
                                 "widget",
                                 Thing.objects.all(),
-                                *pairs.unzip([pairs.field("name")]),
+                                *pairs.process([pairs.field("name")]),
                             ),
                         ]
                     ),
@@ -181,19 +181,19 @@ class PairsTestCase(TestCase):
         category = Category.objects.create(name="test category")
         category.widget_set.add(widget)
 
-        prepare, project = pairs.unzip(
+        prepare, project = pairs.process(
             [
                 pairs.field("name"),
                 pairs.many_to_many_relationship(
                     "widget_set",
                     Widget.objects.all(),
-                    *pairs.unzip(
+                    *pairs.process(
                         [
                             pairs.field("name"),
                             pairs.many_to_many_relationship(
                                 "category_set",
                                 Category.objects.all(),
-                                *pairs.unzip([pairs.field("name")]),
+                                *pairs.process([pairs.field("name")]),
                             ),
                         ]
                     ),
@@ -227,39 +227,39 @@ class PairsTestCase(TestCase):
         category.widget_set.add(widget)
         Thing.objects.create(name="test thing", widget=widget)
 
-        prepare, project = pairs.unzip(
+        prepare, project = pairs.process(
             [
                 pairs.field("name"),
                 pairs.auto_relationship(
                     "owner",
-                    *pairs.unzip(
+                    *pairs.process(
                         [
                             pairs.field("name"),
                             pairs.auto_relationship(
                                 "widget_set",
-                                *pairs.unzip([pairs.field("name")]),
+                                *pairs.process([pairs.field("name")]),
                             ),
                         ]
                     ),
                 ),
                 pairs.auto_relationship(
                     "category_set",
-                    *pairs.unzip(
+                    *pairs.process(
                         [
                             pairs.field("name"),
                             pairs.auto_relationship(
-                                "widget_set", *pairs.unzip([pairs.field("name")])
+                                "widget_set", *pairs.process([pairs.field("name")])
                             ),
                         ]
                     ),
                 ),
                 pairs.auto_relationship(
                     "thing",
-                    *pairs.unzip(
+                    *pairs.process(
                         [
                             pairs.field("name"),
                             pairs.auto_relationship(
-                                "widget", *pairs.unzip([pairs.field("name")])
+                                "widget", *pairs.process([pairs.field("name")])
                             ),
                         ]
                     ),
@@ -295,13 +295,13 @@ class PairsTestCase(TestCase):
         owner = Owner.objects.create(name="test owner")
         Widget.objects.create(name="test widget", owner=owner)
 
-        prepare, project = pairs.unzip(
+        prepare, project = pairs.process(
             [
                 pairs.alias(pairs.field("name"), {"name": "name_alias"}),
                 pairs.alias(
                     pairs.auto_relationship(
                         "widget_set",
-                        *pairs.unzip(
+                        *pairs.process(
                             [
                                 pairs.alias(pairs.field("name"), {"name": "alias"}),
                             ]

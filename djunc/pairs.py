@@ -12,9 +12,9 @@ def field(name):
     return qs.include_fields(name), projectors.field(name)
 
 
-def unzip(pairs):
+def process(pairs):
     prepare_fns, project_fns = zip(*pairs)
-    return qs.pipe(*prepare_fns), projectors.compose(*project_fns)
+    return qs.pipe(*prepare_fns), projectors.combine(*project_fns)
 
 
 def alias(pair, aliases):

@@ -32,14 +32,14 @@ def relationship(name, related_projector):
     return wrap(name, value_getter)
 
 
-def compose(*projectors):
-    def composed(instance):
+def combine(*projectors):
+    def combined(instance):
         result = {}
         for projector in projectors:
             result.update(projector(instance))
         return result
 
-    return composed
+    return combined
 
 
 def alias(projector, aliases):
