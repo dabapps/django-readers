@@ -11,7 +11,7 @@ def process_item(item):
 
 
 def process(spec):
-    return pairs.process(process_item(item) for item in spec)
+    return pairs.combine(*(process_item(item) for item in spec))
 
 
 def alias(item, aliases):
