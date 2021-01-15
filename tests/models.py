@@ -19,3 +19,8 @@ class Widget(models.Model):
 class Thing(models.Model):
     name = models.CharField(max_length=100)
     widget = models.OneToOneField(Widget, null=True, on_delete=models.SET_NULL)
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+    widget_set = models.ManyToManyField(Widget)
