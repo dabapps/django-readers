@@ -12,3 +12,7 @@ def process_item(item):
 
 def process(spec):
     return pairs.unzip(process_item(item) for item in spec)
+
+
+def alias(item, aliases):
+    return pairs.alias(process_item(item), aliases)
