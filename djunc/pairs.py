@@ -22,6 +22,14 @@ def alias(pair, aliases):
     return prepare, projectors.alias(project, aliases)
 
 
+def prepare_only(prepare):
+    return prepare, projectors.noop
+
+
+def project_only(project):
+    return qs.noop, project
+
+
 """
 Below are functions which return pairs that use `prefetch_related` to efficiently load
 related objects, and then project those related objects. We use `prefetch_related` to

@@ -1,5 +1,5 @@
 from django.test import TestCase
-from djunc import pairs
+from djunc import pairs, projectors, qs
 from tests.models import Category, Group, Owner, Thing, Widget
 
 
@@ -283,4 +283,34 @@ class PairsTestCase(TestCase):
 
         self.assertEqual(
             result, {"name_alias": "test owner", "widgets": [{"alias": "test widget"}]}
+        )
+
+    def test_select_related(self):
+        owner = Owner.objects.create(name="test owner")
+        Widget.objects.create(name="test widget", owner=owner)
+
+        prepare, project = pairs.combine(
+            pairs.prepare_only(
+                qs.pipe(
+                    qs.select_related("owner"),
+                    qs.include_fields("owner__name"),
+                )
+            ),
+            pairs.field("name"),
+            pairs.project_only(
+                projectors.relationship("owner", projectors.field("name"))
+            ),
+        )
+
+        with self.assertNumQueries(0):
+            queryset = prepare(Widget.objects.all())
+
+        with self.assertNumQueries(1):
+            instance = queryset.first()
+
+        with self.assertNumQueries(0):
+            result = project(instance)
+
+        self.assertEqual(
+            result, {"name": "test widget", "owner": {"name": "test owner"}}
         )
