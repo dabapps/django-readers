@@ -1,3 +1,4 @@
+from djunc.utils import map_or_apply
 from operator import attrgetter
 
 
@@ -22,19 +23,7 @@ def relationship(name, related_projector):
 
     def value_getter(instance):
         related = attrgetter(name)(instance)
-
-        # Figure out if we need to project the related object, or iterate over it
-        # and project each item.
-        try:
-            # Is the instance itself iterable?
-            return [related_projector(instance) for instance in iter(related)]
-        except TypeError:
-            try:
-                # Does the instance have a `.all()` method (ie is it a queryset?)
-                return [related_projector(instance) for instance in related.all()]
-            except AttributeError:
-                # It must be a single instance
-                return related_projector(related)
+        return map_or_apply(related, related_projector)
 
     return wrap(name, value_getter)
 
