@@ -1,4 +1,5 @@
 from djunc import pairs
+from djunc.utils import queries_disabled
 
 
 def process_item(item):
@@ -11,7 +12,7 @@ def process_item(item):
 
 
 def process(spec):
-    return pairs.combine(*(process_item(item) for item in spec))
+    return queries_disabled(pairs.combine(*(process_item(item) for item in spec)))
 
 
 def alias(item, aliases):

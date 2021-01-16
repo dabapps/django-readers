@@ -1,3 +1,9 @@
+try:
+    import zen_queries
+except ImportError:
+    zen_queries = None
+
+
 def map_or_apply(obj, fn):
     """
     If the first argument is iterable, map the function across each item in it and
@@ -15,3 +21,9 @@ def map_or_apply(obj, fn):
         except AttributeError:
             # It must be a single object
             return fn(obj)
+
+
+def queries_disabled(pair):
+    prepare, project = pair
+    decorator = zen_queries.queries_disabled() if zen_queries else lambda fn: fn
+    return decorator(prepare), decorator(project)

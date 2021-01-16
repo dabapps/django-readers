@@ -221,6 +221,9 @@ with zen_queries.queries_disabled():
 # ...render result as JSON or in a template
 ```
 
+To enforce this, if `django-zen-queries` is installed, `djunc` will automatically apply
+`queries_disabled()` to the `prepare` and `project` functions returned by `spec.process`, so there is no need to apply it manually as in the above example.
+
 ## Code of conduct
 
 For guidelines regarding the code of conduct when contributing to this repository please review [https://www.dabapps.com/open-source/code-of-conduct/](https://www.dabapps.com/open-source/code-of-conduct/)
