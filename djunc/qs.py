@@ -67,8 +67,8 @@ def pipe(*fns):
 
 def prefetch_forward_relationship(name, related_queryset):
     """
-    Efficiently prefetch a forward relationship (ie one where the field on the "parent"
-    queryset is a concrete field). We need to include this field in the query.
+    Efficiently prefetch a forward relationship: one where the field on the "parent"
+    queryset is a concrete field. We need to include this field in the query.
     """
     return pipe(
         include_fields(name),
@@ -78,11 +78,12 @@ def prefetch_forward_relationship(name, related_queryset):
 
 def prefetch_reverse_relationship(name, related_name, related_queryset):
     """
-    Efficiently prefetch a reverse relationship (ie one where the field on the "parent"
-    queryset is not a concrete field - a foreign key from another object points at it).
+    Efficiently prefetch a reverse relationship: one where the field on the "parent"
+    queryset is not a concrete field - a foreign key from another object points at it.
     We need the `related_name` (ie the name of the relationship field on the related
     object) so that we can include this field in the query for the related objects,
-    as Django will need it when it comes to stitch them together.
+    as Django will need it when it comes to stitch them together when the query
+    is executed.
     """
     return prefetch_related(
         Prefetch(
