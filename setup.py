@@ -10,7 +10,7 @@ import sys
 
 name = "djunc"
 package = "djunc"
-description = "Lightweight function-oriented utilities for code organisation in Django projects."
+description = "A lightweight function-oriented toolkit for better organisation of business logic and efficient selection and projection of data in Django projects."
 url = "https://github.com/dabapps/djunc"
 author = "DabApps"
 author_email = "hello@dabapps.com"
@@ -56,15 +56,6 @@ def get_package_data(package):
     for base, filenames in walk:
         filepaths.extend([os.path.join(base, filename) for filename in filenames])
     return {package: filepaths}
-
-
-if sys.argv[-1] == "publish":
-    os.system("python setup.py sdist upload")
-    args = {"version": get_version(package)}
-    print("You probably want to also tag the version now:")
-    print("  git tag -a %(version)s -m 'version %(version)s'" % args)
-    print("  git push --tags")
-    sys.exit()
 
 
 setup(
