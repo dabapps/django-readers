@@ -3,13 +3,12 @@ djunc
 
 **STATUS: EXPERIMENTAL**
 
-![Build Status](https://github.com/dabapps/djunc/workflows/CI/badge.svg)
-[![pypi release](https://img.shields.io/pypi/v/djunc.svg)](https://pypi.python.org/pypi/djunc)
-
-
 **A lightweight function-oriented toolkit for better organisation of business logic and efficient selection and projection of data in Django projects.**
 
 Tested against Django 2.2 - 3.1 on Python 3.6 - 3.9.
+
+![Build Status](https://github.com/dabapps/djunc/workflows/CI/badge.svg)
+[![pypi release](https://img.shields.io/pypi/v/djunc.svg)](https://pypi.python.org/pypi/djunc)
 
 ### Installation
 
