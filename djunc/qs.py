@@ -2,15 +2,25 @@ from django.db.models import Prefetch, QuerySet
 
 
 def _method_to_function(method):
-    def make_function(*args, **kwargs):
-        def function(queryset):
+    """
+    Return a function that when called with any arguments will return another
+    function that takes a queryset and calls the given queryset method, passing
+    the queryset as the `self` parameter and forwarding along the other arguments.
+    """
+
+    def make_queryset_function(*args, **kwargs):
+        def queryset_function(queryset):
             return method(queryset, *args, **kwargs)
 
-        return function
+        return queryset_function
 
-    return make_function
+    return make_queryset_function
 
 
+"""
+The following functions mirror all the default methods on the base
+`QuerySet` that return a new `QuerySet`.
+"""
 filter = _method_to_function(QuerySet.filter)
 all = _method_to_function(QuerySet.all)
 exclude = _method_to_function(QuerySet.exclude)
@@ -29,14 +39,24 @@ noop = all()  # a queryset function that does nothing
 
 
 def include_fields(*fields):
+    """
+    Returns a queryset function that extends an already-`.only()`d queryset
+    with more fields.
+    """
+
     def fields_included(queryset):
-        """ Extend an already-`.only()`d queryset with more fields """
         return queryset.only(*queryset.query.deferred_loading[0], *fields)
 
     return fields_included
 
 
 def pipe(*fns):
+    """
+    Given a list of queryset functions as *args, return a new queryset function
+    that calls each function in turn, passing the return value of each as the
+    argument to the next.
+    """
+
     def piped(queryset):
         for fn in fns:
             queryset = fn(queryset)

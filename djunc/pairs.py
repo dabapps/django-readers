@@ -13,11 +13,19 @@ def field(name):
 
 
 def combine(*pairs):
+    """
+    Given a list of pairs as *args, return a pair which pipes together the prepare
+    function from each pair, and combines the project function from each pair.
+    """
     prepare_fns, project_fns = zip(*pairs)
     return qs.pipe(*prepare_fns), projectors.combine(*project_fns)
 
 
 def alias(pair, aliases):
+    """
+    Given a pair and a dictionary of aliases {"old_key_name": "new_key_name"},
+    apply `projectors.alias` to the project function from the pair.
+    """
     prepare, project = pair
     return prepare, projectors.alias(project, aliases)
 
@@ -49,13 +57,14 @@ ManyToManyFields are symmetrical, so the latter two collapse down to the same th
 The forward one-to-one and many-to-one are identical as they both relate a single
 related object to the main object. The reverse one-to-one and many-to-one are identical
 except the former relates the main object to a single related object, and the latter
-relates the main object to many related objects. Because the projectors.relationship
+relates the main object to many related objects. Because the `projectors.relationship`
 function already infers whether to iterate or project a single instance, we can collapse
 these two functions into one as well.
 
 There are functions for forward, reverse or many-to-many relationships, and then
 an `auto_relationship` function which selects the correct one by introspecting the
-model.
+model. It shouldn't usually be necessary to use the manual functions unless you're
+doing something weird, like providing a custom queryset.
 """
 
 
@@ -84,6 +93,18 @@ def many_to_many_relationship(
 
 
 def auto_relationship(name, prepare_related_queryset, project_relationship):
+    """
+    Given the name of a relationship, return a prepare function which introspects the
+    relationship to discover its type and generates the correct set of
+    `select_related` and `include_fields` calls to apply to efficiently load it,
+    and apply the provided prepare and project functions to the relationship.
+
+    This is by far the most complicated part of the entire library. The reason
+    it's so complicated is because Django's related object descriptors are
+    inconsistent: each type has a slightly different way of accessing its related
+    queryset, the name of the field on the other side of the relationship, etc.
+    """
+
     def prepare(queryset):
         related_descriptor = getattr(queryset.model, name)
 

@@ -15,4 +15,8 @@ def process(spec):
 
 
 def alias(item, aliases):
+    """
+    Given a spec item and a dictionary of aliases {"old_key_name": "new_key_name"},
+    apply `pairs.alias` to the project function from the processed pair.
+    """
     return pairs.alias(process_item(item), aliases)
