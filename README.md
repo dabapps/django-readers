@@ -26,7 +26,7 @@ Django common practices encourage a "fat models" approach. That is: most of the 
 
 First, it goes against the [Single Responsibility Principle](https://en.wikipedia.org/wiki/Single-responsibility_principle). Models are *already* responsible for mapping between your database tables and your application code and back again. This mapping is a highly complex task, and that's quite enough for one set of classes to be responsible for.
 
-Second, is is bad for code organisation, particularly in larger projects. Your `models.py` becomes a trash pile onto which all business logic is dumped. Models grow to thousands of lines of code. The API surface area for each model becomes huge, and this entire surface is available to any part of your application that imports that model.
+Second, is is bad for code organisation, particularly in larger projects. Your `models.py` becomes a trash pile onto which all business logic is dumped. Models grow to thousands of lines of code. The API surface area for each model becomes huge, and this entire surface is available to any part of your application that imports the model.
 
 Third and worst, often model methods themselves perform queries against other models. This is a disaster for application performance, leading to inefficient query patterns that can be very difficult to fix. When they are fixed (through judicious use of `select_related` and `prefetch_related` on the queryset), the model methods become tightly bound to the precise way that the query is built, resulting in unpredictable and brittle code.
 
@@ -125,7 +125,7 @@ print(project(author))
 #  {'name': 'Some Author', 'age': 37, 'book_set': [{'title': 'Some Book', 'publication_year': 2019}]}
 ```
 
-### `djunc.pairs`: (prepare, project) pairs
+### `djunc.pairs`: combining `prepare` and `project`
 
 `prepare` and `project` functions are intimately connected, with the `project` function depending on fields, annotations or relationships loaded by the `prepare` function. For this reason, `djunc` expects these functions to live together in a two-tuple called a *pair*: `(prepare, project)`.
 
