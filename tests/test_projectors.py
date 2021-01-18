@@ -31,6 +31,22 @@ class ProjectorTestCase(TestCase):
         result = project(widget)
         self.assertEqual(result, {"new_name": "test"})
 
+    def test_single_alias(self):
+        widget = Widget.objects.create(name="test")
+        project = projectors.alias(projectors.field("name"), "new_name")
+        result = project(widget)
+        self.assertEqual(result, {"new_name": "test"})
+
+    def test_single_alias_with_multiple_keys(self):
+        widget = Widget.objects.create(name="test")
+
+        def projector(_):
+            return {"a": 1, "b": 2}
+
+        project = projectors.alias(projector, "aliased")
+        with self.assertRaises(TypeError):
+            project(widget)
+
 
 class RelationshipTestCase(TestCase):
     def test_relationship_projector(self):

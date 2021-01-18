@@ -43,16 +43,31 @@ def combine(*projectors):
     return combined
 
 
-def alias(projector, aliases):
+def alias(projector, alias_or_aliases):
     """
     Given a projector and a dictionary of aliases {"old_key_name": "new_key_name"},
     return a projector which replaces the keys in the output of the original projector
-    with those provided in the alias map.
+    with those provided in the alias map. As a shortcut, the argument can be a single
+    string, in which case this will automatically alias a single-key projector without
+    needing to know the key name of key in the dictionary returned from the
+    inner projector.
     """
 
     def aliaser(instance):
         projected = projector(instance)
-        for old, new in aliases.items():
+        if isinstance(alias_or_aliases, str) and len(projected) != 1:
+            raise TypeError(
+                "A single string can only be used as an alias for projectors "
+                "that return a dictionary with a single key. Please use a mapping "
+                "to define aliases instead."
+            )
+
+        alias_map = (
+            {next(iter(projected)): alias_or_aliases}
+            if isinstance(alias_or_aliases, str)
+            else alias_or_aliases
+        )
+        for old, new in alias_map.items():
             projected[new] = projected.pop(old)
         return projected
 
