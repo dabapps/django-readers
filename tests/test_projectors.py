@@ -27,13 +27,13 @@ class ProjectorTestCase(TestCase):
 
     def test_alias(self):
         widget = Widget.objects.create(name="test")
-        project = projectors.alias(projectors.field("name"), {"name": "new_name"})
+        project = projectors.alias({"name": "new_name"}, projectors.field("name"))
         result = project(widget)
         self.assertEqual(result, {"new_name": "test"})
 
     def test_single_alias(self):
         widget = Widget.objects.create(name="test")
-        project = projectors.alias(projectors.field("name"), "new_name")
+        project = projectors.alias("new_name", projectors.field("name"))
         result = project(widget)
         self.assertEqual(result, {"new_name": "test"})
 
@@ -43,7 +43,7 @@ class ProjectorTestCase(TestCase):
         def projector(_):
             return {"a": 1, "b": 2}
 
-        project = projectors.alias(projector, "aliased")
+        project = projectors.alias("aliased", projector)
         with self.assertRaises(TypeError):
             project(widget)
 

@@ -262,13 +262,13 @@ class PairsTestCase(TestCase):
         Widget.objects.create(name="test widget", owner=owner)
 
         prepare, project = pairs.combine(
-            pairs.alias(pairs.field("name"), {"name": "name_alias"}),
+            pairs.alias("name_alias", *pairs.field("name")),
             pairs.alias(
-                pairs.auto_relationship(
-                    "widget_set",
-                    *pairs.alias(pairs.field("name"), {"name": "alias"}),
-                ),
                 {"widget_set": "widgets"},
+                *pairs.auto_relationship(
+                    "widget_set",
+                    *pairs.alias({"name": "alias"}, *pairs.field("name")),
+                ),
             ),
         )
 

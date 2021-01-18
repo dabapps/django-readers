@@ -43,7 +43,7 @@ def combine(*projectors):
     return combined
 
 
-def alias(projector, alias_or_aliases):
+def alias(alias_or_aliases, projector):
     """
     Given a projector and a dictionary of aliases {"old_key_name": "new_key_name"},
     return a projector which replaces the keys in the output of the original projector

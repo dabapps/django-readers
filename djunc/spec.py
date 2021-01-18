@@ -15,9 +15,9 @@ def process(spec):
     return queries_disabled(pairs.combine(*(process_item(item) for item in spec)))
 
 
-def alias(item, aliases):
+def alias(aliases, item):
     """
     Given a spec item and a dictionary of aliases {"old_key_name": "new_key_name"},
     apply `pairs.alias` to the project function from the processed pair.
     """
-    return pairs.alias(process_item(item), aliases)
+    return pairs.alias(aliases, *process_item(item))
