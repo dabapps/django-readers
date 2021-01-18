@@ -125,6 +125,14 @@ print(project(author))
 #  {'name': 'Some Author', 'age': 37, 'book_set': [{'title': 'Some Book', 'publication_year': 2019}]}
 ```
 
+Projectors can also be aliased, which means replacing one or more keys in the returned dictionary. If the projector to be aliased returns a dictionary with a single key, the `alias` function can be given a single string as its first argument, which will replace this key. If the projector returns multiple keys, a mapping of `{"old_name": "new_name"}` must be used.
+
+```python
+project = projectors.alias(
+    "year_of_birth", projectors.field("birth_year")
+)
+```
+
 ### `djunc.pairs`: combining `prepare` and `project`
 
 `prepare` and `project` functions are intimately connected, with the `project` function depending on fields, annotations or relationships loaded by the `prepare` function. For this reason, `djunc` expects these functions to live together in a two-tuple called a *pair*: `(prepare, project)`.
@@ -166,6 +174,14 @@ Again, only the precise fields that are needed are loaded from the database.
 
 Note that `djunc` _always_ uses `prefetch_related` to load relationships, even in circumstances where `select_related` would usually be used (ie `ForeignKey` and `OneToOneField`), resulting in one query per relationship. This approach allows the code to be "fractal": the tree of `(prepare, project)` pairs can be recursively applied to the tree of related querysets. Of course, it is quite possible to use `select_related` by applying `qs.select_related` at the root of your query, but this must be done manually.
 
+It is also possible to wrap a pair in `pairs.alias`, which takes the same alias argument as `projectors.alias` (see above), and applies it to the projector part of the pair:
+
+```python
+prepare, project = pairs.alias(
+    "year_of_birth", *pairs.field("birth_year")
+)
+```
+
 ### `djunc.spec`: a high-level spec for efficient data querying and projection
 
 This layer is the real magic of `djunc`: a straightforward way of specifying the shape of your data in order to efficiently select and project a complex tree of related objects.
@@ -176,6 +192,7 @@ A spec is a list, which may contain:
 
 * _strings_, which are interpreted as field names,
 * _dictionaries_, which are interpreted as relationships (with the keys specifying the relationship name and the values being specs for projecting the related objects)
+* _tuples in which the first item is a string or a mapping_, which is interpreted as an alias.
 * _pairs_ of `(prepare, project)` functions (see previous section), which are left as-is.
 
 The example from the last section may be written as the following spec:
@@ -187,6 +204,7 @@ prepare, project = spec.process(
     [
         "name",
         age_pair,
+        ("year_of_birth", "birth_year"),
         {"book_set": ["title", "publication_year"]},
     ]
 )
