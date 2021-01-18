@@ -68,10 +68,10 @@ class SpecTestCase(TestCase):
 
         prepare, project = spec.process(
             [
-                spec.alias({"name": "name_alias"}, "name"),
-                spec.alias(
+                ({"name": "name_alias"}, "name"),
+                (
                     "widgets",
-                    {"widget_set": [spec.alias("alias", "name")]},
+                    {"widget_set": [("alias", "name")]},
                 ),
             ]
         )
