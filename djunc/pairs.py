@@ -21,13 +21,8 @@ def combine(*pairs):
     return qs.pipe(*prepare_fns), projectors.combine(*project_fns)
 
 
-def alias(pair, aliases):
-    """
-    Given a pair and a dictionary of aliases {"old_key_name": "new_key_name"},
-    apply `projectors.alias` to the project function from the pair.
-    """
-    prepare, project = pair
-    return prepare, projectors.alias(project, aliases)
+def alias(alias_or_aliases, prepare, project):
+    return prepare, projectors.alias(alias_or_aliases, project)
 
 
 def prepare_only(prepare):
