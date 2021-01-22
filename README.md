@@ -232,7 +232,7 @@ To enforce this, if `django-zen-queries` is installed, `djunc` will automaticall
 
 You'll notice that `djunc`'s functionality is focused on _reads_: business logic which selects some data from the database and/or transforms it in such a way that it can be displayed to a user. What about other common types of business logic that involve accepting input from users and processing it?
 
-`djunc` doesn't currently provide any code to help with this, but we encourage you to follow the djunc philosophy here. Structure your codebase around functions which take model instances and encapsulate these sorts of write actions. You might choose to call them `action functions`.
+`djunc` doesn't currently provide any code to help with this, but we encourage you to follow the same function-oriented philosophy. Structure your codebase around functions which take model instances and encapsulate these sorts of write actions. You might choose to call them `action functions`.
 
 The other common task needed is data validation. We'd suggest Django forms and/or Django REST framework serializers are perfectly adequate here.
 
