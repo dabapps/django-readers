@@ -71,7 +71,20 @@ queryset = recent_books_with_prefetched_authors(Book.objects.all())
 
 A *projector* is a function that *accepts a model instance* as its single argument, and *returns a dictionary* containing some subset or transformation of the instance data.
 
-These functions "project" your database layer into your application's business logic domain. Business logic that would traditionally go in model methods should instead go in projectors.
+These functions "project" your data layer into your application's business logic domain. Business logic that would traditionally go in model methods should instead go in projectors.
+
+Think of the dictionary returned by a projector (the "projection") as the _simplest possible domain object_. In most cases, it makes sense for an individual projector function to return a dictionary containing _just a single key and value_.
+
+```python
+from datetime import datetime
+
+def project_age(instance):
+    return {"age": datetime.now().year - instance.birth_year}
+
+author = Author(name="Some Author", birth_year=1984)
+print(project_age(author))
+#  {'age': 37}
+```
 
 The simplest projector is one that returns the value of a model field, wrapped in a dictionary with the field name as its single key. `djunc` provides a projector that does this:
 
@@ -84,18 +97,9 @@ print(project(author))
 #  {'name': 'Some Author'}
 ```
 
-It's trivial to write a custom projector:
+A dictionary is returned because these projectors are intended to be _composable_: multiple simple projector functions can be combined into a more complex projector function that returns a dictionary containing the keys from all of its child projectors.
 
-```python
-from datetime import datetime
-
-def project_age(instance):
-    return {"age": datetime.now().year - instance.birth_year}
-
-author = Author(name="Some Author", birth_year=1984)
-print(project_age(author))
-#  {'age': 37}
-```
+This composition generally happens at the place in your codebase where the domain model is actually being _used_ (in a view, say). The projection will therefore contain precisely the keys needed by that view. This solves the problem of models becoming vast ever-growing flat namespaces containing all the functionality needed by all parts of your application.
 
 Projectors can be combined. The keys and values from the dictionary returned by each individual projector are merged togther.
 
@@ -110,7 +114,7 @@ print(project(author))
 #  {'name': 'Some Author', 'age': 37}
 ```
 
-Related objects can also be projected, resulting in a nested projection:
+Related objects can also be projected using the `projectors.relationship` function, resulting in a nested projection:
 
 ```python
 project = projectors.combine(
@@ -127,7 +131,7 @@ print(project(author))
 
 ### `djunc.pairs`: combining `prepare` and `project`
 
-`prepare` and `project` functions are intimately connected, with the `project` function depending on fields, annotations or relationships loaded by the `prepare` function. For this reason, `djunc` expects these functions to live together in a two-tuple called a *pair*: `(prepare, project)`.
+`prepare` and `project` functions are intimately connected, with the `project` function usually depending on fields, annotations or relationships loaded by the `prepare` function. For this reason, `djunc` expects these functions to live together in a two-tuple called a *pair*: `(prepare, project)`.
 
 In the example used above, the `project_age` projector depends on the `birth_year` field:
 
@@ -223,6 +227,14 @@ with zen_queries.queries_disabled():
 
 To enforce this, if `django-zen-queries` is installed, `djunc` will automatically apply
 `queries_disabled()` to the `prepare` and `project` functions returned by `spec.process`, so there is no need to apply it manually as in the above example.
+
+### What about other types of business logic?
+
+You'll notice that `djunc`'s functionality is focused on _reads_: business logic which selects some data from the database and/or transforms it in such a way that it can be displayed to a user. What about other common types of business logic that involve accepting input from users and processing it?
+
+`djunc` doesn't currently provide any code to help with this, but we encourage you to follow the same function-oriented philosophy. Structure your codebase around functions which take model instances and encapsulate these sorts of write actions. You might choose to call them `action functions`.
+
+The other common task needed is data validation. We'd suggest Django forms and/or Django REST framework serializers are perfectly adequate here.
 
 ## Code of conduct
 
