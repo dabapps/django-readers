@@ -7,7 +7,7 @@ def process_item(item):
         return pairs.field(item)
     if isinstance(item, dict):
         for name, child_spec in item.items():
-            return pairs.auto_relationship(name, *process(child_spec))
+            return pairs.auto_relationship(name, process(child_spec))
     return item
 
 
@@ -16,4 +16,4 @@ def process(spec):
 
 
 def alias(alias_or_aliases, item):
-    return pairs.alias(alias_or_aliases, *process_item(item))
+    return pairs.alias(alias_or_aliases, process_item(item))
