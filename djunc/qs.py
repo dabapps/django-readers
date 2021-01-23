@@ -65,6 +65,16 @@ def pipe(*fns):
     return piped
 
 
+def select_related_fields(*fields):
+    """
+    Like select_related, but selects only specific fields from the related objects
+    """
+    return pipe(
+        select_related(*{field.rpartition("__")[0] for field in fields}),
+        include_fields(*fields),
+    )
+
+
 def prefetch_forward_relationship(name, related_queryset):
     """
     Efficiently prefetch a forward relationship: one where the field on the "parent"

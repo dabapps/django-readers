@@ -1,6 +1,6 @@
 from django.test import TestCase
 from djunc import qs
-from tests.models import Widget
+from tests.models import Owner, Widget
 
 
 class QuerySetTestCase(TestCase):
@@ -32,3 +32,12 @@ class QuerySetTestCase(TestCase):
         queryset = qs.noop(queryset)
         after = str(queryset.query)
         self.assertEqual(before, after)
+
+    def test_select_related_fields(self):
+        Widget.objects.create(
+            name="test widget", owner=Owner.objects.create(name="test owner")
+        )
+        prepare = qs.select_related_fields("owner__name")
+        widget = prepare(Widget.objects.all()).get()
+        with self.assertNumQueries(0):
+            self.assertEqual(widget.owner.name, "test owner")
