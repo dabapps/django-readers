@@ -159,7 +159,7 @@ Relationships can automatically be loaded and projected, too:
 prepare, project = pairs.combine(
     pairs.field("name"),
     age_pair,
-    pairs.auto_relationship("book_set", *pairs.combine(
+    pairs.auto_relationship("book_set", pairs.combine(
         pairs.field("title"),
         pairs.field("publication_year"),
     ))
