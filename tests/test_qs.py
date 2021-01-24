@@ -43,7 +43,7 @@ class QuerySetTestCase(TestCase):
         prepare = qs.select_related_fields("owner__name")
 
         with CaptureQueriesContext(connection) as capture:
-            widget = prepare(Widget.objects.all()).get()
+            widgets = list(prepare(Widget.objects.all()))
 
         self.assertEqual(len(capture.captured_queries), 1)
 
@@ -61,4 +61,4 @@ class QuerySetTestCase(TestCase):
         )
 
         with self.assertNumQueries(0):
-            self.assertEqual(widget.owner.name, "test owner")
+            self.assertEqual(widgets[0].owner.name, "test owner")
