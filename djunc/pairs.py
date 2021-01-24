@@ -21,7 +21,8 @@ def combine(*pairs):
     return qs.pipe(*prepare_fns), projectors.combine(*project_fns)
 
 
-def alias(alias_or_aliases, prepare, project):
+def alias(alias_or_aliases, pair):
+    prepare, project = pair
     return prepare, projectors.alias(alias_or_aliases, project)
 
 
@@ -63,31 +64,28 @@ doing something weird, like providing a custom queryset.
 """
 
 
-def forward_relationship(
-    name, related_queryset, prepare_related_queryset, project_relationship
-):
+def forward_relationship(name, related_queryset, relationship_pair):
+    prepare_related_queryset, project_relationship = relationship_pair
     related_queryset = prepare_related_queryset(related_queryset)
     prepare = qs.prefetch_forward_relationship(name, related_queryset)
     return prepare, projectors.relationship(name, project_relationship)
 
 
-def reverse_relationship(
-    name, related_name, related_queryset, prepare_related_queryset, project_relationship
-):
+def reverse_relationship(name, related_name, related_queryset, relationship_pair):
+    prepare_related_queryset, project_relationship = relationship_pair
     related_queryset = prepare_related_queryset(related_queryset)
     prepare = qs.prefetch_reverse_relationship(name, related_name, related_queryset)
     return prepare, projectors.relationship(name, project_relationship)
 
 
-def many_to_many_relationship(
-    name, related_queryset, prepare_related_queryset, project_relationship
-):
+def many_to_many_relationship(name, related_queryset, relationship_pair):
+    prepare_related_queryset, project_relationship = relationship_pair
     related_queryset = prepare_related_queryset(related_queryset)
     prepare = qs.prefetch_many_to_many_relationship(name, related_queryset)
     return prepare, projectors.relationship(name, project_relationship)
 
 
-def auto_relationship(name, prepare_related_queryset, project_relationship):
+def auto_relationship(name, relationship_pair):
     """
     Given the name of a relationship, return a prepare function which introspects the
     relationship to discover its type and generates the correct set of
@@ -99,6 +97,7 @@ def auto_relationship(name, prepare_related_queryset, project_relationship):
     inconsistent: each type has a slightly different way of accessing its related
     queryset, the name of the field on the other side of the relationship, etc.
     """
+    prepare_related_queryset, project_relationship = relationship_pair
 
     def prepare(queryset):
         related_descriptor = getattr(queryset.model, name)

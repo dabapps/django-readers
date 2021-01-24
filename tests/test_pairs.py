@@ -35,12 +35,12 @@ class PairsTestCase(TestCase):
             pairs.forward_relationship(
                 "owner",
                 Owner.objects.all(),
-                *pairs.combine(
+                pairs.combine(
                     pairs.field("name"),
                     pairs.forward_relationship(
                         "group",
                         Group.objects.all(),
-                        *pairs.field("name"),
+                        pairs.field("name"),
                     ),
                 ),
             ),
@@ -77,13 +77,13 @@ class PairsTestCase(TestCase):
                 "owner_set",
                 "group",
                 Owner.objects.all(),
-                *pairs.combine(
+                pairs.combine(
                     pairs.field("name"),
                     pairs.reverse_relationship(
                         "widget_set",
                         "owner",
                         Widget.objects.all(),
-                        *pairs.field("name"),
+                        pairs.field("name"),
                     ),
                 ),
             ),
@@ -129,13 +129,13 @@ class PairsTestCase(TestCase):
             pairs.forward_relationship(
                 "widget",
                 Widget.objects.all(),
-                *pairs.combine(
+                pairs.combine(
                     pairs.field("name"),
                     pairs.reverse_relationship(
                         "thing",
                         "widget",
                         Thing.objects.all(),
-                        *pairs.field("name"),
+                        pairs.field("name"),
                     ),
                 ),
             ),
@@ -168,12 +168,12 @@ class PairsTestCase(TestCase):
             pairs.many_to_many_relationship(
                 "widget_set",
                 Widget.objects.all(),
-                *pairs.combine(
+                pairs.combine(
                     pairs.field("name"),
                     pairs.many_to_many_relationship(
                         "category_set",
                         Category.objects.all(),
-                        *pairs.field("name"),
+                        pairs.field("name"),
                     ),
                 ),
             ),
@@ -209,26 +209,26 @@ class PairsTestCase(TestCase):
             pairs.field("name"),
             pairs.auto_relationship(
                 "owner",
-                *pairs.combine(
+                pairs.combine(
                     pairs.field("name"),
                     pairs.auto_relationship(
                         "widget_set",
-                        *pairs.field("name"),
+                        pairs.field("name"),
                     ),
                 ),
             ),
             pairs.auto_relationship(
                 "category_set",
-                *pairs.combine(
+                pairs.combine(
                     pairs.field("name"),
-                    pairs.auto_relationship("widget_set", *pairs.field("name")),
+                    pairs.auto_relationship("widget_set", pairs.field("name")),
                 ),
             ),
             pairs.auto_relationship(
                 "thing",
-                *pairs.combine(
+                pairs.combine(
                     pairs.field("name"),
-                    pairs.auto_relationship("widget", *pairs.field("name")),
+                    pairs.auto_relationship("widget", pairs.field("name")),
                 ),
             ),
         )
@@ -262,12 +262,12 @@ class PairsTestCase(TestCase):
         Widget.objects.create(name="test widget", owner=owner)
 
         prepare, project = pairs.combine(
-            pairs.alias("name_alias", *pairs.field("name")),
+            pairs.alias("name_alias", pairs.field("name")),
             pairs.alias(
                 {"widget_set": "widgets"},
-                *pairs.auto_relationship(
+                pairs.auto_relationship(
                     "widget_set",
-                    *pairs.alias({"name": "alias"}, *pairs.field("name")),
+                    pairs.alias({"name": "alias"}, pairs.field("name")),
                 ),
             ),
         )
