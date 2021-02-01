@@ -131,6 +131,14 @@ print(project(author))
 #  {'name': 'Some Author', 'age': 37, 'book_set': [{'title': 'Some Book', 'publication_year': 2019}]}
 ```
 
+Projectors can also be aliased, which means replacing one or more keys in the returned dictionary. If the projector to be aliased returns a dictionary with a single key, the `alias` function can be given a single string as its first argument, which will replace this key. If the projector returns multiple keys, a mapping of `{"old_name": "new_name"}` must be used.
+
+```python
+project = projectors.alias(
+    "year_of_birth", projectors.field("birth_year")
+)
+```
+
 ### `djunc.pairs`: "reader pairs" combining `prepare` and `project`
 
 `prepare` and `project` functions are intimately connected, with the `project` function usually depending on fields, annotations or relationships loaded by the `prepare` function. For this reason, `djunc` expects these functions to live together in a two-tuple called a *reader pair*: `(prepare, project)`.
@@ -174,6 +182,14 @@ Note that `djunc` _always_ uses `prefetch_related` to load relationships, even i
 
 Of course, it is quite possible to use `select_related` by applying `qs.select_related` at the root of your query, but this must be done manually. `djunc` also provides `qs.select_related_fields`, which combines `select_related` with `include_fields` to allow you to specify exactly which fields you need from the related objects.
 
+It is also possible to wrap a pair in `pairs.alias`, which takes the same alias argument as `projectors.alias` (see above), and applies it to the projector part of the pair:
+
+```python
+prepare, project = pairs.alias(
+    "year_of_birth", pairs.field("birth_year")
+)
+```
+
 ### `djunc.specs`: a high-level specification for efficient data querying and projection
 
 This layer is the real magic of `djunc`: a straightforward way of specifying the shape of your data in order to efficiently select and project a complex tree of related objects.
@@ -204,6 +220,16 @@ result = [project(instance) for instance in queryset]
 ```
 
 The structure of this specification is heavily inspired by [`django-rest-framework-serialization-spec`](https://github.com/dabapps/django-rest-framework-serialization-spec/), minus the concept of "plugins", which are replaced with directly including `(prepare, project)` pairs in the spec. It should be trivial to convert or "adapt" a `serialization-spec` plugin into a suitable `djunc` pair.
+
+It is also possible to wrap a spec item in `specs.alias`, which takes the same alias argument as `pairs.alias` (see above), and applies it to the spec item:
+
+```python
+prepare, project = specs.process(
+    [
+        specs.alias("year_of_birth", "birth_year"),
+    ]
+)
+```
 
 ### A note on `django-zen-queries`
 
