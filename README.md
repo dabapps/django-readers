@@ -32,11 +32,13 @@ Third and worst, often model methods themselves perform queries against other mo
 
 **`djunc` encourages you to instead structure your code around plain *functions* rather than methods on classes. You can put these functions wherever you like in your codebase. Complex business logic is built by composing and combining these functions.**
 
+`djunc` provides a set of tools to help with the parts of your business logic that are responsible for _reads_ from the database: selecting and transforming data before presenting it to clients. It is designed to be used with Django templates as well as Django REST framework.
+
 The functionality that `djunc` provides is deliberately straightforward and interoperable with existing Django libraries, patterns and practices. You can choose to use just the parts of `djunc` that appeal to you and make sense in your project.
 
 ## Features and concepts
 
-`djunc` is organised in three layers. At the highest level of abstraction is `djunc.spec` (the top layer), which depends on `djunc.pairs` (the middle layer), which depends on `djunc.projectors` and `djunc.qs` (the bottom layer).
+`djunc` is organised in three layers of _"reader functions"_. At the highest level of abstraction is `djunc.spec` (the top layer), which depends on `djunc.pairs` (the middle layer), which depends on `djunc.projectors` and `djunc.qs` (the bottom layer).
 
 These layers can be intermingled in a real-world application. To expain each layer, it makes most sense to start at the bottom and work upwards.
 
@@ -129,9 +131,9 @@ print(project(author))
 #  {'name': 'Some Author', 'age': 37, 'book_set': [{'title': 'Some Book', 'publication_year': 2019}]}
 ```
 
-### `djunc.pairs`: combining `prepare` and `project`
+### `djunc.pairs`: "reader pairs" combining `prepare` and `project`
 
-`prepare` and `project` functions are intimately connected, with the `project` function usually depending on fields, annotations or relationships loaded by the `prepare` function. For this reason, `djunc` expects these functions to live together in a two-tuple called a *pair*: `(prepare, project)`.
+`prepare` and `project` functions are intimately connected, with the `project` function usually depending on fields, annotations or relationships loaded by the `prepare` function. For this reason, `djunc` expects these functions to live together in a two-tuple called a *reader pair*: `(prepare, project)`.
 
 In the example used above, the `project_age` projector depends on the `birth_year` field:
 
@@ -178,10 +180,10 @@ This layer is the real magic of `djunc`: a straightforward way of specifying the
 
 The resulting nested dictionary structure may be returned from as view as a JSON response (assuming all your projectors return JSON-serializable values), or included in a template context in place of a queryset or model instance.
 
-A spec is a list, which may contain:
+A spec is a list. Under the hood, the `spec` module is a very lightweight wrapper on top of `pairs` - it applies simple transformations to the items in the list to replace with with the relevant pair functions. The list may contain:
 
-* _strings_, which are interpreted as field names,
-* _dictionaries_, which are interpreted as relationships (with the keys specifying the relationship name and the values being specs for projecting the related objects)
+* _strings_, which are interpreted as field names and are replaced with `pairs.field`,
+* _dictionaries_, which are interpreted as relationships (with the keys specifying the relationship name and the values being specs for projecting the related objects) and are replaced with `pairs.auto_relationship`.
 * _pairs_ of `(prepare, project)` functions (see previous section), which are left as-is.
 
 The example from the last section may be written as the following spec:
@@ -230,11 +232,15 @@ with zen_queries.queries_disabled():
 To enforce this, if `django-zen-queries` is installed, `djunc` will automatically apply
 `queries_disabled()` to the `prepare` and `project` functions returned by `spec.process`, so there is no need to apply it manually as in the above example.
 
+### Where should this code go?
+
+We recommend that your custom functions go in a file called `readers.py` inside your Django apps. Specs should be declared at the point they are used, usually in your `views.py`.
+
 ### What about other types of business logic?
 
 You'll notice that `djunc`'s functionality is focused on _reads_: business logic which selects some data from the database and/or transforms it in such a way that it can be displayed to a user. What about other common types of business logic that involve accepting input from users and processing it?
 
-`djunc` doesn't currently provide any code to help with this, but we encourage you to follow the same function-oriented philosophy. Structure your codebase around functions which take model instances and encapsulate these sorts of write actions. You might choose to call them `action functions`.
+`djunc` doesn't currently provide any code to help with this, but we encourage you to follow the same function-oriented philosophy. Structure your codebase around functions which take model instances and encapsulate these sorts of write actions. You might choose to call them `action functions` and place them in a file called `actions.py`.
 
 The other common task needed is data validation. We'd suggest Django forms and/or Django REST framework serializers are perfectly adequate here.
 
