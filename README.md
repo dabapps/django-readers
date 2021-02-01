@@ -38,7 +38,7 @@ The functionality that `djunc` provides is deliberately straightforward and inte
 
 ## Features and concepts
 
-`djunc` is organised in three layers of _"reader functions"_. At the highest level of abstraction is `djunc.spec` (the top layer), which depends on `djunc.pairs` (the middle layer), which depends on `djunc.projectors` and `djunc.qs` (the bottom layer).
+`djunc` is organised in three layers of _"reader functions"_. At the highest level of abstraction is `djunc.specs` (the top layer), which depends on `djunc.pairs` (the middle layer), which depends on `djunc.projectors` and `djunc.qs` (the bottom layer).
 
 These layers can be intermingled in a real-world application. To expain each layer, it makes most sense to start at the bottom and work upwards.
 
@@ -174,13 +174,13 @@ Note that `djunc` _always_ uses `prefetch_related` to load relationships, even i
 
 Of course, it is quite possible to use `select_related` by applying `qs.select_related` at the root of your query, but this must be done manually. `djunc` also provides `qs.select_related_fields`, which combines `select_related` with `include_fields` to allow you to specify exactly which fields you need from the related objects.
 
-### `djunc.spec`: a high-level spec for efficient data querying and projection
+### `djunc.specs`: a high-level specification for efficient data querying and projection
 
 This layer is the real magic of `djunc`: a straightforward way of specifying the shape of your data in order to efficiently select and project a complex tree of related objects.
 
 The resulting nested dictionary structure may be returned from as view as a JSON response (assuming all your projectors return JSON-serializable values), or included in a template context in place of a queryset or model instance.
 
-A spec is a list. Under the hood, the `spec` module is a very lightweight wrapper on top of `pairs` - it applies simple transformations to the items in the list to replace with with the relevant pair functions. The list may contain:
+A spec is a list. Under the hood, the `specs` module is a very lightweight wrapper on top of `pairs` - it applies simple transformations to the items in the list to replace with with the relevant pair functions. The list may contain:
 
 * _strings_, which are interpreted as field names and are replaced with `pairs.field`,
 * _dictionaries_, which are interpreted as relationships (with the keys specifying the relationship name and the values being specs for projecting the related objects) and are replaced with `pairs.auto_relationship`.
@@ -189,9 +189,9 @@ A spec is a list. Under the hood, the `spec` module is a very lightweight wrappe
 The example from the last section may be written as the following spec:
 
 ```python
-from djunc import spec
+from djunc import specs
 
-prepare, project = spec.process(
+prepare, project = specs.process(
     [
         "name",
         age_pair,
@@ -203,7 +203,7 @@ queryset = prepare(Author.objects.all())
 result = [project(instance) for instance in queryset]
 ```
 
-The structure of this spec is heavily inspired by [`django-rest-framework-serialization-spec`](https://github.com/dabapps/django-rest-framework-serialization-spec/), minus the concept of "plugins", which are replaced with directly including `(prepare, project)` pairs in the spec. It should be trivial to convert or "adapt" a `serialization-spec` plugin into a suitable `djunc` pair.
+The structure of this specification is heavily inspired by [`django-rest-framework-serialization-spec`](https://github.com/dabapps/django-rest-framework-serialization-spec/), minus the concept of "plugins", which are replaced with directly including `(prepare, project)` pairs in the spec. It should be trivial to convert or "adapt" a `serialization-spec` plugin into a suitable `djunc` pair.
 
 ### A note on `django-zen-queries`
 
@@ -214,7 +214,7 @@ In a project using `djunc`, it is good practice to disallow queries in the `prep
 ```python
 import zen_queries
 
-prepare, project = spec.process([
+prepare, project = specs.process([
     # some spec
 ])
 
@@ -230,7 +230,7 @@ with zen_queries.queries_disabled():
 ```
 
 To enforce this, if `django-zen-queries` is installed, `djunc` will automatically apply
-`queries_disabled()` to the `prepare` and `project` functions returned by `spec.process`, so there is no need to apply it manually as in the above example.
+`queries_disabled()` to the `prepare` and `project` functions returned by `specs.process`, so there is no need to apply it manually as in the above example.
 
 ### Where should this code go?
 
