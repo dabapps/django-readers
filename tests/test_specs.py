@@ -1,5 +1,5 @@
 from django.test import TestCase
-from djunc import spec
+from djunc import specs
 from tests.models import Category, Owner, Thing, Widget
 
 
@@ -8,7 +8,7 @@ class SpecTestCase(TestCase):
         for name in ["first", "second", "third"]:
             Widget.objects.create(name=name, other=f"other-{name}")
 
-        prepare, project = spec.process(["name", "other"])
+        prepare, project = specs.process(["name", "other"])
 
         queryset = prepare(Widget.objects.all())
         result = [project(instance) for instance in queryset]
@@ -29,7 +29,7 @@ class SpecTestCase(TestCase):
         category.widget_set.add(widget)
         Thing.objects.create(name="test thing", widget=widget)
 
-        prepare, project = spec.process(
+        prepare, project = specs.process(
             [
                 "name",
                 {"owner": ["name", {"widget_set": ["name"]}]},
@@ -66,12 +66,12 @@ class SpecTestCase(TestCase):
         owner = Owner.objects.create(name="test owner")
         Widget.objects.create(name="test widget", owner=owner)
 
-        prepare, project = spec.process(
+        prepare, project = specs.process(
             [
-                spec.alias({"name": "name_alias"}, "name"),
-                spec.alias(
+                specs.alias({"name": "name_alias"}, "name"),
+                specs.alias(
                     "widgets",
-                    {"widget_set": [spec.alias("alias", "name")]},
+                    {"widget_set": [specs.alias("alias", "name")]},
                 ),
             ]
         )
