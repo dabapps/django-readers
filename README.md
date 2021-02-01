@@ -168,7 +168,9 @@ prepare, project = pairs.combine(
 
 Again, only the precise fields that are needed are loaded from the database.
 
-Note that `djunc` _always_ uses `prefetch_related` to load relationships, even in circumstances where `select_related` would usually be used (ie `ForeignKey` and `OneToOneField`), resulting in one query per relationship. This approach allows the code to be "fractal": the tree of `(prepare, project)` pairs can be recursively applied to the tree of related querysets. Of course, it is quite possible to use `select_related` by applying `qs.select_related` at the root of your query, but this must be done manually.
+Note that `djunc` _always_ uses `prefetch_related` to load relationships, even in circumstances where `select_related` would usually be used (ie `ForeignKey` and `OneToOneField`), resulting in one query per relationship. This approach allows the code to be "fractal": the tree of `(prepare, project)` pairs can be recursively applied to the tree of related querysets.
+
+Of course, it is quite possible to use `select_related` by applying `qs.select_related` at the root of your query, but this must be done manually. `djunc` also provides `qs.select_related_fields`, which combines `select_related` with `include_fields` to allow you to specify exactly which fields you need from the related objects.
 
 ### `djunc.spec`: a high-level spec for efficient data querying and projection
 
