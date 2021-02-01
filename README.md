@@ -32,6 +32,8 @@ Third and worst, often model methods themselves perform queries against other mo
 
 **`djunc` encourages you to instead structure your code around plain *functions* rather than methods on classes. You can put these functions wherever you like in your codebase. Complex business logic is built by composing and combining these functions.**
 
+`djunc` provides a set of tools to help with the parts of your business logic that are responsible for _reads_ from the database: selecting and transforming data before presenting it to clients. It is designed to be used with Django templates as well as Django REST framework.
+
 The functionality that `djunc` provides is deliberately straightforward and interoperable with existing Django libraries, patterns and practices. You can choose to use just the parts of `djunc` that appeal to you and make sense in your project.
 
 ## Features and concepts
@@ -178,10 +180,10 @@ This layer is the real magic of `djunc`: a straightforward way of specifying the
 
 The resulting nested dictionary structure may be returned from as view as a JSON response (assuming all your projectors return JSON-serializable values), or included in a template context in place of a queryset or model instance.
 
-A spec is a list, which may contain:
+A spec is a list. Under the hood, the `spec` module is a very lightweight wrapper on top of `pairs` - it applies simple transformations to the items in the list to replace with with the relevant pair functions. The list may contain:
 
-* _strings_, which are interpreted as field names,
-* _dictionaries_, which are interpreted as relationships (with the keys specifying the relationship name and the values being specs for projecting the related objects)
+* _strings_, which are interpreted as field names and are replaced with `pairs.field`,
+* _dictionaries_, which are interpreted as relationships (with the keys specifying the relationship name and the values being specs for projecting the related objects) and are replaced with `pairs.auto_relationship`.
 * _pairs_ of `(prepare, project)` functions (see previous section), which are left as-is.
 
 The example from the last section may be written as the following spec:
