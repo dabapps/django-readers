@@ -1,5 +1,12 @@
 from django.db.models import Prefetch, QuerySet
 from django.db.models.constants import LOOKUP_SEP
+from django.db.models.fields.related_descriptors import (
+    ForwardManyToOneDescriptor,
+    ForwardOneToOneDescriptor,
+    ManyToManyDescriptor,
+    ReverseManyToOneDescriptor,
+    ReverseOneToOneDescriptor,
+)
 
 
 def _method_to_function(method):
@@ -76,6 +83,36 @@ def select_related_fields(*fields):
     )
 
 
+"""
+The below functions return functions that use `prefetch_related` to efficiently load
+related objects. We use `prefetch_related` to load all relationship types because this
+means our functions can be recursive - we can apply pairs to the related querysets, all
+the way down the tree.
+
+There are six types of relationship from the point of view of the "main" object:
+
+  * Forward one-to-one - a OneToOneField on the main object
+  * Reverse one-to-one - a OneToOneField on the related object
+  * Forward many-to-one - a ForeignKey on the main object
+  * Reverse many-to-one - a ForeignKey on the related object
+  * Forward many-to-many - a ManyToManyField on the main object
+  * Reverse many-to-many - a ManyToManyField on the related object
+
+ManyToManyFields are symmetrical, so the latter two collapse down to the same thing.
+The forward one-to-one and many-to-one are identical as they both relate a single
+related object to the main object. The reverse one-to-one and many-to-one are identical
+except the former relates the main object to a single related object, and the latter
+relates the main object to many related objects. Because the `projectors.relationship`
+function already infers whether to iterate or project a single instance, we can collapse
+these two functions into one as well.
+
+There are functions for forward, reverse or many-to-many relationships, and then
+an "auto" function which selects the correct relationship type by introspecting the
+model. It shouldn't usually be necessary to use the manual functions unless you're
+doing something weird, like providing a custom queryset.
+"""
+
+
 def prefetch_forward_relationship(name, related_queryset):
     """
     Efficiently prefetch a forward relationship: one where the field on the "parent"
@@ -111,3 +148,61 @@ def prefetch_many_to_many_relationship(name, related_queryset):
     symmetrical, so no need to differentiate between forward and reverse direction.
     """
     return prefetch_related(Prefetch(name, related_queryset))
+
+
+def auto_prefetch_relationship(name, prepare_related_queryset=noop):
+    """
+    Given the name of a relationship, return a prepare function which introspects the
+    relationship to discover its type and generates the correct set of
+    `select_related` and `include_fields` calls to apply to efficiently load it. A
+    queryset function may also be passed, which will be applied to the related
+    queryset.
+
+    This is by far the most complicated part of the entire library. The reason
+    it's so complicated is because Django's related object descriptors are
+    inconsistent: each type has a slightly different way of accessing its related
+    queryset, the name of the field on the other side of the relationship, etc.
+    """
+
+    def prepare(queryset):
+        related_descriptor = getattr(queryset.model, name)
+
+        if type(related_descriptor) in (
+            ForwardOneToOneDescriptor,
+            ForwardManyToOneDescriptor,
+        ):
+            return prefetch_forward_relationship(
+                name,
+                prepare_related_queryset(
+                    related_descriptor.field.related_model.objects.all()
+                ),
+            )(queryset)
+        if type(related_descriptor) is ReverseOneToOneDescriptor:
+            return prefetch_reverse_relationship(
+                name,
+                related_descriptor.related.field.name,
+                prepare_related_queryset(
+                    related_descriptor.related.field.model.objects.all()
+                ),
+            )(queryset)
+        if type(related_descriptor) is ReverseManyToOneDescriptor:
+            return prefetch_reverse_relationship(
+                name,
+                related_descriptor.rel.field.name,
+                prepare_related_queryset(
+                    related_descriptor.rel.field.model.objects.all()
+                ),
+            )(queryset)
+        if type(related_descriptor) is ManyToManyDescriptor:
+            field = related_descriptor.rel.field
+            if related_descriptor.reverse:
+                related_queryset = field.model.objects.all()
+            else:
+                related_queryset = field.target_field.model.objects.all()
+
+            return prefetch_many_to_many_relationship(
+                name,
+                prepare_related_queryset(related_queryset),
+            )(queryset)
+
+    return prepare
