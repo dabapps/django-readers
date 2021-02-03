@@ -16,6 +16,15 @@ Install from PyPI
 
     pip install djunc
 
+## tl;dr
+
+`djunc` is a library to help with organising business logic in a Django codebase following a more function-oriented style. It introduces a few concepts, and provides some tools to assemble them together into a working application. It focuses on selecting and transforming data.
+
+* **queryset preparation functions** replace custom queryset methods and encapsulate data selection: filtering, annotation etc. They can be composed to express complex selection logic.
+* **projector functions** replace model methods and encapsulate business logic for transforming and presenting data. They can be combined to form lightweight business objects (dictionaries) that are right shape for the code that consumes them.
+* **reader pairs** combine queryset functions and projectors, expressing the dependencies between them.
+* a high-level **spec** provides a concise way to express exactly which data should be selected and projected at the point of use.
+
 ## A note on this documentation
 
 `djunc` is as much a set of recommended patterns as it is a library of code. This README attempts to explain the reasoning behind the patterns, and give some examples of how the library helps you to implement them. However, you are strongly encouraged to read the source to fully understand `djunc`: it's quite straightforward and considerably less than 200 lines of code. Also, the tests (under `tests/`) provide some real-world examples of how each "layer" of the library might be used, so they are worth reading too.
