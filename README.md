@@ -216,14 +216,13 @@ The example from the last section may be written as the following spec:
 ```python
 from djunc import specs
 
-prepare, project = specs.process(
-    [
-        "name",
-        age_pair,
-        {"book_set": ["title", "publication_year"]},
-    ]
-)
+spec = [
+    "name",
+    age_pair,
+    {"book_set": ["title", "publication_year"]},
+]
 
+prepare, project = specs.process(spec)
 queryset = prepare(Author.objects.all())
 result = [project(instance) for instance in queryset]
 ```
@@ -239,6 +238,20 @@ prepare, project = specs.process(
     ]
 )
 ```
+
+### `djunc.shortcuts`
+
+The `djunc.shortcuts` module provides a shortcut function called `apply_spec` for preparing and projecting a queryset based on a spec, with various options to help when doing this in a view. It is similar in intention to the `get_object_or_404` and `get_list_or_404` shortcuts included with Django.
+
+In all examples below, the `queryset` argument can actually be a Model class, a Manager, or a QuerySet instance. The `many` keyword argument is required.
+
+`apply_spec(spec, queryset, many=True)` projects each item in the given queryset. If the queryset is empty, returns an empty list.
+
+`apply_spec(spec, queryset, many=False)` calls `.get` on the given queryset and projects the result. The model's `DoesNotExist` exception is raised if the queryset is empty.
+
+`apply_spec(spec, queryset, many=True, raise_404=True)` projects each item in the given queryset. If the queryset is empty, raises `Http404`.
+
+`apply_spec(spec, queryset, many=False, raise_404=True)` calls `.get` on the given queryset and projects the result. `Http404` is raised if the queryset is empty.
 
 ### A note on `django-zen-queries`
 
