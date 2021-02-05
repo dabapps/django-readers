@@ -62,6 +62,49 @@ class SpecTestCase(TestCase):
             },
         )
 
+    def test_multiple_relationships_in_single_dict(self):
+        # This is a pretty unusual thing to do, but it should work
+        owner = Owner.objects.create(name="test owner")
+        widget = Widget.objects.create(name="test widget", owner=owner)
+        category = Category.objects.create(name="test category")
+        category.widget_set.add(widget)
+        Thing.objects.create(name="test thing", widget=widget)
+
+        prepare, project = specs.process(
+            [
+                "name",
+                {
+                    "owner": ["name", {"widget_set": ["name"]}],
+                    "category_set": ["name", {"widget_set": ["name"]}],
+                    "thing": ["name", {"widget": ["name"]}],
+                },
+            ]
+        )
+
+        with self.assertNumQueries(0):
+            queryset = prepare(Widget.objects.all())
+
+        with self.assertNumQueries(7):
+            instance = queryset.first()
+
+        with self.assertNumQueries(0):
+            result = project(instance)
+
+        self.assertEqual(
+            result,
+            {
+                "name": "test widget",
+                "owner": {
+                    "name": "test owner",
+                    "widget_set": [{"name": "test widget"}],
+                },
+                "category_set": [
+                    {"name": "test category", "widget_set": [{"name": "test widget"}]},
+                ],
+                "thing": {"name": "test thing", "widget": {"name": "test widget"}},
+            },
+        )
+
     def test_alias(self):
         owner = Owner.objects.create(name="test owner")
         Widget.objects.create(name="test widget", owner=owner)
