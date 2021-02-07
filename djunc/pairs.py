@@ -27,8 +27,19 @@ def project_only(project):
     return qs.noop, project
 
 
+def field_display(name):
+    """
+    Works with Django's get_FOO_display mechanism for fields with choices set. Given
+    the name of a field, calls get_<name>_display, and returns a projector that puts
+    the returned value under the key <name>_display.
+    """
+    return qs.include_fields(name), projectors.alias(
+        f"{name}_display", projectors.method(f"get_{name}_display")
+    )
+
+
 """
-Below are pair functions which wrap the various queryset functions that prefetch
+Below are pair functions which return the various queryset functions that prefetch
 relationships of various types, and then project those related objects.
 
 There are functions for forward, reverse or many-to-many relationships, and then
