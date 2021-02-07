@@ -118,3 +118,23 @@ class RelationshipTestCase(TestCase):
                 ],
             },
         )
+
+
+class MethodTestCase(TestCase):
+    def test_method_with_no_arguments(self):
+        class Widget:
+            def hello(self):
+                return "hello!"
+
+        project = projectors.method("hello")
+        result = project(Widget())
+        self.assertEqual(result, {"hello": "hello!"})
+
+    def test_method_with_arguments(self):
+        class Widget:
+            def hello(self, name):
+                return f"hello, {name}!"
+
+        project = projectors.method("hello", "tester")
+        result = project(Widget())
+        self.assertEqual(result, {"hello": "hello, tester!"})
