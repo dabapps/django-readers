@@ -27,6 +27,10 @@ def project_only(project):
     return qs.noop, project
 
 
+def filter(*args, **kwargs):
+    return prepare_only(qs.filter(*args, **kwargs))
+
+
 """
 Below are pair functions which wrap the various queryset functions that prefetch
 relationships of various types, and then project those related objects.
