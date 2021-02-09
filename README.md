@@ -185,7 +185,7 @@ prepare, project = pairs.combine(
 )
 ```
 
-Again, only the precise fields that are needed are loaded from the database.
+Again, only the precise fields that are needed are loaded from the database. All relationship functions take an option `to_attr` argument which is passed to the underlying `Prefetch` object and also changes the key name in the projection.
 
 Note that `djunc` _always_ uses `prefetch_related` to load relationships, even in circumstances where `select_related` would usually be used (ie `ForeignKey` and `OneToOneField`), resulting in one query per relationship. This approach allows the code to be "fractal": the tree of `(prepare, project)` pairs can be recursively applied to the tree of related querysets.
 
