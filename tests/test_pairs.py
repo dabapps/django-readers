@@ -63,6 +63,33 @@ class PairsTestCase(TestCase):
             },
         )
 
+    def test_forward_many_to_one_relationship_with_to_attr(self):
+        Widget.objects.create(
+            name="test widget",
+            owner=Owner.objects.create(name="test owner"),
+        )
+
+        prepare, project = pairs.combine(
+            pairs.field("name"),
+            pairs.forward_relationship(
+                "owner",
+                Owner.objects.all(),
+                pairs.field("name"),
+                to_attr="owner_attr",
+            ),
+        )
+
+        instance = prepare(Widget.objects.all()).first()
+        result = project(instance)
+
+        self.assertEqual(
+            result,
+            {
+                "name": "test widget",
+                "owner_attr": {"name": "test owner"},
+            },
+        )
+
     def test_reverse_many_to_one_relationship(self):
         group = Group.objects.create(name="test group")
         owner_1 = Owner.objects.create(name="owner 1", group=group)
@@ -120,6 +147,36 @@ class PairsTestCase(TestCase):
             },
         )
 
+    def test_reverse_many_to_one_relationship_with_to_attr(self):
+        group = Group.objects.create(name="test group")
+        Owner.objects.create(name="owner 1", group=group)
+        Owner.objects.create(name="owner 2", group=group)
+
+        prepare, project = pairs.combine(
+            pairs.field("name"),
+            pairs.reverse_relationship(
+                "owner_set",
+                "group",
+                Owner.objects.all(),
+                pairs.field("name"),
+                to_attr="owner_set_attr",
+            ),
+        )
+
+        instance = prepare(Group.objects.all()).first()
+        result = project(instance)
+
+        self.assertEqual(
+            result,
+            {
+                "name": "test group",
+                "owner_set_attr": [
+                    {"name": "owner 1"},
+                    {"name": "owner 2"},
+                ],
+            },
+        )
+
     def test_one_to_one_relationship(self):
         widget = Widget.objects.create(name="test widget")
         Thing.objects.create(name="test thing", widget=widget)
@@ -155,6 +212,43 @@ class PairsTestCase(TestCase):
             {
                 "name": "test thing",
                 "widget": {"name": "test widget", "thing": {"name": "test thing"}},
+            },
+        )
+
+    def test_one_to_one_relationship_with_to_attr(self):
+        widget = Widget.objects.create(name="test widget")
+        Thing.objects.create(name="test thing", widget=widget)
+
+        prepare, project = pairs.combine(
+            pairs.field("name"),
+            pairs.forward_relationship(
+                "widget",
+                Widget.objects.all(),
+                pairs.combine(
+                    pairs.field("name"),
+                    pairs.reverse_relationship(
+                        "thing",
+                        "widget",
+                        Thing.objects.all(),
+                        pairs.field("name"),
+                        to_attr="thing_attr",
+                    ),
+                ),
+                to_attr="widget_attr",
+            ),
+        )
+
+        instance = prepare(Thing.objects.all()).first()
+        result = project(instance)
+
+        self.assertEqual(
+            result,
+            {
+                "name": "test thing",
+                "widget_attr": {
+                    "name": "test widget",
+                    "thing_attr": {"name": "test thing"},
+                },
             },
         )
 
@@ -194,6 +288,45 @@ class PairsTestCase(TestCase):
                 "name": "test category",
                 "widget_set": [
                     {"name": "test widget", "category_set": [{"name": "test category"}]}
+                ],
+            },
+        )
+
+    def test_many_to_many_relationship_with_to_attr(self):
+        widget = Widget.objects.create(name="test widget")
+        category = Category.objects.create(name="test category")
+        category.widget_set.add(widget)
+
+        prepare, project = pairs.combine(
+            pairs.field("name"),
+            pairs.many_to_many_relationship(
+                "widget_set",
+                Widget.objects.all(),
+                pairs.combine(
+                    pairs.field("name"),
+                    pairs.many_to_many_relationship(
+                        "category_set",
+                        Category.objects.all(),
+                        pairs.field("name"),
+                        to_attr="category_set_attr",
+                    ),
+                ),
+                to_attr="widget_set_attr",
+            ),
+        )
+
+        instance = prepare(Category.objects.all()).first()
+        result = project(instance)
+
+        self.assertEqual(
+            result,
+            {
+                "name": "test category",
+                "widget_set_attr": [
+                    {
+                        "name": "test widget",
+                        "category_set_attr": [{"name": "test category"}],
+                    }
                 ],
             },
         )
@@ -254,6 +387,33 @@ class PairsTestCase(TestCase):
                     {"name": "test category", "widget_set": [{"name": "test widget"}]},
                 ],
                 "thing": {"name": "test thing", "widget": {"name": "test widget"}},
+            },
+        )
+
+    def test_auto_relationship_with_to_attr(self):
+        Widget.objects.create(
+            name="test widget", owner=Owner.objects.create(name="test owner")
+        )
+
+        prepare, project = pairs.combine(
+            pairs.field("name"),
+            pairs.auto_relationship(
+                "owner",
+                pairs.field("name"),
+                to_attr="owner_attr",
+            ),
+        )
+
+        instance = prepare(Widget.objects.all()).first()
+        result = project(instance)
+
+        self.assertEqual(
+            result,
+            {
+                "name": "test widget",
+                "owner_attr": {
+                    "name": "test owner",
+                },
             },
         )
 
