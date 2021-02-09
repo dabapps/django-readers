@@ -474,3 +474,19 @@ class PairsTestCase(TestCase):
         self.assertEqual(
             result, {"name": "test widget", "owner": {"name": "test owner"}}
         )
+
+
+class FilterTestCase(TestCase):
+    def test_filter(self):
+        Widget.objects.create(name="first")
+        Widget.objects.create(name="second")
+
+        prepare, project = pairs.combine(
+            pairs.filter(name="first"),
+            pairs.field("name"),
+        )
+
+        queryset = prepare(Widget.objects.all())
+        self.assertEqual(len(queryset), 1)
+        result = project(queryset.first())
+        self.assertEqual(result, {"name": "first"})

@@ -199,6 +199,24 @@ prepare, project = pairs.alias(
 )
 ```
 
+As a shortcut, the `pairs` module provides a function called `filter`, which can be used to apply a filter to the queryset without affecting the projection. This is equivalent to `(qs.filter(arg=value), projectors.noop)` and is most useful for filtering related objects:
+
+```python
+prepare, project = pairs.combine(
+    pairs.field("name"),
+    age_pair,
+    pairs.auto_relationship(
+        "book_set",
+        pairs.combine(
+            pairs.filter(publication_year__gte=2020),
+            pairs.field("title"),
+            pairs.field("publication_year"),
+        ),
+        to_attr="recent_books"
+    )
+)
+```
+
 ### `djunc.specs`: a high-level specification for efficient data querying and projection
 
 This layer is the real magic of `djunc`: a straightforward way of specifying the shape of your data in order to efficiently select and project a complex tree of related objects.
