@@ -9,7 +9,7 @@ def wrap(key, value_getter):
     return projector
 
 
-def field(name):
+def attr(name):
     return wrap(name, attrgetter(name))
 
 

@@ -458,7 +458,7 @@ class PairsTestCase(TestCase):
             ),
             pairs.field("name"),
             pairs.project_only(
-                projectors.relationship("owner", projectors.field("name"))
+                projectors.relationship("owner", projectors.attr("name"))
             ),
         )
 
