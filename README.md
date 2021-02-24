@@ -18,7 +18,7 @@ Install from PyPI
 
 ## tl;dr
 
-`django-readers` is a library to help with organising business logic in a Django codebase following a more function-oriented style. It introduces a few simple concepts, and provides some tools to assemble them together into a working application. It can easily be combined with existing patterns and libraries. It focuses on selecting and transforming data.
+`django-readers` is a library to help with organising business logic in a Django codebase, following a function-oriented style. It allows you to concisely specify data dependencies in your views and attempts to extract and transform that data as efficiently as possible, eliminating the [N+1 queries problem](https://stackoverflow.com/questions/97197/what-is-the-n1-selects-problem-in-orm-object-relational-mapping). It introduces a few simple concepts, and provides some tools to assemble them together into a working application. It can easily be combined with existing patterns and libraries.
 
 * **queryset preparation functions** replace custom queryset methods and encapsulate data selection: filtering, annotation etc. They can be composed to express complex selection logic.
 * **projector functions** replace model methods and encapsulate business logic for transforming and presenting data. They can be combined to form lightweight business objects (dictionaries) that are the right shape for the code that consumes them.
@@ -33,13 +33,13 @@ Install from PyPI
 
 Django common practices encourage a "fat models" approach. That is: most of the business logic of the application goes in the model layer (on the models themselves, or on custom managers or querysets). This is often a bad idea for several reasons:
 
-First, it goes against the [Single Responsibility Principle](https://en.wikipedia.org/wiki/Single-responsibility_principle). Models are *already* responsible for mapping between your database tables and your application code and back again. This mapping is a highly complex task, and that's quite enough for one set of classes to be responsible for.
+First, it goes against the [Single Responsibility Principle](https://en.wikipedia.org/wiki/Single-responsibility_principle). Models are already responsible for mapping between your database tables and your application code and back again. This mapping is a highly complex task, and that's quite enough for one set of classes to be responsible for.
 
 Second, it is bad for code organisation, particularly in larger projects. Your `models.py` becomes a trash pile onto which all business logic is dumped. Models and querysets grow to thousands of lines of code. The API surface area for each model becomes huge, and this entire surface is available to any part of your application that imports the model.
 
 Third and worst, often model methods themselves perform queries against other models. This is a disaster for application performance, leading to inefficient query patterns that can be very difficult to fix. When they _are_ fixed (through judicious use of `select_related` and `prefetch_related` on the queryset), the model methods become tightly bound to the precise way that the query is built, resulting in unpredictable and brittle code.
 
-**`django-readers` encourages you to instead structure your code around plain *functions* rather than methods on classes. You can put these functions wherever you like in your codebase. Complex business logic is built by composing and combining these functions.**
+**`django-readers` encourages you to instead structure your code around plain functions rather than methods on classes. You can put these functions wherever you like in your codebase. Complex business logic is built by composing and combining these functions.**
 
 `django-readers` provides a set of tools to help with the parts of your business logic that are responsible for _reads_ from the database: selecting and transforming data before presenting it to clients. It is designed to be used with Django templates as well as Django REST framework.
 
@@ -53,7 +53,7 @@ These layers can be intermingled in a real-world application. To expain each lay
 
 ### `django_readers.qs`: queryset preparation functions
 
-A *queryset preparation function* is a function that *accepts a queryset* as its single argument, and *returns a new queryset* with some modifications applied.
+A queryset preparation function is a function that accepts a queryset as its single argument, and returns a new queryset with some modifications applied.
 
 ```
 def prepare(queryset):
@@ -80,11 +80,11 @@ queryset = recent_books_with_prefetched_authors(Book.objects.all())
 
 ### `django_readers.projectors`: model projection functions
 
-A *projector* is a function that *accepts a model instance* as its single argument, and *returns a dictionary* containing some subset or transformation of the instance data.
+A projector is a function that accepts a model instance as its single argument, and returns a dictionary containing some subset or transformation of the instance data.
 
 These functions "project" your data layer into your application's business logic domain. Business logic that would traditionally go in model methods should instead go in projectors.
 
-Think of the dictionary returned by a projector (the "projection") as the _simplest possible domain object_. In most cases, it makes sense for an individual projector function to return a dictionary containing _just a single key and value_.
+Think of the dictionary returned by a projector (the "projection") as the simplest possible domain object. In most cases, it makes sense for an individual projector function to return a dictionary containing just a single key and value.
 
 ```python
 from datetime import datetime
@@ -152,7 +152,7 @@ Finally, the `projectors.method` function will call the given method name on the
 
 ### `django_readers.pairs`: "reader pairs" combining `prepare` and `project`
 
-`prepare` and `project` functions are intimately connected, with the `project` function usually depending on fields, annotations or relationships loaded by the `prepare` function. For this reason, `django-readers` expects these functions to live together in a two-tuple called a *reader pair*: `(prepare, project)`.
+`prepare` and `project` functions are intimately connected, with the `project` function usually depending on fields, annotations or relationships loaded by the `prepare` function. For this reason, `django-readers` expects these functions to live together in a two-tuple called a reader pair: `(prepare, project)`.
 
 In the example used above, the `project_age` projector depends on the `birth_year` field:
 
@@ -304,6 +304,12 @@ You'll notice that `django-readers` is focused on _reads_: business logic which 
 `django-readers` doesn't provide any code to help with this, but we encourage you to follow the same function-oriented philosophy. Structure your codebase around functions which take model instances and encapsulate these sorts of write actions. You might choose to call them `action functions` and place them in a file called `actions.py`.
 
 The other common task needed is data validation. We'd suggest Django forms and/or Django REST framework serializers are perfectly adequate here.
+
+### Is `django-readers` a "service layer"?
+
+Not really, although it does solve some of the same problems. It suggests alternative (and, we think, beneficial) ways to structure your business logic without attempting to hide or abstract away the underlying Django concepts, and so should be easily understandable by any experienced Django developer. You can easily "mix and match" `django-readers` concepts into an existing application.
+
+If you are someone who feels more comfortable talking about established Design Patterns, you may consider the dictionaries returned from projector functions as simple [Data Transfer Objects](https://martinfowler.com/eaaCatalog/dataTransferObject.html), and the idea of dividing read and write logic into `readers` and `actions` as a version of [CQRS](https://martinfowler.com/bliki/CQRS.html).
 
 ## Code of conduct
 
