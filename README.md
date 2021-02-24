@@ -97,13 +97,13 @@ print(project_age(author))
 #  {'age': 37}
 ```
 
-The simplest projector is one that returns the value of a model field, wrapped in a dictionary with the field name as its single key. `djunc` provides a projector that does this:
+The simplest projector is one that returns the value of an object attribute, wrapped in a dictionary with the attribute name as its single key. `djunc` provides a projector that does this:
 
 ```python
 from djunc import projectors
 
 author = Author(name="Some Author")
-project = projectors.field("name")
+project = projectors.attr("name")
 print(project(author))
 #  {'name': 'Some Author'}
 ```
@@ -118,7 +118,7 @@ Projectors can be combined. The keys and values from the dictionary returned by 
 from djunc import projectors
 
 project = projectors.combine(
-    projectors.field("name"),
+    projectors.attr("name"),
     project_age,
 )
 print(project(author))
@@ -129,11 +129,11 @@ Related objects can also be projected using the `projectors.relationship` functi
 
 ```python
 project = projectors.combine(
-    projectors.field("name"),
+    projectors.attr("name"),
     project_age,
     projectors.relationship("book_set", projectors.combine(
-        projectors.field("title"),
-        projectors.field("publication_year"),
+        projectors.attr("title"),
+        projectors.attr("publication_year"),
     )),
 )
 print(project(author))
@@ -144,7 +144,7 @@ Projectors can also be aliased, which means replacing one or more keys in the re
 
 ```python
 project = projectors.alias(
-    "year_of_birth", projectors.field("birth_year")
+    "year_of_birth", projectors.attr("birth_year")
 )
 ```
 
