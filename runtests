@@ -2,7 +2,7 @@
 
 set -e
 
-black --check djunc tests
-flake8 djunc tests
-isort --check --diff djunc tests
+black --check django_readers tests
+flake8 django_readers tests
+isort --check --diff django_readers tests
 python manage.py test --noinput $@

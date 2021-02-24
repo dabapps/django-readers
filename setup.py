@@ -8,10 +8,10 @@ import os
 import sys
 
 
-name = "djunc"
-package = "djunc"
+name = "django-readers"
+package = "django_readers"
 description = "A lightweight function-oriented toolkit for better organisation of business logic and efficient selection and projection of data in Django projects."
-url = "https://github.com/dabapps/djunc"
+url = "https://github.com/dabapps/django-readers"
 author = "DabApps"
 author_email = "hello@dabapps.com"
 license = "BSD"
@@ -75,7 +75,7 @@ setup(
         "Django>=2.2",
     ],
     project_urls={
-        "Changelog": "https://github.com/dabapps/djunc/releases",
-        "Issues": "https://github.com/dabapps/djunc/issues",
+        "Changelog": "https://github.com/dabapps/django-readers/releases",
+        "Issues": "https://github.com/dabapps/django-readers/issues",
     }
 )

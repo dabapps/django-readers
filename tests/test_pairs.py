@@ -1,5 +1,5 @@
 from django.test import TestCase
-from djunc import pairs, projectors, qs
+from django_readers import pairs, projectors, qs
 from tests.models import Category, Group, Owner, Thing, Widget
 
 

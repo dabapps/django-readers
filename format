@@ -2,6 +2,6 @@
 
 set -e
 
-black djunc tests
-flake8 djunc tests
-isort djunc tests
+black django_readers tests
+flake8 django_readers tests
+isort django_readers tests
