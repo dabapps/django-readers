@@ -9,6 +9,11 @@ class MapOrApplyTestCase(TestCase):
         result = utils.map_or_apply(item, lambda item: item.name)
         self.assertEqual(result, "test")
 
+    def test_null_single_item(self):
+        item = None
+        result = utils.map_or_apply(item, lambda item: item.name)
+        self.assertEqual(result, None)
+
     def test_plain_iterable(self):
         items = [Widget(name="test 1"), Widget(name="test 2")]
         result = utils.map_or_apply(items, lambda item: item.name)

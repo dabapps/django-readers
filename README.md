@@ -97,13 +97,13 @@ print(project_age(author))
 #  {'age': 37}
 ```
 
-The simplest projector is one that returns the value of a model field, wrapped in a dictionary with the field name as its single key. `djunc` provides a projector that does this:
+The simplest projector is one that returns the value of an object attribute, wrapped in a dictionary with the attribute name as its single key. `djunc` provides a projector that does this:
 
 ```python
 from djunc import projectors
 
 author = Author(name="Some Author")
-project = projectors.field("name")
+project = projectors.attr("name")
 print(project(author))
 #  {'name': 'Some Author'}
 ```
@@ -118,7 +118,7 @@ Projectors can be combined. The keys and values from the dictionary returned by 
 from djunc import projectors
 
 project = projectors.combine(
-    projectors.field("name"),
+    projectors.attr("name"),
     project_age,
 )
 print(project(author))
@@ -129,11 +129,11 @@ Related objects can also be projected using the `projectors.relationship` functi
 
 ```python
 project = projectors.combine(
-    projectors.field("name"),
+    projectors.attr("name"),
     project_age,
     projectors.relationship("book_set", projectors.combine(
-        projectors.field("title"),
-        projectors.field("publication_year"),
+        projectors.attr("title"),
+        projectors.attr("publication_year"),
     )),
 )
 print(project(author))
@@ -144,9 +144,11 @@ Projectors can also be aliased, which means replacing one or more keys in the re
 
 ```python
 project = projectors.alias(
-    "year_of_birth", projectors.field("birth_year")
+    "year_of_birth", projectors.attr("birth_year")
 )
 ```
+
+Finally, the `projectors.method` function will call the given method name on the instance, returning the result under a key matching the method name. Any extra arguments passed to `projectors.method` will be passed along to the method.
 
 ### `djunc.pairs`: "reader pairs" combining `prepare` and `project`
 
@@ -185,7 +187,7 @@ prepare, project = pairs.combine(
 )
 ```
 
-Again, only the precise fields that are needed are loaded from the database.
+Again, only the precise fields that are needed are loaded from the database. All relationship functions take an optional `to_attr` argument which is passed to the underlying `Prefetch` object and also changes the key name in the projection.
 
 Note that `djunc` _always_ uses `prefetch_related` to load relationships, even in circumstances where `select_related` would usually be used (ie `ForeignKey` and `OneToOneField`), resulting in one query per relationship. This approach allows the code to be "fractal": the tree of `(prepare, project)` pairs can be recursively applied to the tree of related querysets.
 
@@ -198,6 +200,30 @@ prepare, project = pairs.alias(
     "year_of_birth", pairs.field("birth_year")
 )
 ```
+
+As a shortcut, the `pairs` module provides a function called `filter`, which can be used to apply a filter to the queryset without affecting the projection. This is equivalent to `(qs.filter(arg=value), projectors.noop)` and is most useful for filtering related objects:
+
+```python
+prepare, project = pairs.combine(
+    pairs.field("name"),
+    age_pair,
+    pairs.auto_relationship(
+        "book_set",
+        pairs.combine(
+            pairs.filter(publication_year__gte=2020),
+            pairs.field("title"),
+            pairs.field("publication_year"),
+        ),
+        to_attr="recent_books"
+    )
+)
+```
+
+`djunc` also comes with a pair function for working with Django's `get_FOO_display` mechanism. From the Django docs:
+
+> For every field that has `choices` set, the object will have a `get_FOO_display()` method, where `FOO` is the name of the field. This method returns the “human-readable” value of the field.
+
+The `pairs.field_display` function takes the field name as its single argument and returns a pair which loads the field from the database, and then projects the result of calling `get_<field>_display` under the key `<field>_display`.
 
 ### `djunc.specs`: a high-level specification for efficient data querying and projection
 

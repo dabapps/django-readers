@@ -101,6 +101,20 @@ class QuerySetTestCase(TestCase):
         with self.assertNumQueries(0):
             self.assertEqual(widgets[0].owner.name, "test owner")
 
+    def test_prefetch_forward_relationship_with_to_attr(self):
+        Widget.objects.create(
+            name="test widget", owner=Owner.objects.create(name="test owner")
+        )
+
+        prepare = qs.prefetch_forward_relationship(
+            "owner", qs.include_fields("name")(Owner.objects.all()), to_attr="attr"
+        )
+
+        widgets = list(prepare(Widget.objects.all()))
+
+        with self.assertNumQueries(0):
+            self.assertEqual(widgets[0].attr.name, "test owner")
+
     def test_prefetch_reverse_relationship(self):
         Widget.objects.create(
             name="test widget", owner=Owner.objects.create(name="test owner")
@@ -141,6 +155,26 @@ class QuerySetTestCase(TestCase):
 
         with self.assertNumQueries(0):
             self.assertEqual(owners[0].widget_set.all()[0].name, "test widget")
+
+    def test_prefetch_reverse_relationship_with_to_attr(self):
+        Widget.objects.create(
+            name="test widget", owner=Owner.objects.create(name="test owner")
+        )
+
+        prepare = qs.pipe(
+            qs.include_fields("name"),
+            qs.prefetch_reverse_relationship(
+                "widget_set",
+                "owner",
+                qs.include_fields("name")(Widget.objects.all()),
+                to_attr="attr",
+            ),
+        )
+
+        owners = list(prepare(Owner.objects.all()))
+
+        with self.assertNumQueries(0):
+            self.assertEqual(owners[0].attr[0].name, "test widget")
 
     def test_prefetch_many_to_many_relationship(self):
         widget = Widget.objects.create(name="test widget")
@@ -187,6 +221,26 @@ class QuerySetTestCase(TestCase):
 
         with self.assertNumQueries(0):
             self.assertEqual(widgets[0].category_set.all()[0].name, "test category")
+
+    def test_prefetch_many_to_many_relationship_with_to_attr(self):
+        widget = Widget.objects.create(name="test widget")
+        category = Category.objects.create(name="test category")
+
+        widget.category_set.add(category)
+
+        prepare = qs.pipe(
+            qs.include_fields("name"),
+            qs.prefetch_many_to_many_relationship(
+                "category_set",
+                qs.include_fields("name")(Category.objects.all()),
+                to_attr="attr",
+            ),
+        )
+
+        widgets = list(prepare(Widget.objects.all()))
+
+        with self.assertNumQueries(0):
+            self.assertEqual(widgets[0].attr[0].name, "test category")
 
     def test_auto_prefetch_relationship(self):
         with mock.patch("djunc.qs.prefetch_forward_relationship") as mock_fn:

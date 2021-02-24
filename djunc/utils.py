@@ -11,6 +11,9 @@ def map_or_apply(obj, fn):
     map the function across the result of that. If it's is a single item, just call
     the function on that item and return the result.
     """
+    if obj is None:
+        return None
+
     try:
         # Is the object itself iterable?
         return [fn(item) for item in iter(obj)]

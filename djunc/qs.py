@@ -113,18 +113,18 @@ doing something weird, like providing a custom queryset.
 """
 
 
-def prefetch_forward_relationship(name, related_queryset):
+def prefetch_forward_relationship(name, related_queryset, to_attr=None):
     """
     Efficiently prefetch a forward relationship: one where the field on the "parent"
     queryset is a concrete field. We need to include this field in the query.
     """
     return pipe(
         include_fields(name),
-        prefetch_related(Prefetch(name, related_queryset)),
+        prefetch_related(Prefetch(name, related_queryset, to_attr)),
     )
 
 
-def prefetch_reverse_relationship(name, related_name, related_queryset):
+def prefetch_reverse_relationship(name, related_name, related_queryset, to_attr=None):
     """
     Efficiently prefetch a reverse relationship: one where the field on the "parent"
     queryset is not a concrete field - a foreign key from another object points at it.
@@ -137,20 +137,21 @@ def prefetch_reverse_relationship(name, related_name, related_queryset):
         Prefetch(
             name,
             include_fields(related_name)(related_queryset),
+            to_attr,
         )
     )
 
 
-def prefetch_many_to_many_relationship(name, related_queryset):
+def prefetch_many_to_many_relationship(name, related_queryset, to_attr=None):
     """
     For many-to-many relationships, both sides of the relationship are non-concrete,
     so we don't need to do anything special with including fields. They are also
     symmetrical, so no need to differentiate between forward and reverse direction.
     """
-    return prefetch_related(Prefetch(name, related_queryset))
+    return prefetch_related(Prefetch(name, related_queryset, to_attr))
 
 
-def auto_prefetch_relationship(name, prepare_related_queryset=noop):
+def auto_prefetch_relationship(name, prepare_related_queryset=noop, to_attr=None):
     """
     Given the name of a relationship, return a prepare function which introspects the
     relationship to discover its type and generates the correct set of
@@ -176,6 +177,7 @@ def auto_prefetch_relationship(name, prepare_related_queryset=noop):
                 prepare_related_queryset(
                     related_descriptor.field.related_model.objects.all()
                 ),
+                to_attr,
             )(queryset)
         if type(related_descriptor) is ReverseOneToOneDescriptor:
             return prefetch_reverse_relationship(
@@ -184,6 +186,7 @@ def auto_prefetch_relationship(name, prepare_related_queryset=noop):
                 prepare_related_queryset(
                     related_descriptor.related.field.model.objects.all()
                 ),
+                to_attr,
             )(queryset)
         if type(related_descriptor) is ReverseManyToOneDescriptor:
             return prefetch_reverse_relationship(
@@ -192,6 +195,7 @@ def auto_prefetch_relationship(name, prepare_related_queryset=noop):
                 prepare_related_queryset(
                     related_descriptor.rel.field.model.objects.all()
                 ),
+                to_attr,
             )(queryset)
         if type(related_descriptor) is ManyToManyDescriptor:
             field = related_descriptor.rel.field
@@ -203,6 +207,7 @@ def auto_prefetch_relationship(name, prepare_related_queryset=noop):
             return prefetch_many_to_many_relationship(
                 name,
                 prepare_related_queryset(related_queryset),
+                to_attr,
             )(queryset)
 
     return prepare
