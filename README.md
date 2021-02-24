@@ -309,7 +309,7 @@ The other common task needed is data validation. We'd suggest Django forms and/o
 
 Not really, although it does solve some of the same problems. It suggests alternative (and, we think, beneficial) ways to structure your business logic without attempting to hide or abstract away the underlying Django concepts, and so should be easily understandable by any experienced Django developer. You can easily "mix and match" `django-readers` concepts into an existing application.
 
-If you are someone who feels more comfortable talking about established Design Patterns, you may consider the dictionaries returned from projector functions as simple [Data Transfer Objects](https://martinfowler.com/eaaCatalog/dataTransferObject.html), and the idea of dividing read and write logic into `readers` and `actions` as a version of [CQRS](https://martinfowler.com/bliki/CQRS.html).
+If you are someone who feels more comfortable thinking in terms of established Design Patterns, you may consider the dictionaries returned from projector functions as simple [Data Transfer Objects](https://martinfowler.com/eaaCatalog/dataTransferObject.html), and the idea of dividing read and write logic into `readers` and `actions` as a version of [CQRS](https://martinfowler.com/bliki/CQRS.html).
 
 ## Code of conduct
 
