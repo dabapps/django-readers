@@ -4,17 +4,17 @@ from tests.models import Group, Owner, Widget
 
 
 class ProjectorTestCase(TestCase):
-    def test_field(self):
+    def test_attr(self):
         widget = Widget.objects.create(name="test")
-        project = projectors.field("name")
+        project = projectors.attr("name")
         result = project(widget)
         self.assertEqual(result, {"name": "test"})
 
     def test_combine(self):
         widget = Widget.objects.create(name="test", other="other")
         project = projectors.combine(
-            projectors.field("name"),
-            projectors.field("other"),
+            projectors.attr("name"),
+            projectors.attr("other"),
         )
         result = project(widget)
         self.assertEqual(result, {"name": "test", "other": "other"})
@@ -27,13 +27,13 @@ class ProjectorTestCase(TestCase):
 
     def test_alias(self):
         widget = Widget.objects.create(name="test")
-        project = projectors.alias({"name": "new_name"}, projectors.field("name"))
+        project = projectors.alias({"name": "new_name"}, projectors.attr("name"))
         result = project(widget)
         self.assertEqual(result, {"new_name": "test"})
 
     def test_single_alias(self):
         widget = Widget.objects.create(name="test")
-        project = projectors.alias("new_name", projectors.field("name"))
+        project = projectors.alias("new_name", projectors.attr("name"))
         result = project(widget)
         self.assertEqual(result, {"new_name": "test"})
 
@@ -58,12 +58,12 @@ class RelationshipTestCase(TestCase):
         )
 
         project = projectors.combine(
-            projectors.field("name"),
+            projectors.attr("name"),
             projectors.relationship(
                 "owner",
                 projectors.combine(
-                    projectors.field("name"),
-                    projectors.relationship("group", projectors.field("name")),
+                    projectors.attr("name"),
+                    projectors.relationship("group", projectors.attr("name")),
                 ),
             ),
         )
@@ -79,7 +79,7 @@ class RelationshipTestCase(TestCase):
 
     def test_nullable(self):
         widget = Widget.objects.create(owner=None)
-        project = projectors.relationship("owner", projectors.field("name"))
+        project = projectors.relationship("owner", projectors.attr("name"))
         result = project(widget)
         self.assertEqual(result, {"owner": None})
 
@@ -92,12 +92,12 @@ class RelationshipTestCase(TestCase):
         Widget.objects.create(name="widget 3", owner=owner_2)
 
         project = projectors.combine(
-            projectors.field("name"),
+            projectors.attr("name"),
             projectors.relationship(
                 "owner_set",
                 projectors.combine(
-                    projectors.field("name"),
-                    projectors.relationship("widget_set", projectors.field("name")),
+                    projectors.attr("name"),
+                    projectors.relationship("widget_set", projectors.attr("name")),
                 ),
             ),
         )
