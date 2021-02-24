@@ -2,7 +2,7 @@ from djunc import projectors, qs
 
 
 def field(name):
-    return qs.include_fields(name), projectors.field(name)
+    return qs.include_fields(name), projectors.attr(name)
 
 
 def combine(*pairs):
