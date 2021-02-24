@@ -1,5 +1,5 @@
 from djunc.utils import map_or_apply
-from operator import attrgetter
+from operator import attrgetter, methodcaller
 
 
 def wrap(key, value_getter):
@@ -11,6 +11,10 @@ def wrap(key, value_getter):
 
 def attr(name):
     return wrap(name, attrgetter(name))
+
+
+def method(name, *args, **kwargs):
+    return wrap(name, methodcaller(name, *args, **kwargs))
 
 
 def relationship(name, related_projector):

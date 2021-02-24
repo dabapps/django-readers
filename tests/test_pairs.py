@@ -476,6 +476,22 @@ class PairsTestCase(TestCase):
         )
 
 
+class FieldDisplayTestCase(TestCase):
+    def test_field_display(self):
+        Thing.objects.create(size="L")
+        Thing.objects.create(size="S")
+        prepare, project = pairs.field_display("size")
+        queryset = prepare(Thing.objects.order_by("size"))
+        result = [project(item) for item in queryset]
+        self.assertEqual(
+            result,
+            [
+                {"size_display": "Large"},
+                {"size_display": "Small"},
+            ],
+        )
+
+
 class FilterTestCase(TestCase):
     def test_filter(self):
         Widget.objects.create(name="first")

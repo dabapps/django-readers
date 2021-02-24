@@ -18,6 +18,7 @@ class Widget(models.Model):
 
 class Thing(models.Model):
     name = models.CharField(max_length=100)
+    size = models.CharField(max_length=10, choices=[("S", "Small"), ("L", "Large")])
     widget = models.OneToOneField(Widget, null=True, on_delete=models.SET_NULL)
 
 

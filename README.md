@@ -148,6 +148,8 @@ project = projectors.alias(
 )
 ```
 
+Finally, the `projectors.method` function will call the given method name on the instance, returning the result under a key matching the method name. Any extra arguments passed to `projectors.method` will be passed along to the method.
+
 ### `djunc.pairs`: "reader pairs" combining `prepare` and `project`
 
 `prepare` and `project` functions are intimately connected, with the `project` function usually depending on fields, annotations or relationships loaded by the `prepare` function. For this reason, `djunc` expects these functions to live together in a two-tuple called a *reader pair*: `(prepare, project)`.
@@ -216,6 +218,12 @@ prepare, project = pairs.combine(
     )
 )
 ```
+
+`djunc` also comes with a pair function for working with Django's `get_FOO_display` mechanism. From the Django docs:
+
+> For every field that has `choices` set, the object will have a `get_FOO_display()` method, where `FOO` is the name of the field. This method returns the “human-readable” value of the field.
+
+The `pairs.field_display` function takes the field name as its single argument and returns a pair which loads the field from the database, and then projects the result of calling `get_<field>_display` under the key `<field>_display`.
 
 ### `djunc.specs`: a high-level specification for efficient data querying and projection
 
