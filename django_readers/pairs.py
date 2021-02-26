@@ -1,4 +1,4 @@
-from djunc import projectors, qs
+from django_readers import projectors, qs
 
 
 def field(name):

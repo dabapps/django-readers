@@ -1,5 +1,5 @@
 from django.test import TestCase
-from djunc import projectors
+from django_readers import projectors
 from tests.models import Group, Owner, Widget
 
 

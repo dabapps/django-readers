@@ -1,5 +1,5 @@
-djunc
-=====
+django-readers
+==============
 
 **STATUS: EXPERIMENTAL**
 
@@ -7,18 +7,18 @@ djunc
 
 Tested against Django 2.2 - 3.1 on Python 3.6 - 3.9.
 
-![Build Status](https://github.com/dabapps/djunc/workflows/CI/badge.svg)
-[![pypi release](https://img.shields.io/pypi/v/djunc.svg)](https://pypi.python.org/pypi/djunc)
+![Build Status](https://github.com/dabapps/django-readers/workflows/CI/badge.svg)
+[![pypi release](https://img.shields.io/pypi/v/django-readers.svg)](https://pypi.python.org/pypi/django-readers)
 
 ### Installation
 
 Install from PyPI
 
-    pip install djunc
+    pip install django-readers
 
 ## tl;dr
 
-`djunc` is a library to help with organising business logic in a Django codebase following a more function-oriented style. It introduces a few simple concepts, and provides some tools to assemble them together into a working application. It can easily be combined with existing patterns and libraries. It focuses on selecting and transforming data.
+`django-readers` is a library to help with organising business logic in a Django codebase following a more function-oriented style. It introduces a few simple concepts, and provides some tools to assemble them together into a working application. It can easily be combined with existing patterns and libraries. It focuses on selecting and transforming data.
 
 * **queryset preparation functions** replace custom queryset methods and encapsulate data selection: filtering, annotation etc. They can be composed to express complex selection logic.
 * **projector functions** replace model methods and encapsulate business logic for transforming and presenting data. They can be combined to form lightweight business objects (dictionaries) that are the right shape for the code that consumes them.
@@ -27,7 +27,7 @@ Install from PyPI
 
 ## A note on this documentation
 
-`djunc` is as much a set of recommended patterns as it is a library of code. This README attempts to explain the reasoning behind the patterns, and give some examples of how the library helps you to implement them. However, you are strongly encouraged to read the source to fully understand `djunc`: it's quite straightforward and considerably less than 200 lines of code. Also, the tests (under `tests/`) provide some real-world examples of how each "layer" of the library might be used, so they are worth reading too.
+`django-readers` is as much a set of recommended patterns as it is a library of code. This README attempts to explain the reasoning behind the patterns, and give some examples of how the library helps you to implement them. However, you are strongly encouraged to read the source to fully understand `django-readers`: it's quite straightforward and only 200 or so lines of code. Also, the tests (under `tests/`) provide some real-world examples of how each "layer" of the library might be used, so they are worth reading too.
 
 ## Motivation
 
@@ -39,35 +39,35 @@ Second, it is bad for code organisation, particularly in larger projects. Your `
 
 Third and worst, often model methods themselves perform queries against other models. This is a disaster for application performance, leading to inefficient query patterns that can be very difficult to fix. When they _are_ fixed (through judicious use of `select_related` and `prefetch_related` on the queryset), the model methods become tightly bound to the precise way that the query is built, resulting in unpredictable and brittle code.
 
-**`djunc` encourages you to instead structure your code around plain *functions* rather than methods on classes. You can put these functions wherever you like in your codebase. Complex business logic is built by composing and combining these functions.**
+**`django-readers` encourages you to instead structure your code around plain *functions* rather than methods on classes. You can put these functions wherever you like in your codebase. Complex business logic is built by composing and combining these functions.**
 
-`djunc` provides a set of tools to help with the parts of your business logic that are responsible for _reads_ from the database: selecting and transforming data before presenting it to clients. It is designed to be used with Django templates as well as Django REST framework.
+`django-readers` provides a set of tools to help with the parts of your business logic that are responsible for _reads_ from the database: selecting and transforming data before presenting it to clients. It is designed to be used with Django templates as well as Django REST framework.
 
-The functionality that `djunc` provides is deliberately straightforward and interoperable with existing Django libraries, patterns and practices. You can choose to use just the parts of `djunc` that appeal to you and make sense in your project.
+The functionality that `django-readers` provides is deliberately straightforward and interoperable with existing Django libraries, patterns and practices. You can choose to use just the parts of `django-readers` that appeal to you and make sense in your project.
 
 ## Features and concepts
 
-`djunc` is organised in three layers of _"reader functions"_. At the highest level of abstraction is `djunc.specs` (the top layer), which depends on `djunc.pairs` (the middle layer), which depends on `djunc.projectors` and `djunc.qs` (the bottom layer).
+`django-readers` is organised in three layers of _"reader functions"_. At the highest level of abstraction is `django_readers.specs` (the top layer), which depends on `django_readers.pairs` (the middle layer), which depends on `django_readers.projectors` and `django_readers.qs` (the bottom layer).
 
 These layers can be intermingled in a real-world application. To expain each layer, it makes most sense to start at the bottom and work upwards.
 
-### `djunc.qs`: queryset preparation functions
+### `django_readers.qs`: queryset preparation functions
 
 A *queryset preparation function* is a function that *accepts a queryset* as its single argument, and *returns a new queryset* with some modifications applied.
 
 ```
 def prepare(queryset):
-    return queryset.filter(name="djunc")
+    return queryset.filter(name="shakespeare")
 ```
 
 These functions are used to encapsulate database query logic which would traditionally live in a custom queryset method.
 
-`djunc` provides a library of functions (under `djunc.qs`) which mirror all the default methods on the base `QuerySet` that return a new queryset.
+`django-readers` provides a library of functions (under `django_readers.qs`) which mirror all the default methods on the base `QuerySet` that return a new queryset.
 
 Queryset functions can be combined with the `pipe` function (named following standard functional programming parlance). `qs.pipe` returns a new queryset function that calls each function in its argument list in turn, passing the return value of the first as the argument of the second, and so on. It literally "pipes" your queryset through its list of functions.
 
 ```python
-from djunc import qs
+from django_readers import qs
 
 recent_books_with_prefetched_authors = qs.pipe(
     qs.filter(year__gte=2020),
@@ -78,7 +78,7 @@ recent_books_with_prefetched_authors = qs.pipe(
 queryset = recent_books_with_prefetched_authors(Book.objects.all())
 ```
 
-### `djunc.projectors`: model projection functions
+### `django_readers.projectors`: model projection functions
 
 A *projector* is a function that *accepts a model instance* as its single argument, and *returns a dictionary* containing some subset or transformation of the instance data.
 
@@ -97,10 +97,10 @@ print(project_age(author))
 #  {'age': 37}
 ```
 
-The simplest projector is one that returns the value of an object attribute, wrapped in a dictionary with the attribute name as its single key. `djunc` provides a projector that does this:
+The simplest projector is one that returns the value of an object attribute, wrapped in a dictionary with the attribute name as its single key. `django-readers` provides a projector that does this:
 
 ```python
-from djunc import projectors
+from django_readers import projectors
 
 author = Author(name="Some Author")
 project = projectors.attr("name")
@@ -115,7 +115,7 @@ This composition generally happens at the place in your codebase where the domai
 Projectors can be combined. The keys and values from the dictionary returned by each individual projector are merged togther.
 
 ```python
-from djunc import projectors
+from django_readers import projectors
 
 project = projectors.combine(
     projectors.attr("name"),
@@ -150,9 +150,9 @@ project = projectors.alias(
 
 Finally, the `projectors.method` function will call the given method name on the instance, returning the result under a key matching the method name. Any extra arguments passed to `projectors.method` will be passed along to the method.
 
-### `djunc.pairs`: "reader pairs" combining `prepare` and `project`
+### `django_readers.pairs`: "reader pairs" combining `prepare` and `project`
 
-`prepare` and `project` functions are intimately connected, with the `project` function usually depending on fields, annotations or relationships loaded by the `prepare` function. For this reason, `djunc` expects these functions to live together in a two-tuple called a *reader pair*: `(prepare, project)`.
+`prepare` and `project` functions are intimately connected, with the `project` function usually depending on fields, annotations or relationships loaded by the `prepare` function. For this reason, `django-readers` expects these functions to live together in a two-tuple called a *reader pair*: `(prepare, project)`.
 
 In the example used above, the `project_age` projector depends on the `birth_year` field:
 
@@ -160,10 +160,10 @@ In the example used above, the `project_age` projector depends on the `birth_yea
 age_pair = (qs.include_fields("birth_year"), project_age)
 ```
 
-`djunc` includes some useful functions that create pairs. These attempt to produce the most efficient queries they can, which means loading only those database fields which are required to project your query:
+`django-readers` includes some useful functions that create pairs. These attempt to produce the most efficient queries they can, which means loading only those database fields which are required to project your query:
 
 ```python
-from djunc import pairs
+from django_readers import pairs
 
 prepare, project = pairs.field("name")
 queryset = prepare(Author.objects.all())
@@ -189,9 +189,9 @@ prepare, project = pairs.combine(
 
 Again, only the precise fields that are needed are loaded from the database. All relationship functions take an optional `to_attr` argument which is passed to the underlying `Prefetch` object and also changes the key name in the projection.
 
-Note that `djunc` _always_ uses `prefetch_related` to load relationships, even in circumstances where `select_related` would usually be used (ie `ForeignKey` and `OneToOneField`), resulting in one query per relationship. This approach allows the code to be "fractal": the tree of `(prepare, project)` pairs can be recursively applied to the tree of related querysets.
+Note that `django-readers` _always_ uses `prefetch_related` to load relationships, even in circumstances where `select_related` would usually be used (ie `ForeignKey` and `OneToOneField`), resulting in one query per relationship. This approach allows the code to be "fractal": the tree of `(prepare, project)` pairs can be recursively applied to the tree of related querysets.
 
-Of course, it is quite possible to use `select_related` by applying `qs.select_related` at the root of your query, but this must be done manually. `djunc` also provides `qs.select_related_fields`, which combines `select_related` with `include_fields` to allow you to specify exactly which fields you need from the related objects.
+Of course, it is quite possible to use `select_related` by applying `qs.select_related` at the root of your query, but this must be done manually. `django-readers` also provides `qs.select_related_fields`, which combines `select_related` with `include_fields` to allow you to specify exactly which fields you need from the related objects.
 
 It is also possible to wrap a pair in `pairs.alias`, which takes the same alias argument as `projectors.alias` (see above), and applies it to the projector part of the pair:
 
@@ -219,15 +219,15 @@ prepare, project = pairs.combine(
 )
 ```
 
-`djunc` also comes with a pair function for working with Django's `get_FOO_display` mechanism. From the Django docs:
+`django-readers` also comes with a pair function for working with Django's `get_FOO_display` mechanism. From the Django docs:
 
 > For every field that has `choices` set, the object will have a `get_FOO_display()` method, where `FOO` is the name of the field. This method returns the “human-readable” value of the field.
 
 The `pairs.field_display` function takes the field name as its single argument and returns a pair which loads the field from the database, and then projects the result of calling `get_<field>_display` under the key `<field>_display`.
 
-### `djunc.specs`: a high-level specification for efficient data querying and projection
+### `django_readers.specs`: a high-level specification for efficient data querying and projection
 
-This layer is the real magic of `djunc`: a straightforward way of specifying the shape of your data in order to efficiently select and project a complex tree of related objects.
+This layer is the real magic of `django-readers`: a straightforward way of specifying the shape of your data in order to efficiently select and project a complex tree of related objects.
 
 The resulting nested dictionary structure may be returned from as view as a JSON response (assuming all your projectors return JSON-serializable values), or included in a template context in place of a queryset or model instance.
 
@@ -240,7 +240,7 @@ A spec is a list. Under the hood, the `specs` module is a very lightweight wrapp
 The example from the last section may be written as the following spec:
 
 ```python
-from djunc import specs
+from django_readers import specs
 
 prepare, project = specs.process(
     [
@@ -254,7 +254,7 @@ queryset = prepare(Author.objects.all())
 result = [project(instance) for instance in queryset]
 ```
 
-The structure of this specification is heavily inspired by [`django-rest-framework-serialization-spec`](https://github.com/dabapps/django-rest-framework-serialization-spec/), minus the concept of "plugins", which are replaced with directly including `(prepare, project)` pairs in the spec. It should be trivial to convert or "adapt" a `serialization-spec` plugin into a suitable `djunc` pair.
+The structure of this specification is heavily inspired by [`django-rest-framework-serialization-spec`](https://github.com/dabapps/django-rest-framework-serialization-spec/), minus the concept of "plugins", which are replaced with directly including `(prepare, project)` pairs in the spec. It should be trivial to convert or "adapt" a `serialization-spec` plugin into a suitable `django-readers` pair.
 
 It is also possible to wrap a spec item in `specs.alias`, which takes the same alias argument as `pairs.alias` (see above), and applies it to the spec item:
 
@@ -270,7 +270,7 @@ prepare, project = specs.process(
 
 An important pattern to avoid inefficient database queries in Django projects is to isolate the *fetching of data* from the *rendering of data*. This pattern can be implemented with the help of [`django-zen-queries`](https://github.com/dabapps/django-zen-queries), which allows you to mark blocks of code under which database queries are not allowed.
 
-In a project using `djunc`, it is good practice to disallow queries in the `prepare` and `project` phases:
+In a project using `django-readers`, it is good practice to disallow queries in the `prepare` and `project` phases:
 
 ```python
 import zen_queries
@@ -290,7 +290,7 @@ with zen_queries.queries_disabled():
 # ...render result as JSON or in a template
 ```
 
-To enforce this, if `django-zen-queries` is installed, `djunc` will automatically apply
+To enforce this, if `django-zen-queries` is installed, `django-readers` will automatically apply
 `queries_disabled()` to the `prepare` and `project` functions returned by `specs.process`, so there is no need to apply it manually as in the above example.
 
 ### Where should this code go?
@@ -299,9 +299,9 @@ We recommend that your custom functions go in a file called `readers.py` inside 
 
 ### What about other types of business logic?
 
-You'll notice that `djunc`'s functionality is focused on _reads_: business logic which selects some data from the database and/or transforms it in such a way that it can be displayed to a user. What about other common types of business logic that involve accepting input from users and processing it?
+You'll notice that `django-readers` is focused on _reads_: business logic which selects some data from the database and/or transforms it in such a way that it can be displayed to a user. What about other common types of business logic that involve accepting input from users and processing it?
 
-`djunc` doesn't currently provide any code to help with this, but we encourage you to follow the same function-oriented philosophy. Structure your codebase around functions which take model instances and encapsulate these sorts of write actions. You might choose to call them `action functions` and place them in a file called `actions.py`.
+`django-readers` doesn't provide any code to help with this, but we encourage you to follow the same function-oriented philosophy. Structure your codebase around functions which take model instances and encapsulate these sorts of write actions. You might choose to call them `action functions` and place them in a file called `actions.py`.
 
 The other common task needed is data validation. We'd suggest Django forms and/or Django REST framework serializers are perfectly adequate here.
 

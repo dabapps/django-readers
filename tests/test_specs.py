@@ -1,5 +1,5 @@
 from django.test import TestCase
-from djunc import specs
+from django_readers import specs
 from tests.models import Category, Owner, Thing, Widget
 
 

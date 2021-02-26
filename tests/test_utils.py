@@ -1,5 +1,5 @@
 from django.test import TestCase
-from djunc import utils
+from django_readers import utils
 from tests.models import Widget
 
 

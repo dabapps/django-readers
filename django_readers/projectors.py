@@ -1,4 +1,4 @@
-from djunc.utils import map_or_apply
+from django_readers.utils import map_or_apply
 from operator import attrgetter, methodcaller
 
 

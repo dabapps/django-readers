@@ -1,5 +1,5 @@
-from djunc import pairs
-from djunc.utils import queries_disabled
+from django_readers import pairs
+from django_readers.utils import queries_disabled
 
 
 def process_item(item):

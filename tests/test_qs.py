@@ -1,7 +1,7 @@
 from django.db import connection
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
-from djunc import qs
+from django_readers import qs
 from tests.models import Category, Owner, Widget
 from unittest import mock
 
@@ -243,14 +243,16 @@ class QuerySetTestCase(TestCase):
             self.assertEqual(widgets[0].attr[0].name, "test category")
 
     def test_auto_prefetch_relationship(self):
-        with mock.patch("djunc.qs.prefetch_forward_relationship") as mock_fn:
+        with mock.patch("django_readers.qs.prefetch_forward_relationship") as mock_fn:
             qs.auto_prefetch_relationship("owner")(Widget.objects.all())
             mock_fn.assert_called_once()
 
-        with mock.patch("djunc.qs.prefetch_reverse_relationship") as mock_fn:
+        with mock.patch("django_readers.qs.prefetch_reverse_relationship") as mock_fn:
             qs.auto_prefetch_relationship("thing")(Widget.objects.all())
             mock_fn.assert_called_once()
 
-        with mock.patch("djunc.qs.prefetch_many_to_many_relationship") as mock_fn:
+        with mock.patch(
+            "django_readers.qs.prefetch_many_to_many_relationship"
+        ) as mock_fn:
             qs.auto_prefetch_relationship("category_set")(Widget.objects.all())
             mock_fn.assert_called_once()
