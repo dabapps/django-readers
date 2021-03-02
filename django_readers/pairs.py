@@ -1,5 +1,7 @@
 from django_readers import projectors, qs
 
+import uuid
+
 
 def field(name):
     return qs.include_fields(name), projectors.attr(name)
@@ -79,6 +81,15 @@ def many_to_many_relationship(name, related_queryset, relationship_pair, to_attr
 
 
 def auto_relationship(name, relationship_pair, to_attr=None):
+    if to_attr is None:
+        # Generate a random to_attr to prevent clashes when
+        # the same relationship is used multiple times
+        auto_to_attr = "_django_readers_prefetch_" + uuid.uuid4().hex
     prepare_related_queryset, project_relationship = relationship_pair
-    prepare = qs.auto_prefetch_relationship(name, prepare_related_queryset, to_attr)
-    return prepare, projectors.relationship(to_attr or name, project_relationship)
+    prepare = qs.auto_prefetch_relationship(
+        name, prepare_related_queryset, to_attr or auto_to_attr
+    )
+    return prepare, projectors.alias(
+        to_attr or name,
+        projectors.relationship(to_attr or auto_to_attr, project_relationship),
+    )

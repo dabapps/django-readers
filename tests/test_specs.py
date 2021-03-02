@@ -131,3 +131,31 @@ class SpecTestCase(TestCase):
         self.assertEqual(
             result, {"name_alias": "test owner", "widgets": [{"alias": "test widget"}]}
         )
+
+    def test_multiple_instances_of_the_same_relationship(self):
+        Thing.objects.create(
+            name="test thing",
+            size="L",
+            widget=Widget.objects.create(name="test widget"),
+        )
+
+        prepare, project = specs.process(
+            [
+                "name",
+                {"thing": ["name"]},
+                specs.alias("other_thing", {"thing": ["size"]}),
+            ]
+        )
+
+        queryset = prepare(Widget.objects.all())
+        instance = queryset.first()
+        result = project(instance)
+
+        self.assertEqual(
+            result,
+            {
+                "name": "test widget",
+                "thing": {"name": "test thing"},
+                "other_thing": {"size": "L"},
+            },
+        )
