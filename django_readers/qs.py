@@ -34,13 +34,19 @@ all = _method_to_function(QuerySet.all)
 exclude = _method_to_function(QuerySet.exclude)
 select_related = _method_to_function(QuerySet.select_related)
 prefetch_related = _method_to_function(QuerySet.prefetch_related)
-annotate = _method_to_function(QuerySet.annotate)
 order_by = _method_to_function(QuerySet.order_by)
 distinct = _method_to_function(QuerySet.distinct)
 extra = _method_to_function(QuerySet.extra)
 defer = _method_to_function(QuerySet.defer)
 only = _method_to_function(QuerySet.only)
 using = _method_to_function(QuerySet.using)
+
+
+def annotate(*args, **kwargs):
+    def queryset_function(queryset):
+        return include_fields("pk")(queryset.annotate(*args, **kwargs))
+
+    return queryset_function
 
 
 noop = all()  # a queryset function that does nothing
@@ -120,7 +126,9 @@ def prefetch_forward_relationship(name, related_queryset, to_attr=None):
     """
     return pipe(
         include_fields(name),
-        prefetch_related(Prefetch(name, related_queryset, to_attr)),
+        prefetch_related(
+            Prefetch(name, include_fields("pk")(related_queryset), to_attr)
+        ),
     )
 
 
@@ -133,12 +141,11 @@ def prefetch_reverse_relationship(name, related_name, related_queryset, to_attr=
     as Django will need it when it comes to stitch them together when the query
     is executed.
     """
-    return prefetch_related(
-        Prefetch(
-            name,
-            include_fields(related_name)(related_queryset),
-            to_attr,
-        )
+    return pipe(
+        include_fields("pk"),
+        prefetch_related(
+            Prefetch(name, include_fields(related_name)(related_queryset), to_attr)
+        ),
     )
 
 
@@ -148,7 +155,12 @@ def prefetch_many_to_many_relationship(name, related_queryset, to_attr=None):
     so we don't need to do anything special with including fields. They are also
     symmetrical, so no need to differentiate between forward and reverse direction.
     """
-    return prefetch_related(Prefetch(name, related_queryset, to_attr))
+    return pipe(
+        include_fields("pk"),
+        prefetch_related(
+            Prefetch(name, include_fields("pk")(related_queryset), to_attr)
+        ),
+    )
 
 
 def auto_prefetch_relationship(name, prepare_related_queryset=noop, to_attr=None):
