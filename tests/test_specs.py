@@ -131,3 +131,24 @@ class SpecTestCase(TestCase):
         self.assertEqual(
             result, {"name_alias": "test owner", "widgets": [{"alias": "test widget"}]}
         )
+
+    def test_auto_relationship_function(self):
+        Widget.objects.create(
+            name="test widget", owner=Owner.objects.create(name="test owner")
+        )
+
+        prepare, project = specs.process(
+            [
+                "name",
+                specs.auto_relationship("owner", ["name"], to_attr="owner_attr"),
+            ]
+        )
+
+        queryset = prepare(Widget.objects.all())
+        instance = queryset.first()
+        result = project(instance)
+
+        self.assertEqual(
+            result,
+            {"name": "test widget", "owner_attr": {"name": "test owner"}},
+        )
