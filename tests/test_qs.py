@@ -101,6 +101,37 @@ class QuerySetTestCase(TestCase):
         with self.assertNumQueries(0):
             self.assertEqual(widgets[0].owner.name, "test owner")
 
+    def test_prefetch_forward_relationship_only_loads_pk_by_default(self):
+        Widget.objects.create(
+            name="test widget", owner=Owner.objects.create(name="test owner")
+        )
+
+        prepare = qs.prefetch_forward_relationship("owner", Owner.objects.all())
+
+        with CaptureQueriesContext(connection) as capture:
+            list(prepare(Widget.objects.all()))
+
+        self.assertEqual(len(capture.captured_queries), 2)
+
+        self.assertEqual(
+            capture.captured_queries[0]["sql"],
+            "SELECT "
+            '"tests_widget"."id", '
+            '"tests_widget"."owner_id" '
+            "FROM "
+            '"tests_widget"',
+        )
+
+        self.assertEqual(
+            capture.captured_queries[1]["sql"],
+            "SELECT "
+            '"tests_owner"."id" '
+            "FROM "
+            '"tests_owner" '
+            "WHERE "
+            '"tests_owner"."id" IN (1)',
+        )
+
     def test_prefetch_forward_relationship_with_to_attr(self):
         Widget.objects.create(
             name="test widget", owner=Owner.objects.create(name="test owner")
@@ -155,6 +186,38 @@ class QuerySetTestCase(TestCase):
 
         with self.assertNumQueries(0):
             self.assertEqual(owners[0].widget_set.all()[0].name, "test widget")
+
+    def test_prefetch_reverse_relationship_only_loads_pk_and_related_name_by_default(
+        self,
+    ):
+        Widget.objects.create(
+            name="test widget", owner=Owner.objects.create(name="test owner")
+        )
+
+        prepare = qs.prefetch_reverse_relationship(
+            "widget_set", "owner", Widget.objects.all()
+        )
+
+        with CaptureQueriesContext(connection) as capture:
+            list(prepare(Owner.objects.all()))
+
+        self.assertEqual(len(capture.captured_queries), 2)
+
+        self.assertEqual(
+            capture.captured_queries[0]["sql"],
+            'SELECT "tests_owner"."id" FROM "tests_owner"',
+        )
+
+        self.assertEqual(
+            capture.captured_queries[1]["sql"],
+            "SELECT "
+            '"tests_widget"."id", '
+            '"tests_widget"."owner_id" '
+            "FROM "
+            '"tests_widget" '
+            "WHERE "
+            '"tests_widget"."owner_id" IN (1)',
+        )
 
     def test_prefetch_reverse_relationship_with_to_attr(self):
         Widget.objects.create(
@@ -221,6 +284,41 @@ class QuerySetTestCase(TestCase):
 
         with self.assertNumQueries(0):
             self.assertEqual(widgets[0].category_set.all()[0].name, "test category")
+
+    def test_prefetch_many_to_many_relationship_only_loads_pk_by_default(self):
+        widget = Widget.objects.create(name="test widget")
+        category = Category.objects.create(name="test category")
+
+        widget.category_set.add(category)
+
+        prepare = qs.prefetch_many_to_many_relationship(
+            "category_set", Category.objects.all()
+        )
+
+        with CaptureQueriesContext(connection) as capture:
+            list(prepare(Widget.objects.all()))
+
+        self.assertEqual(len(capture.captured_queries), 2)
+
+        self.assertEqual(
+            capture.captured_queries[0]["sql"],
+            'SELECT "tests_widget"."id" FROM "tests_widget"',
+        )
+
+        self.assertEqual(
+            capture.captured_queries[1]["sql"],
+            "SELECT "
+            '("tests_category_widget_set"."widget_id") '
+            'AS "_prefetch_related_val_widget_id", '
+            '"tests_category"."id" '
+            "FROM "
+            '"tests_category" '
+            "INNER JOIN "
+            '"tests_category_widget_set" ON '
+            '("tests_category"."id" = "tests_category_widget_set"."category_id") '
+            "WHERE "
+            '"tests_category_widget_set"."widget_id" IN (1)',
+        )
 
     def test_prefetch_many_to_many_relationship_with_to_attr(self):
         widget = Widget.objects.create(name="test widget")
