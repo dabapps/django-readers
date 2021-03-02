@@ -1,4 +1,5 @@
 from django.db import connection
+from django.db.models import Count
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
 from django_readers import qs
@@ -354,3 +355,27 @@ class QuerySetTestCase(TestCase):
         ) as mock_fn:
             qs.auto_prefetch_relationship("category_set")(Widget.objects.all())
             mock_fn.assert_called_once()
+
+    def test_annotate_only_includes_fk_by_default(self):
+        owner = Owner.objects.create(name="test owner")
+        Widget.objects.create(name="test 1", owner=owner)
+        Widget.objects.create(name="test 2", owner=owner)
+
+        prepare = qs.annotate(num_widgets=Count("widget"))
+
+        with CaptureQueriesContext(connection) as capture:
+            list(prepare(Owner.objects.all()))
+
+        self.assertEqual(len(capture.captured_queries), 1)
+
+        self.assertEqual(
+            capture.captured_queries[0]["sql"],
+            "SELECT "
+            '"tests_owner"."id", '
+            'COUNT("tests_widget"."id") AS "num_widgets" '
+            'FROM "tests_owner" '
+            'LEFT OUTER JOIN "tests_widget" '
+            'ON ("tests_owner"."id" = "tests_widget"."owner_id") '
+            "GROUP BY "
+            '"tests_owner"."id"',
+        )

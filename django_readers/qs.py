@@ -34,13 +34,19 @@ all = _method_to_function(QuerySet.all)
 exclude = _method_to_function(QuerySet.exclude)
 select_related = _method_to_function(QuerySet.select_related)
 prefetch_related = _method_to_function(QuerySet.prefetch_related)
-annotate = _method_to_function(QuerySet.annotate)
 order_by = _method_to_function(QuerySet.order_by)
 distinct = _method_to_function(QuerySet.distinct)
 extra = _method_to_function(QuerySet.extra)
 defer = _method_to_function(QuerySet.defer)
 only = _method_to_function(QuerySet.only)
 using = _method_to_function(QuerySet.using)
+
+
+def annotate(*args, **kwargs):
+    def queryset_function(queryset):
+        return include_fields("pk")(queryset.annotate(*args, **kwargs))
+
+    return queryset_function
 
 
 noop = all()  # a queryset function that does nothing
