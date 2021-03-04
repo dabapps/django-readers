@@ -89,6 +89,37 @@ def select_related_fields(*fields):
     )
 
 
+def add_or_update_prefetch(
+    name, related_queryset, prepare_related_queryset=noop, to_attr=None
+):
+    """
+    Add a prefetch to the queryset, but if the same lookup has already been added,
+    instead of raising an error, its queryset is updated.
+    """
+
+    def prefetched(queryset):
+        existing_lookups = queryset._prefetch_related_lookups
+        queryset = queryset.prefetch_related(None)  # remove existing prefetches
+        matching_lookup = next(
+            (
+                lookup
+                for lookup in existing_lookups
+                if lookup.prefetch_through == name and lookup.to_attr == to_attr
+            ),
+            None,
+        )
+        if matching_lookup:
+            matching_lookup.queryset = prepare_related_queryset(
+                matching_lookup.queryset
+            )
+            return queryset.prefetch_related(*existing_lookups)
+        return queryset.prefetch_related(*existing_lookups).prefetch_related(
+            Prefetch(name, prepare_related_queryset(related_queryset), to_attr)
+        )
+
+    return prefetched
+
+
 """
 The below functions return functions that use `prefetch_related` to efficiently load
 related objects. We use `prefetch_related` to load all relationship types because this
@@ -128,15 +159,14 @@ def prefetch_forward_relationship(
     """
     return pipe(
         include_fields(name),
-        prefetch_related(
-            Prefetch(
-                name,
-                pipe(
-                    include_fields("pk"),
-                    prepare_related_queryset,
-                )(related_queryset),
-                to_attr,
-            )
+        add_or_update_prefetch(
+            name,
+            related_queryset,
+            pipe(
+                include_fields("pk"),
+                prepare_related_queryset,
+            ),
+            to_attr,
         ),
     )
 
@@ -154,15 +184,14 @@ def prefetch_reverse_relationship(
     """
     return pipe(
         include_fields("pk"),
-        prefetch_related(
-            Prefetch(
-                name,
-                pipe(
-                    include_fields(related_name),
-                    prepare_related_queryset,
-                )(related_queryset),
-                to_attr,
-            )
+        add_or_update_prefetch(
+            name,
+            related_queryset,
+            pipe(
+                include_fields(related_name),
+                prepare_related_queryset,
+            ),
+            to_attr,
         ),
     )
 
@@ -177,15 +206,14 @@ def prefetch_many_to_many_relationship(
     """
     return pipe(
         include_fields("pk"),
-        prefetch_related(
-            Prefetch(
-                name,
-                pipe(
-                    include_fields("pk"),
-                    prepare_related_queryset,
-                )(related_queryset),
-                to_attr,
-            )
+        add_or_update_prefetch(
+            name,
+            related_queryset,
+            pipe(
+                include_fields("pk"),
+                prepare_related_queryset,
+            ),
+            to_attr,
         ),
     )
 

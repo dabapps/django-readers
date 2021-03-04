@@ -152,3 +152,36 @@ class SpecTestCase(TestCase):
             result,
             {"name": "test widget", "owner_attr": {"name": "test owner"}},
         )
+
+    def test_multiple_instances_of_the_same_relationship(self):
+        Thing.objects.create(
+            name="test thing",
+            size="L",
+            widget=Widget.objects.create(name="test widget"),
+        )
+
+        prepare, project = specs.process(
+            [
+                "name",
+                {"thing": ["name", {"widget": ["name"]}]},
+                specs.alias("other_thing", {"thing": ["size", {"widget": ["other"]}]}),
+            ]
+        )
+
+        with self.assertNumQueries(0):
+            queryset = prepare(Widget.objects.all())
+
+        with self.assertNumQueries(3):
+            instance = queryset.first()
+
+        with self.assertNumQueries(0):
+            result = project(instance)
+
+        self.assertEqual(
+            result,
+            {
+                "name": "test widget",
+                "thing": {"name": "test thing"},
+                "other_thing": {"size": "L"},
+            },
+        )

@@ -3,7 +3,7 @@ from django.db.models import Count
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
 from django_readers import qs
-from tests.models import Category, Owner, Widget
+from tests.models import Category, Owner, Thing, Widget
 from unittest import mock
 
 
@@ -133,6 +133,42 @@ class QuerySetTestCase(TestCase):
             '"tests_owner"."id" IN (1)',
         )
 
+    def test_multiple_prefetch_forward_relationship_updates_same_prefetch(self):
+        Widget.objects.create(
+            name="test widget", thing=Thing.objects.create(name="test owner", size="L")
+        )
+
+        prepare = qs.pipe(
+            qs.prefetch_forward_relationship(
+                "thing", Thing.objects.all(), qs.include_fields("name")
+            ),
+            qs.prefetch_forward_relationship(
+                "thing", Thing.objects.all(), qs.include_fields("size")
+            ),
+        )
+
+        with CaptureQueriesContext(connection) as capture:
+            list(prepare(Widget.objects.all()))
+
+        self.assertEqual(len(capture.captured_queries), 2)
+
+        self.assertEqual(
+            capture.captured_queries[0]["sql"],
+            'SELECT "tests_widget"."id" FROM "tests_widget"',
+        )
+
+        self.assertEqual(
+            capture.captured_queries[1]["sql"],
+            "SELECT "
+            '"tests_thing"."id", '
+            '"tests_thing"."name", '
+            '"tests_thing"."size" '
+            "FROM "
+            '"tests_thing" '
+            "WHERE "
+            '"tests_thing"."widget_id" IN (1)',
+        )
+
     def test_prefetch_forward_relationship_with_to_attr(self):
         Widget.objects.create(
             name="test widget", owner=Owner.objects.create(name="test owner")
@@ -213,6 +249,43 @@ class QuerySetTestCase(TestCase):
             capture.captured_queries[1]["sql"],
             "SELECT "
             '"tests_widget"."id", '
+            '"tests_widget"."owner_id" '
+            "FROM "
+            '"tests_widget" '
+            "WHERE "
+            '"tests_widget"."owner_id" IN (1)',
+        )
+
+    def test_multiple_prefetch_reverse_relationship_updates_same_prefetch(self):
+        Widget.objects.create(
+            name="test widget", owner=Owner.objects.create(name="test owner")
+        )
+
+        prepare = qs.pipe(
+            qs.prefetch_reverse_relationship(
+                "widget_set", "owner", Widget.objects.all(), qs.include_fields("name")
+            ),
+            qs.prefetch_reverse_relationship(
+                "widget_set", "owner", Widget.objects.all(), qs.include_fields("other")
+            ),
+        )
+
+        with CaptureQueriesContext(connection) as capture:
+            list(prepare(Owner.objects.all()))
+
+        self.assertEqual(len(capture.captured_queries), 2)
+
+        self.assertEqual(
+            capture.captured_queries[0]["sql"],
+            'SELECT "tests_owner"."id" FROM "tests_owner"',
+        )
+
+        self.assertEqual(
+            capture.captured_queries[1]["sql"],
+            "SELECT "
+            '"tests_widget"."id", '
+            '"tests_widget"."name", '
+            '"tests_widget"."other", '
             '"tests_widget"."owner_id" '
             "FROM "
             '"tests_widget" '
@@ -320,6 +393,48 @@ class QuerySetTestCase(TestCase):
             '("tests_category"."id" = "tests_category_widget_set"."category_id") '
             "WHERE "
             '"tests_category_widget_set"."widget_id" IN (1)',
+        )
+
+    def test_multiple_prefetch_many_to_many_relationship_updates_same_prefetch(self):
+        widget = Widget.objects.create(name="test widget")
+        category = Category.objects.create(name="test category")
+
+        widget.category_set.add(category)
+
+        prepare = qs.pipe(
+            qs.prefetch_many_to_many_relationship(
+                "widget_set", Widget.objects.all(), qs.include_fields("name")
+            ),
+            qs.prefetch_many_to_many_relationship(
+                "widget_set", Widget.objects.all(), qs.include_fields("other")
+            ),
+        )
+
+        with CaptureQueriesContext(connection) as capture:
+            list(prepare(Category.objects.all()))
+
+        self.assertEqual(len(capture.captured_queries), 2)
+
+        self.assertEqual(
+            capture.captured_queries[0]["sql"],
+            "SELECT " '"tests_category"."id" ' "FROM " '"tests_category"',
+        )
+
+        self.assertEqual(
+            capture.captured_queries[1]["sql"],
+            "SELECT "
+            '("tests_category_widget_set"."category_id") '
+            'AS "_prefetch_related_val_category_id", '
+            '"tests_widget"."id", '
+            '"tests_widget"."name", '
+            '"tests_widget"."other" '
+            "FROM "
+            '"tests_widget" '
+            "INNER JOIN "
+            '"tests_category_widget_set" ON '
+            '("tests_widget"."id" = "tests_category_widget_set"."widget_id") '
+            "WHERE "
+            '"tests_category_widget_set"."category_id" IN (1)',
         )
 
     def test_prefetch_many_to_many_relationship_with_to_attr(self):
