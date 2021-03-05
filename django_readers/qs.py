@@ -118,8 +118,9 @@ def add_or_update_prefetch(
                 matching_lookup.queryset
             )
             return queryset.prefetch_related(*existing_lookups)
-        return queryset.prefetch_related(*existing_lookups).prefetch_related(
-            Prefetch(name, prepare_related_queryset(related_queryset), to_attr)
+        return queryset.prefetch_related(
+            Prefetch(name, prepare_related_queryset(related_queryset), to_attr),
+            *existing_lookups
         )
 
     return prefetched
