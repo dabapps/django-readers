@@ -104,7 +104,12 @@ def add_or_update_prefetch(
             (
                 lookup
                 for lookup in existing_lookups
-                if lookup.prefetch_through == name and lookup.to_attr == to_attr
+                if (
+                    isinstance(lookup, Prefetch)
+                    and lookup.prefetch_through == name
+                    and lookup.prefetch_to == name
+                    and lookup.to_attr == to_attr
+                )
             ),
             None,
         )
