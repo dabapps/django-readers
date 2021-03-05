@@ -154,24 +154,27 @@ class SpecTestCase(TestCase):
         )
 
     def test_multiple_instances_of_the_same_relationship(self):
-        Thing.objects.create(
-            name="test thing",
-            size="L",
-            widget=Widget.objects.create(name="test widget"),
-        )
+        owner = Owner.objects.create(name="test owner")
+        widget = Widget.objects.create(name="test widget", other="other", owner=owner)
+        Thing.objects.create(name="test thing", widget=widget)
+        category = Category.objects.create(name="test category")
+        category.widget_set.add(widget)
 
         prepare, project = specs.process(
             [
                 "name",
-                {"thing": ["name", {"widget": ["name"]}]},
-                specs.alias("other_thing", {"thing": ["size", {"widget": ["other"]}]}),
+                {"widget_set": ["id", "name", {"owner": ["name"]}]},
+                specs.alias(
+                    "aliased_widgets",
+                    {"widget_set": ["id", "other", {"thing": ["name"]}]},
+                ),
             ]
         )
 
         with self.assertNumQueries(0):
-            queryset = prepare(Widget.objects.all())
+            queryset = prepare(Category.objects.all())
 
-        with self.assertNumQueries(3):
+        with self.assertNumQueries(4):
             instance = queryset.first()
 
         with self.assertNumQueries(0):
@@ -180,8 +183,12 @@ class SpecTestCase(TestCase):
         self.assertEqual(
             result,
             {
-                "name": "test widget",
-                "thing": {"name": "test thing"},
-                "other_thing": {"size": "L"},
+                "name": "test category",
+                "widget_set": [
+                    {"id": 1, "name": "test widget", "owner": {"name": "test owner"}}
+                ],
+                "aliased_widgets": [
+                    {"id": 1, "other": "other", "thing": {"name": "test thing"}}
+                ],
             },
         )
