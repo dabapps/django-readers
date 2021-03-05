@@ -144,3 +144,17 @@ class MethodTestCase(TestCase):
         project = projectors.method("hello", "tester")
         result = project(Widget())
         self.assertEqual(result, {"hello": "hello, tester!"})
+
+
+class PKListTestCase(TestCase):
+    def test_pk_list(self):
+        owner = Owner.objects.create(name="test owner")
+        Widget.objects.create(name="test 1", owner=owner)
+        Widget.objects.create(name="test 2", owner=owner)
+        Widget.objects.create(name="test 3", owner=owner)
+
+        project = projectors.pk_list("widget_set")
+
+        result = project(owner)
+
+        self.assertEqual(result, {"widget_set": [1, 2, 3]})

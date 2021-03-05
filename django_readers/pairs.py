@@ -82,3 +82,10 @@ def auto_relationship(name, relationship_pair, to_attr=None):
     prepare_related_queryset, project_relationship = relationship_pair
     prepare = qs.auto_prefetch_relationship(name, prepare_related_queryset, to_attr)
     return prepare, projectors.relationship(to_attr or name, project_relationship)
+
+
+def pk_list(name, to_attr=None):
+    return (
+        qs.auto_prefetch_relationship(name, qs.include_fields("pk"), to_attr=to_attr),
+        projectors.pk_list(to_attr or name),
+    )

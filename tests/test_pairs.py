@@ -506,3 +506,29 @@ class FilterTestCase(TestCase):
         self.assertEqual(len(queryset), 1)
         result = project(queryset.first())
         self.assertEqual(result, {"name": "first"})
+
+
+class PKListTestCase(TestCase):
+    def test_pk_list(self):
+        owner = Owner.objects.create(name="test owner")
+        Widget.objects.create(name="test 1", owner=owner)
+        Widget.objects.create(name="test 2", owner=owner)
+        Widget.objects.create(name="test 3", owner=owner)
+
+        prepare, project = pairs.pk_list("widget_set")
+
+        queryset = prepare(Owner.objects.all())
+        result = project(queryset.first())
+        self.assertEqual(result, {"widget_set": [1, 2, 3]})
+
+    def test_pk_list_with_to_attr(self):
+        owner = Owner.objects.create(name="test owner")
+        Widget.objects.create(name="test 1", owner=owner)
+        Widget.objects.create(name="test 2", owner=owner)
+        Widget.objects.create(name="test 3", owner=owner)
+
+        prepare, project = pairs.pk_list("widget_set", to_attr="widgets")
+
+        queryset = prepare(Owner.objects.all())
+        result = project(queryset.first())
+        self.assertEqual(result, {"widgets": [1, 2, 3]})
