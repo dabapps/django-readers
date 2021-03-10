@@ -32,6 +32,16 @@ def relationship(name, related_projector):
     return wrap(name, value_getter)
 
 
+def pk_list(name):
+    """
+    Given an attribute name (which should be a relationship field), return a
+    projector which returns a list of the PK of each item in the relationship (or
+    just a single PK if this is a to-one field, but this is an inefficient way of
+    doing it).
+    """
+    return relationship(name, attrgetter("pk"))
+
+
 def combine(*projectors):
     """
     Given a list of projectors as *args, return another projector which calls each
