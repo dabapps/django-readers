@@ -71,7 +71,7 @@ class QuerySetTestCase(TestCase):
         )
 
         prepare = qs.prefetch_forward_relationship(
-            "owner", qs.include_fields("name")(Owner.objects.all())
+            "owner", Owner.objects.all(), qs.include_fields("name")
         )
 
         with CaptureQueriesContext(connection) as capture:
@@ -139,7 +139,7 @@ class QuerySetTestCase(TestCase):
         )
 
         prepare = qs.prefetch_forward_relationship(
-            "owner", qs.include_fields("name")(Owner.objects.all()), to_attr="attr"
+            "owner", Owner.objects.all(), qs.include_fields("name"), to_attr="attr"
         )
 
         widgets = list(prepare(Widget.objects.all()))
@@ -155,7 +155,7 @@ class QuerySetTestCase(TestCase):
         prepare = qs.pipe(
             qs.include_fields("name"),
             qs.prefetch_reverse_relationship(
-                "widget_set", "owner", qs.include_fields("name")(Widget.objects.all())
+                "widget_set", "owner", Widget.objects.all(), qs.include_fields("name")
             ),
         )
 
@@ -230,7 +230,8 @@ class QuerySetTestCase(TestCase):
             qs.prefetch_reverse_relationship(
                 "widget_set",
                 "owner",
-                qs.include_fields("name")(Widget.objects.all()),
+                Widget.objects.all(),
+                qs.include_fields("name"),
                 to_attr="attr",
             ),
         )
@@ -249,7 +250,7 @@ class QuerySetTestCase(TestCase):
         prepare = qs.pipe(
             qs.include_fields("name"),
             qs.prefetch_many_to_many_relationship(
-                "category_set", qs.include_fields("name")(Category.objects.all())
+                "category_set", Category.objects.all(), qs.include_fields("name")
             ),
         )
 
@@ -331,7 +332,8 @@ class QuerySetTestCase(TestCase):
             qs.include_fields("name"),
             qs.prefetch_many_to_many_relationship(
                 "category_set",
-                qs.include_fields("name")(Category.objects.all()),
+                Category.objects.all(),
+                qs.include_fields("name"),
                 to_attr="attr",
             ),
         )

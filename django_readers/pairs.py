@@ -55,8 +55,9 @@ doing something weird, like providing a custom queryset.
 
 def forward_relationship(name, related_queryset, relationship_pair, to_attr=None):
     prepare_related_queryset, project_relationship = relationship_pair
-    related_queryset = prepare_related_queryset(related_queryset)
-    prepare = qs.prefetch_forward_relationship(name, related_queryset, to_attr)
+    prepare = qs.prefetch_forward_relationship(
+        name, related_queryset, prepare_related_queryset, to_attr
+    )
     return prepare, projectors.relationship(to_attr or name, project_relationship)
 
 
@@ -64,17 +65,17 @@ def reverse_relationship(
     name, related_name, related_queryset, relationship_pair, to_attr=None
 ):
     prepare_related_queryset, project_relationship = relationship_pair
-    related_queryset = prepare_related_queryset(related_queryset)
     prepare = qs.prefetch_reverse_relationship(
-        name, related_name, related_queryset, to_attr
+        name, related_name, related_queryset, prepare_related_queryset, to_attr
     )
     return prepare, projectors.relationship(to_attr or name, project_relationship)
 
 
 def many_to_many_relationship(name, related_queryset, relationship_pair, to_attr=None):
     prepare_related_queryset, project_relationship = relationship_pair
-    related_queryset = prepare_related_queryset(related_queryset)
-    prepare = qs.prefetch_many_to_many_relationship(name, related_queryset, to_attr)
+    prepare = qs.prefetch_many_to_many_relationship(
+        name, related_queryset, prepare_related_queryset, to_attr
+    )
     return prepare, projectors.relationship(to_attr or name, project_relationship)
 
 
