@@ -83,6 +83,12 @@ class RelationshipTestCase(TestCase):
         result = project(widget)
         self.assertEqual(result, {"owner": None})
 
+    def test_nullable_one_to_one(self):
+        widget = Widget.objects.create(thing=None)
+        project = projectors.relationship("thing", projectors.attr("name"))
+        result = project(widget)
+        self.assertEqual(result, {"thing": None})
+
     def test_many_relationships(self):
         group = Group.objects.create(name="test group")
         owner_1 = Owner.objects.create(name="owner 1", group=group)
