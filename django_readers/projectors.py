@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django_readers.utils import map_or_apply
 from operator import attrgetter, methodcaller
 
@@ -26,7 +27,10 @@ def relationship(name, related_projector):
     """
 
     def value_getter(instance):
-        related = attrgetter(name)(instance)
+        try:
+            related = attrgetter(name)(instance)
+        except ObjectDoesNotExist:
+            return None
         return map_or_apply(related, related_projector)
 
     return wrap(name, value_getter)
