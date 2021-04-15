@@ -1,8 +1,12 @@
 from django_readers import projectors, qs
 
 
-def field(name):
-    return qs.include_fields(name), projectors.attr(name)
+def field(name, *, transform_value=None, transform_value_if_none=False):
+    return qs.include_fields(name), projectors.attr(
+        name,
+        transform_value=transform_value,
+        transform_value_if_none=transform_value_if_none,
+    )
 
 
 def combine(*pairs):

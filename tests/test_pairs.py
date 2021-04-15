@@ -25,6 +25,28 @@ class PairsTestCase(TestCase):
             ],
         )
 
+    def test_transform_value(self):
+        Widget.objects.create(count=5, other_count=10)
+        Widget.objects.create(count=None, other_count=None)
+
+        prepare, project = pairs.combine(
+            pairs.field("count", transform_value=str),
+            pairs.field(
+                "other_count", transform_value=str, transform_value_if_none=True
+            ),
+        )
+
+        queryset = prepare(Widget.objects.all())
+        result = [project(instance) for instance in queryset]
+
+        self.assertEqual(
+            result,
+            [
+                {"count": "5", "other_count": "10"},
+                {"count": None, "other_count": "None"},
+            ],
+        )
+
     def test_forward_many_to_one_relationship(self):
         group = Group.objects.create(name="test group")
         owner = Owner.objects.create(name="test owner", group=group)

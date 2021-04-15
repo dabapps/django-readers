@@ -10,8 +10,14 @@ def wrap(key, value_getter):
     return projector
 
 
-def attr(name):
-    return wrap(name, attrgetter(name))
+def attr(name, *, transform_value=None, transform_value_if_none=False):
+    def value_getter(instance):
+        value = attrgetter(name)(instance)
+        if transform_value and (value is not None or transform_value_if_none):
+            value = transform_value(value)
+        return value
+
+    return wrap(name, value_getter)
 
 
 def method(name, *args, **kwargs):

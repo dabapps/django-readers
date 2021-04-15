@@ -10,6 +10,29 @@ class ProjectorTestCase(TestCase):
         result = project(widget)
         self.assertEqual(result, {"name": "test"})
 
+    def test_attr_transform_value(self):
+        widget = Widget(name="test")
+        project = projectors.attr("name", transform_value=lambda value: value.upper())
+        result = project(widget)
+        self.assertEqual(result, {"name": "TEST"})
+
+    def test_attr_transform_value_if_none(self):
+        widget = Widget(name=None)
+        project = projectors.attr("name", transform_value=lambda value: value.upper())
+        result = project(widget)
+        self.assertEqual(result, {"name": None})
+
+        project = projectors.attr(
+            "name",
+            transform_value=lambda value: value.upper(),
+            transform_value_if_none=True,
+        )
+
+        with self.assertRaisesMessage(
+            AttributeError, "'NoneType' object has no attribute 'upper'"
+        ):
+            result = project(widget)
+
     def test_combine(self):
         widget = Widget.objects.create(name="test", other="other")
         project = projectors.combine(
