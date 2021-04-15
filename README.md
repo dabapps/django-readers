@@ -148,7 +148,11 @@ project = projectors.alias(
 )
 ```
 
-The `projectors.attr` function takes an optional argument `transform_value`, which is a function that receives the value of the attribute and returns a new value. This is useful if the value of the attribute needs to be converted in some way during projection. For example, imagine you have an `IntegerField` but you want the projector to return a stringified version of the integer value. In that case, you can use `projectors.attr("my_integer_field", transform_value=str)`. By default, the `transform_value` function is only called if the value to the attribute is not `None` (so if `my_integer_field` is `NULL` then `None` would be returned, rather than `"None"`. If you want the `transform_value` function to _always_ be called, use `projectors.attr("my_integer_field", transform_value=str, transform_value_if_null=True)`)
+The `projectors.attr` function takes an optional argument `transform_value`, which is a function that receives the value of the attribute and returns a new value. This is useful if the value of the attribute needs to be converted in some way during projection.
+
+For example, imagine you have an `IntegerField` but you want the projection to include a stringified version of the integer value. In that case, you can use `projectors.attr("my_integer_field", transform_value=str)`.
+
+By default, the `transform_value` function is only called if the value of the attribute is not `None` (so if the database value of `my_integer_field` is `NULL` then `None` would be returned, rather than the string `"None"`). If you want the `transform_value` function to _always_ be called, use `projectors.attr("my_integer_field", transform_value=str, transform_value_if_none=True)`.
 
 Finally, the `projectors.method` function will call the given method name on the instance, returning the result under a key matching the method name. Any extra arguments passed to `projectors.method` will be passed along to the method.
 
