@@ -203,7 +203,7 @@ prepare, project = pairs.alias(
 )
 ```
 
-As a shortcut, the `pairs` module providess function called `filter`, `exclude` and `order_by`, which can be used to apply the given queryset functions to the queryset without affecting the projection. These are equivalent to (for example) `(qs.filter(arg=value), projectors.noop)` and are most useful for filtering or ordering related objects:
+As a shortcut, the `pairs` module provides functions called `filter`, `exclude` and `order_by`, which can be used to apply the given queryset functions to the queryset without affecting the projection. These are equivalent to (for example) `(qs.filter(arg=value), projectors.noop)` and are most useful for filtering or ordering related objects:
 
 ```python
 prepare, project = pairs.combine(
