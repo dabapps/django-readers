@@ -180,7 +180,7 @@ Relationships can automatically be loaded and projected, too:
 prepare, project = pairs.combine(
     pairs.field("name"),
     age_pair,
-    pairs.auto_relationship("book_set", pairs.combine(
+    pairs.relationship("book_set", pairs.combine(
         pairs.field("title"),
         pairs.field("publication_year"),
     ))
@@ -209,7 +209,7 @@ As a shortcut, the `pairs` module provides a function called `filter`, which can
 prepare, project = pairs.combine(
     pairs.field("name"),
     age_pair,
-    pairs.auto_relationship(
+    pairs.relationship(
         "book_set",
         pairs.combine(
             pairs.filter(publication_year__gte=2020),
@@ -236,7 +236,7 @@ The resulting nested dictionary structure may be returned from as view as a JSON
 A spec is a list. Under the hood, the `specs` module is a very lightweight wrapper on top of `pairs` - it applies simple transformations to the items in the list to replace them with the relevant pair functions. The list may contain:
 
 * _strings_, which are interpreted as field names and are replaced with `pairs.field`,
-* _dictionaries_, which are interpreted as relationships (with the keys specifying the relationship name and the values being specs for projecting the related objects) and are replaced with `pairs.auto_relationship`.
+* _dictionaries_, which are interpreted as relationships (with the keys specifying the relationship name and the values being specs for projecting the related objects) and are replaced with `pairs.relationship`.
 * _pairs_ of `(prepare, project)` functions (see previous section), which are left as-is.
 
 The example from the last section may be written as the following spec:

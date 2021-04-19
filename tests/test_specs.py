@@ -132,7 +132,7 @@ class SpecTestCase(TestCase):
             result, {"name_alias": "test owner", "widgets": [{"alias": "test widget"}]}
         )
 
-    def test_auto_relationship_function(self):
+    def test_relationship_function(self):
         Widget.objects.create(
             name="test widget", owner=Owner.objects.create(name="test owner")
         )
@@ -140,7 +140,7 @@ class SpecTestCase(TestCase):
         prepare, project = specs.process(
             [
                 "name",
-                specs.auto_relationship("owner", ["name"], to_attr="owner_attr"),
+                specs.relationship("owner", ["name"], to_attr="owner_attr"),
             ]
         )
 
