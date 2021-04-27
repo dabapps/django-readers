@@ -508,6 +508,38 @@ class FilterTestCase(TestCase):
         self.assertEqual(result, {"name": "first"})
 
 
+class ExcludeTestCase(TestCase):
+    def test_exclude(self):
+        Widget.objects.create(name="first")
+        Widget.objects.create(name="second")
+
+        prepare, project = pairs.combine(
+            pairs.exclude(name="first"),
+            pairs.field("name"),
+        )
+
+        queryset = prepare(Widget.objects.all())
+        self.assertEqual(len(queryset), 1)
+        result = project(queryset.first())
+        self.assertEqual(result, {"name": "second"})
+
+
+class OrderByTestCase(TestCase):
+    def test_order_by(self):
+        Widget.objects.create(name="c")
+        Widget.objects.create(name="b")
+        Widget.objects.create(name="a")
+
+        prepare, project = pairs.combine(
+            pairs.order_by("name"),
+            pairs.field("name"),
+        )
+
+        queryset = prepare(Widget.objects.all())
+        result = [project(item) for item in queryset]
+        self.assertEqual(result, [{"name": "a"}, {"name": "b"}, {"name": "c"}])
+
+
 class PKListTestCase(TestCase):
     def test_pk_list(self):
         owner = Owner.objects.create(name="test owner")
