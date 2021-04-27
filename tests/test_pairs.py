@@ -353,7 +353,7 @@ class PairsTestCase(TestCase):
             },
         )
 
-    def test_auto_relationship(self):
+    def test_relationship(self):
         owner = Owner.objects.create(name="test owner")
         widget = Widget.objects.create(name="test widget", owner=owner)
         category = Category.objects.create(name="test category")
@@ -362,28 +362,28 @@ class PairsTestCase(TestCase):
 
         prepare, project = pairs.combine(
             pairs.field("name"),
-            pairs.auto_relationship(
+            pairs.relationship(
                 "owner",
                 pairs.combine(
                     pairs.field("name"),
-                    pairs.auto_relationship(
+                    pairs.relationship(
                         "widget_set",
                         pairs.field("name"),
                     ),
                 ),
             ),
-            pairs.auto_relationship(
+            pairs.relationship(
                 "category_set",
                 pairs.combine(
                     pairs.field("name"),
-                    pairs.auto_relationship("widget_set", pairs.field("name")),
+                    pairs.relationship("widget_set", pairs.field("name")),
                 ),
             ),
-            pairs.auto_relationship(
+            pairs.relationship(
                 "thing",
                 pairs.combine(
                     pairs.field("name"),
-                    pairs.auto_relationship("widget", pairs.field("name")),
+                    pairs.relationship("widget", pairs.field("name")),
                 ),
             ),
         )
@@ -412,14 +412,14 @@ class PairsTestCase(TestCase):
             },
         )
 
-    def test_auto_relationship_with_to_attr(self):
+    def test_relationship_with_to_attr(self):
         Widget.objects.create(
             name="test widget", owner=Owner.objects.create(name="test owner")
         )
 
         prepare, project = pairs.combine(
             pairs.field("name"),
-            pairs.auto_relationship(
+            pairs.relationship(
                 "owner",
                 pairs.field("name"),
                 to_attr="owner_attr",
@@ -447,7 +447,7 @@ class PairsTestCase(TestCase):
             pairs.alias("name_alias", pairs.field("name")),
             pairs.alias(
                 {"widget_set": "widgets"},
-                pairs.auto_relationship(
+                pairs.relationship(
                     "widget_set",
                     pairs.alias({"name": "alias"}, pairs.field("name")),
                 ),
@@ -528,6 +528,38 @@ class FilterTestCase(TestCase):
         self.assertEqual(len(queryset), 1)
         result = project(queryset.first())
         self.assertEqual(result, {"name": "first"})
+
+
+class ExcludeTestCase(TestCase):
+    def test_exclude(self):
+        Widget.objects.create(name="first")
+        Widget.objects.create(name="second")
+
+        prepare, project = pairs.combine(
+            pairs.exclude(name="first"),
+            pairs.field("name"),
+        )
+
+        queryset = prepare(Widget.objects.all())
+        self.assertEqual(len(queryset), 1)
+        result = project(queryset.first())
+        self.assertEqual(result, {"name": "second"})
+
+
+class OrderByTestCase(TestCase):
+    def test_order_by(self):
+        Widget.objects.create(name="c")
+        Widget.objects.create(name="b")
+        Widget.objects.create(name="a")
+
+        prepare, project = pairs.combine(
+            pairs.order_by("name"),
+            pairs.field("name"),
+        )
+
+        queryset = prepare(Widget.objects.all())
+        result = [project(item) for item in queryset]
+        self.assertEqual(result, [{"name": "a"}, {"name": "b"}, {"name": "c"}])
 
 
 class PKListTestCase(TestCase):

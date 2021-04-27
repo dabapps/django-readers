@@ -188,7 +188,7 @@ Relationships can automatically be loaded and projected, too:
 prepare, project = pairs.combine(
     pairs.field("name"),
     age_pair,
-    pairs.auto_relationship("book_set", pairs.combine(
+    pairs.relationship("book_set", pairs.combine(
         pairs.field("title"),
         pairs.field("publication_year"),
     ))
@@ -211,16 +211,17 @@ prepare, project = pairs.alias(
 )
 ```
 
-As a shortcut, the `pairs` module provides a function called `filter`, which can be used to apply a filter to the queryset without affecting the projection. This is equivalent to `(qs.filter(arg=value), projectors.noop)` and is most useful for filtering related objects:
+As a shortcut, the `pairs` module provides functions called `filter`, `exclude` and `order_by`, which can be used to apply the given queryset functions to the queryset without affecting the projection. These are equivalent to (for example) `(qs.filter(arg=value), projectors.noop)` and are most useful for filtering or ordering related objects:
 
 ```python
 prepare, project = pairs.combine(
     pairs.field("name"),
     age_pair,
-    pairs.auto_relationship(
+    pairs.relationship(
         "book_set",
         pairs.combine(
             pairs.filter(publication_year__gte=2020),
+            pairs.order_by("title"),
             pairs.field("title"),
             pairs.field("publication_year"),
         ),
@@ -244,7 +245,7 @@ The resulting nested dictionary structure may be returned from as view as a JSON
 A spec is a list. Under the hood, the `specs` module is a very lightweight wrapper on top of `pairs` - it applies simple transformations to the items in the list to replace them with the relevant pair functions. The list may contain:
 
 * _strings_, which are interpreted as field names and are replaced with `pairs.field`,
-* _dictionaries_, which are interpreted as relationships (with the keys specifying the relationship name and the values being specs for projecting the related objects) and are replaced with `pairs.auto_relationship`.
+* _dictionaries_, which are interpreted as relationships (with the keys specifying the relationship name and the values being specs for projecting the related objects) and are replaced with `pairs.relationship`.
 * _pairs_ of `(prepare, project)` functions (see previous section), which are left as-is.
 
 The example from the last section may be written as the following spec:

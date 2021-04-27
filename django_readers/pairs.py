@@ -46,12 +46,20 @@ def filter(*args, **kwargs):
     return prepare_only(qs.filter(*args, **kwargs))
 
 
+def exclude(*args, **kwargs):
+    return prepare_only(qs.exclude(*args, **kwargs))
+
+
+def order_by(*args, **kwargs):
+    return prepare_only(qs.order_by(*args, **kwargs))
+
+
 """
 Below are pair functions which return the various queryset functions that prefetch
 relationships of various types, and then project those related objects.
 
 There are functions for forward, reverse or many-to-many relationships, and then
-an `auto_relationship` function which selects the correct one by introspecting the
+a `relationship` function which selects the correct one by introspecting the
 model. It shouldn't usually be necessary to use the manual functions unless you're
 doing something weird, like providing a custom queryset.
 """
@@ -83,7 +91,7 @@ def many_to_many_relationship(name, related_queryset, relationship_pair, to_attr
     return prepare, projectors.relationship(to_attr or name, project_relationship)
 
 
-def auto_relationship(name, relationship_pair, to_attr=None):
+def relationship(name, relationship_pair, to_attr=None):
     prepare_related_queryset, project_relationship = relationship_pair
     prepare = qs.auto_prefetch_relationship(name, prepare_related_queryset, to_attr)
     return prepare, projectors.relationship(to_attr or name, project_relationship)
