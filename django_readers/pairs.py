@@ -42,6 +42,14 @@ def filter(*args, **kwargs):
     return prepare_only(qs.filter(*args, **kwargs))
 
 
+def exclude(*args, **kwargs):
+    return prepare_only(qs.exclude(*args, **kwargs))
+
+
+def order_by(*args, **kwargs):
+    return prepare_only(qs.order_by(*args, **kwargs))
+
+
 """
 Below are pair functions which return the various queryset functions that prefetch
 relationships of various types, and then project those related objects.
