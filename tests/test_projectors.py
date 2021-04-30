@@ -3,12 +3,39 @@ from django_readers import projectors
 from tests.models import Group, Owner, Widget
 
 
+def title_and_reverse(arg):
+    return str(arg).title()[::-1]
+
+
 class ProjectorTestCase(TestCase):
     def test_attr(self):
         widget = Widget.objects.create(name="test")
         project = projectors.attr("name")
         result = project(widget)
         self.assertEqual(result, {"name": "test"})
+
+    def test_attr_transform_value(self):
+        widget = Widget(name="test")
+        project = projectors.attr("name", transform_value=title_and_reverse)
+        result = project(widget)
+        self.assertEqual(result, {"name": "tseT"})
+
+    def test_attr_transform_value_if_none(self):
+        widget = Widget(name=None)
+        project = projectors.attr("name", transform_value=title_and_reverse)
+        result = project(widget)
+        self.assertEqual(result, {"name": None})
+
+        project = projectors.attr(
+            "name",
+            transform_value=lambda value: value.upper(),
+            transform_value_if_none=True,
+        )
+
+        with self.assertRaisesMessage(
+            AttributeError, "'NoneType' object has no attribute 'upper'"
+        ):
+            result = project(widget)
 
     def test_combine(self):
         widget = Widget.objects.create(name="test", other="other")

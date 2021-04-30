@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django_readers import pairs, projectors, qs
 from tests.models import Category, Group, Owner, Thing, Widget
+from tests.test_projectors import title_and_reverse
 
 
 class PairsTestCase(TestCase):
@@ -22,6 +23,28 @@ class PairsTestCase(TestCase):
                 {"name": "first", "other": "other-first"},
                 {"name": "second", "other": "other-second"},
                 {"name": "third", "other": "other-third"},
+            ],
+        )
+
+    def test_transform_value(self):
+        Widget.objects.create(name="test", other="other")
+        Widget.objects.create(name=None, other=None)
+
+        prepare, project = pairs.combine(
+            pairs.field("name", transform_value=title_and_reverse),
+            pairs.field(
+                "other", transform_value=title_and_reverse, transform_value_if_none=True
+            ),
+        )
+
+        queryset = prepare(Widget.objects.all())
+        result = [project(instance) for instance in queryset]
+
+        self.assertEqual(
+            result,
+            [
+                {"name": "tseT", "other": "rehtO"},
+                {"name": None, "other": "enoN"},
             ],
         )
 
