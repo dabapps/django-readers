@@ -587,3 +587,28 @@ class PKListTestCase(TestCase):
         queryset = prepare(Owner.objects.all())
         result = project(queryset.first())
         self.assertEqual(result, {"widgets": [1, 2, 3]})
+
+
+class SelectRelatedFieldsTestCase(TestCase):
+    def test_select_related_fields(self):
+        group = Group.objects.create(name="test group")
+        owner = Owner.objects.create(name="test owner", group=group)
+        other_owner = Owner.objects.create(name="other owner", group=group)
+        Widget.objects.create(name="test widget", owner=owner, other_owner=other_owner)
+
+        prepare, project = pairs.select_related_fields(
+            "owner__name",
+            "other_owner__name",
+            "owner__group__name",
+            "other_owner__group__name",
+        )
+
+        queryset = prepare(Widget.objects.all())
+        result = project(queryset.first())
+        self.assertEqual(
+            result,
+            {
+                "owner": {"name": "test owner", "group": {"name": "test group"}},
+                "other_owner": {"name": "other owner", "group": {"name": "test group"}},
+            },
+        )

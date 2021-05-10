@@ -14,6 +14,9 @@ class Widget(models.Model):
     name = models.CharField(max_length=100, null=True)
     other = models.CharField(max_length=100, null=True)
     owner = models.ForeignKey(Owner, null=True, on_delete=models.SET_NULL)
+    other_owner = models.ForeignKey(
+        Owner, null=True, on_delete=models.SET_NULL, related_name="+"
+    )
 
 
 class Thing(models.Model):

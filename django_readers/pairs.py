@@ -1,4 +1,6 @@
+from django.db.models.constants import LOOKUP_SEP
 from django_readers import projectors, qs
+from itertools import groupby
 
 
 def field(name, *, transform_value=None, transform_value_if_none=False):
@@ -101,4 +103,31 @@ def pk_list(name, to_attr=None):
     return (
         qs.auto_prefetch_relationship(name, qs.include_fields("pk"), to_attr=to_attr),
         projectors.pk_list(to_attr or name),
+    )
+
+
+def select_related_fields(*fields):
+    def expand_relationships(fields):
+        for prefix, group in groupby(
+            sorted(fields), key=lambda field: field.split(LOOKUP_SEP)[0]
+        ):
+            fields = [item.replace(f"{prefix}__", "") for item in group]
+
+            yield projectors.relationship(
+                prefix,
+                projectors.combine(
+                    *(
+                        projectors.attr(field)
+                        for field in fields
+                        if LOOKUP_SEP not in field
+                    ),
+                    *expand_relationships(
+                        field for field in fields if LOOKUP_SEP in field
+                    ),
+                ),
+            )
+
+    return (
+        qs.select_related_fields(*fields),
+        projectors.combine(*expand_relationships(fields)),
     )

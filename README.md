@@ -199,6 +199,8 @@ Note that `django-readers` _always_ uses `prefetch_related` to load relationship
 
 Of course, it is quite possible to use `select_related` by applying `qs.select_related` at the root of your query, but this must be done manually. `django-readers` also provides `qs.select_related_fields`, which combines `select_related` with `include_fields` to allow you to specify exactly which fields you need from the related objects.
 
+There is also a pair function, `pairs.select_related_fields`, which combines this queryset function with a tree of projectors to project the related objects. Note that this only works for projecting simple fields on the related models. If you need to customise the projection you should use a pair consisting of `qs.select_related_fields` and your own hand-written projector.
+
 You can use `pairs.pk_list` to project a list containing just the primary keys of the related objects.
 
 It is also possible to wrap a pair in `pairs.alias`, which takes the same alias argument as `projectors.alias` (see above), and applies it to the projector part of the pair:
