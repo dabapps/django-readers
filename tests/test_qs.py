@@ -3,7 +3,7 @@ from django.db.models import Count
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
 from django_readers import qs
-from tests.models import Category, Owner, Widget
+from tests.models import Category, Group, Owner, Widget
 from unittest import mock
 
 
@@ -38,11 +38,11 @@ class QuerySetTestCase(TestCase):
         self.assertEqual(before, after)
 
     def test_select_related_fields(self):
-        Widget.objects.create(
-            name="test widget", owner=Owner.objects.create(name="test owner")
-        )
+        group = Group.objects.create(name="test group")
+        owner = Owner.objects.create(name="test owner", group=group)
+        Widget.objects.create(name="test widget", owner=owner)
 
-        prepare = qs.select_related_fields("owner__name")
+        prepare = qs.select_related_fields("owner__name", "owner__group__name")
 
         with CaptureQueriesContext(connection) as capture:
             widgets = list(prepare(Widget.objects.all()))
@@ -55,15 +55,23 @@ class QuerySetTestCase(TestCase):
             '"tests_widget"."id", '
             '"tests_widget"."owner_id", '
             '"tests_owner"."id", '
-            '"tests_owner"."name" '
+            '"tests_owner"."name", '
+            '"tests_owner"."group_id", '
+            '"tests_group"."id", '
+            '"tests_group"."name" '
             "FROM "
             '"tests_widget" '
             "LEFT OUTER JOIN "
-            '"tests_owner" ON ("tests_widget"."owner_id" = "tests_owner"."id")',
+            '"tests_owner" ON ("tests_widget"."owner_id" = "tests_owner"."id") '
+            "LEFT OUTER JOIN "
+            '"tests_group" ON ("tests_owner"."group_id" = "tests_group"."id")',
         )
 
         with self.assertNumQueries(0):
             self.assertEqual(widgets[0].owner.name, "test owner")
+
+        with self.assertNumQueries(0):
+            self.assertEqual(widgets[0].owner.group.name, "test group")
 
     def test_prefetch_forward_relationship(self):
         Widget.objects.create(
