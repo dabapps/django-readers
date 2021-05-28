@@ -51,6 +51,16 @@ def count(name, distinct=True):
     )
 
 
+def exists(name, distinct=True):
+    attr_name = f"{name}_count"
+    return (
+        qs.annotate(**{attr_name: Count(name, distinct=distinct)}),
+        projectors.alias(
+            f"{name}_exists", projectors.attr(attr_name, transform_value=bool)
+        ),
+    )
+
+
 def filter(*args, **kwargs):
     return prepare_only(qs.filter(*args, **kwargs))
 
