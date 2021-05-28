@@ -587,3 +587,17 @@ class PKListTestCase(TestCase):
         queryset = prepare(Owner.objects.all())
         result = project(queryset.first())
         self.assertEqual(result, {"widgets": [1, 2, 3]})
+
+
+class CountTestCase(TestCase):
+    def test_count(self):
+        owner = Owner.objects.create(name="test owner")
+        Widget.objects.create(name="test 1", owner=owner)
+        Widget.objects.create(name="test 2", owner=owner)
+        Widget.objects.create(name="test 3", owner=owner)
+
+        prepare, project = pairs.count("widget")
+
+        queryset = prepare(Owner.objects.all())
+        result = project(queryset.first())
+        self.assertEqual(result, {"widget_count": 3})

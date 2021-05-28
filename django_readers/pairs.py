@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django_readers import projectors, qs
 
 
@@ -39,6 +40,14 @@ def field_display(name):
     """
     return qs.include_fields(name), projectors.alias(
         f"{name}_display", projectors.method(f"get_{name}_display")
+    )
+
+
+def count(name, distinct=True):
+    attr_name = f"{name}_count"
+    return (
+        qs.annotate(**{attr_name: Count(name, distinct=distinct)}),
+        projectors.attr(attr_name),
     )
 
 
