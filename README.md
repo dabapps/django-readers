@@ -234,7 +234,7 @@ prepare, project = pairs.combine(
 
 The `pairs.field_display` function takes the field name as its single argument and returns a pair which loads the field from the database, and then projects the result of calling `get_<field>_display` under the key `<field>_display`.
 
-Finally, `pairs.count` and `pairs.exists` provide shortcuts to annotate a queryset with the count or existence of related objects, and project these values under the keys `<relationship_name>_count` and `<relationship_name>_exists` respectively.
+Finally, `pairs.count` and `pairs.has` provide shortcuts to annotate a queryset with the count or existence of related objects, and project these values under the keys `<relationship_name>_count` and `has_<relationship_name>` respectively.
 
 ### `django_readers.specs`: a high-level specification for efficient data querying and projection
 

@@ -603,22 +603,22 @@ class CountTestCase(TestCase):
         self.assertEqual(result, {"widget_count": 3})
 
 
-class ExistsTestCase(TestCase):
-    def test_exists_false(self):
+class HasTestCase(TestCase):
+    def test_has_false(self):
         Owner.objects.create(name="test owner")
 
-        prepare, project = pairs.exists("widget")
+        prepare, project = pairs.has("widget")
 
         queryset = prepare(Owner.objects.all())
         result = project(queryset.first())
-        self.assertEqual(result, {"widget_exists": False})
+        self.assertEqual(result, {"has_widget": False})
 
-    def test_exists_true(self):
+    def test_has_true(self):
         owner = Owner.objects.create(name="test owner")
         Widget.objects.create(name="test", owner=owner)
 
-        prepare, project = pairs.exists("widget")
+        prepare, project = pairs.has("widget")
 
         queryset = prepare(Owner.objects.all())
         result = project(queryset.first())
-        self.assertEqual(result, {"widget_exists": True})
+        self.assertEqual(result, {"has_widget": True})
