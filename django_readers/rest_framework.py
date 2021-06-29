@@ -18,7 +18,6 @@ class ProjectionSerializer:
 
 
 class SpecMixin:
-
     spec = None
 
     def get_spec(self):
