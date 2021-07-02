@@ -277,6 +277,30 @@ prepare, project = specs.process(
 )
 ```
 
+### `django-rest-framework` view mixin
+
+If you use [django-rest-framework](https://www.django-rest-framework.org/), `django-readers` provides a shortcut that allows you to easily use a `spec` to serialize your data:
+
+```python
+from django_readers.rest_framework import SpecMixin
+
+class AuthorDetailView(SpecMixin, RetrieveAPIView):
+    queryset = Author.objects.all()
+    spec = [
+        "id",
+        "name",
+        {"book_set": [
+            "id",
+            "title",
+            "publication_year",
+        ]},
+    ]
+```
+
+This mixin is only suitable for use with `RetrieveAPIView` or `ListAPIView`. It doesn't use a "real" Serializer: it calls the `project` function that is the result of processing your `spec`. We recommend using separate views for endpoints that modify data, rather than combining these concerns into a single endpoint.
+
+If your endpoint needs to provide dynamic behaviour based on the user making the request, you should instead override the `get_spec` method and return your spec.
+
 ### A note on `django-zen-queries`
 
 An important pattern to avoid inefficient database queries in Django projects is to isolate the *fetching of data* from the *rendering of data*. This pattern can be implemented with the help of [`django-zen-queries`](https://github.com/dabapps/django-zen-queries), which allows you to mark blocks of code under which database queries are not allowed.
