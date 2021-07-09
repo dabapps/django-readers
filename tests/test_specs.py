@@ -152,3 +152,39 @@ class SpecTestCase(TestCase):
             result,
             {"name": "test widget", "owner_attr": {"name": "test owner"}},
         )
+
+    def test_alias_shortcut(self):
+        Widget.objects.create(
+            name="test widget", owner=Owner.objects.create(name="test owner")
+        )
+
+        some_pair = (lambda qs: qs, lambda instance: {"value": "some value"})
+
+        prepare, project = specs.process(
+            [
+                {"aliased_name": "name"},
+                {
+                    "another_name_alias": "name",
+                    "alias_for_owner_relationship": {
+                        "owner": [
+                            {"aliased_owner_name": "name"},
+                        ]
+                    },
+                },
+                {"aliased_value_from_pair": some_pair},
+            ]
+        )
+
+        queryset = prepare(Widget.objects.all())
+        instance = queryset.first()
+        result = project(instance)
+
+        self.assertEqual(
+            result,
+            {
+                "aliased_name": "test widget",
+                "another_name_alias": "test widget",
+                "alias_for_owner_relationship": {"aliased_owner_name": "test owner"},
+                "aliased_value_from_pair": "some value",
+            },
+        )
