@@ -26,6 +26,24 @@ def map_or_apply(obj, fn):
             return fn(obj)
 
 
+def none_safe_attrgetter(attr):
+    """
+    Like operator.attrgetter, but if using a dotted-path style, and any of the
+    attributes in the path has a value of None, the whole function short-circuits and
+    returns None rather than raising AttributeError when the next part of the dotted
+    path tries to grab an attribute off a None.
+    """
+
+    def none_safe_get_attr(obj):
+        for name in attr.split("."):
+            obj = getattr(obj, name)
+            if obj is None:
+                return None
+        return obj
+
+    return none_safe_get_attr
+
+
 def queries_disabled(pair):
     prepare, project = pair
     decorator = zen_queries.queries_disabled() if zen_queries else lambda fn: fn

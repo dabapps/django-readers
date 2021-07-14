@@ -24,3 +24,16 @@ class MapOrApplyTestCase(TestCase):
         Widget.objects.create(name="test 2")
         result = utils.map_or_apply(Widget.objects, lambda item: item.name)
         self.assertEqual(result, ["test 1", "test 2"])
+
+
+class NoneSafeAttrGetterTestCase(TestCase):
+    def test_does_not_raise_error_when_attr_is_none(self):
+        widget = Widget()
+        get_attr = utils.none_safe_attrgetter("owner.name")
+        self.assertIsNone(get_attr(widget))
+
+    def test_does_raise_error_when_attr_missing(self):
+        widget = Widget()
+        get_attr = utils.none_safe_attrgetter("chowner.chame")
+        with self.assertRaises(AttributeError):
+            get_attr(widget)

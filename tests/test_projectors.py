@@ -74,6 +74,12 @@ class ProjectorTestCase(TestCase):
         with self.assertRaises(TypeError):
             project(widget)
 
+    def test_dotted_attr_handles_none(self):
+        widget = Widget.objects.create(name="test")
+        project = projectors.attr("owner.name")
+        result = project(widget)
+        self.assertEqual(result, {"owner.name": None})
+
 
 class RelationshipTestCase(TestCase):
     def test_relationship_projector(self):
