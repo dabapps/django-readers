@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django_readers.utils import map_or_apply
+from django_readers.utils import map_or_apply, none_safe_attrgetter
 from operator import attrgetter, methodcaller
 
 
@@ -12,7 +12,7 @@ def wrap(key, value_getter):
 
 def attr(name, *, transform_value=None, transform_value_if_none=False):
     def value_getter(instance):
-        value = attrgetter(name)(instance)
+        value = none_safe_attrgetter(name)(instance)
         if transform_value and (value is not None or transform_value_if_none):
             value = transform_value(value)
         return value
@@ -34,7 +34,7 @@ def relationship(name, related_projector):
 
     def value_getter(instance):
         try:
-            related = attrgetter(name)(instance)
+            related = none_safe_attrgetter(name)(instance)
         except ObjectDoesNotExist:
             return None
         return map_or_apply(related, related_projector)
