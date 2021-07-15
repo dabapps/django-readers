@@ -192,7 +192,7 @@ The `pairs.field` function takes the same `transform_value` and `transform_value
 When composing multiple pairs together, it is again necessary to wrap the producer to convert it to a projector, thus forming `(prepare, project)` pairs. This can be done with the `pairs.wrap_producer` function:
 
 ```python
-prepare, project = pairs.combine_projectors(
+prepare, project = pairs.combine(
     pairs.wrap_producer("name", pairs.field("name")),
     pairs.wrap_producer("birth_year", pairs.field("birth_year")),
 )
@@ -201,10 +201,10 @@ prepare, project = pairs.combine_projectors(
 Relationships can automatically be loaded and projected, too:
 
 ```python
-prepare, project = pairs.combine_projectors(
+prepare, project = pairs.combine(
     pairs.wrap_producer("name", pairs.field("name")),
     age_pair,
-    pairs.wrap_producer("book_set", pairs.relationship("book_set", pairs.combine_projectors(
+    pairs.wrap_producer("book_set", pairs.relationship("book_set", pairs.combine(
         pairs.wrap_producer("title", pairs.field("title")),
         pairs.wrap_producer("publication_year", pairs.field("publication_year")),
     )))
@@ -222,12 +222,12 @@ You can use `pairs.pk_list` to produce a list containing just the primary keys o
 As a shortcut, the `pairs` module provides functions called `filter`, `exclude` and `order_by`, which can be used to apply the given queryset functions to the queryset _without affecting the projection_. These are equivalent to (for example) `(qs.filter(arg=value), projectors.noop)` and are most useful for filtering or ordering related objects:
 
 ```python
-prepare, project = pairs.combine_projectors(
+prepare, project = pairs.combine(
     pairs.wrap_producer("name", pairs.field("name")),
     age_pair,
     pairs.wrap_producer("book_set", pairs.relationship(
         "book_set",
-        pairs.combine_projectors(
+        pairs.combine(
             pairs.filter(publication_year__gte=2020),
             pairs.order_by("title"),
             pairs.wrap_producer("title", pairs.field("title")),
