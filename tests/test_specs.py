@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django_readers import specs
-from tests.models import Category, Owner, Thing, Widget
+from tests.models import Category, Group, Owner, Thing, Widget
 
 
 class SpecTestCase(TestCase):
@@ -124,4 +124,46 @@ class SpecTestCase(TestCase):
         self.assertEqual(
             result,
             {"name": "test widget", "owner_attr": {"name": "test owner"}},
+        )
+
+    def test_wrap_producer_shortcut(self):
+        Widget.objects.create(
+            name="test widget",
+            owner=Owner.objects.create(
+                name="test owner", group=Group.objects.create(name="test group")
+            ),
+        )
+        some_pair = (lambda qs: qs, lambda instance: "some value")
+
+        prepare, project = specs.process(
+            [
+                {"aliased_name": "name"},
+                {
+                    "another_name_alias": "name",
+                    "alias_for_owner_relationship": {
+                        "owner": [
+                            {"aliased_owner_name": "name"},
+                            {"group": ["name"]},
+                        ]
+                    },
+                },
+                {"aliased_value_from_pair": some_pair},
+            ]
+        )
+
+        queryset = prepare(Widget.objects.all())
+        instance = queryset.first()
+        result = project(instance)
+
+        self.assertEqual(
+            result,
+            {
+                "aliased_name": "test widget",
+                "another_name_alias": "test widget",
+                "alias_for_owner_relationship": {
+                    "aliased_owner_name": "test owner",
+                    "group": {"name": "test group"},
+                },
+                "aliased_value_from_pair": "some value",
+            },
         )
