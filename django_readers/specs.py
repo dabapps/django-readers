@@ -4,7 +4,7 @@ from django_readers.utils import queries_disabled
 
 def process_item(item):
     if isinstance(item, str):
-        return pairs.field(item)
+        return pairs.wrap_producer(item, pairs.field(item))
     if isinstance(item, dict):
         return pairs.combine(
             *[
@@ -19,9 +19,7 @@ def process(spec):
     return queries_disabled(pairs.combine(*(process_item(item) for item in spec)))
 
 
-def alias(alias_or_aliases, item):
-    return pairs.alias(alias_or_aliases, process_item(item))
-
-
 def relationship(name, relationship_spec, to_attr=None):
-    return pairs.relationship(name, process(relationship_spec), to_attr)
+    return pairs.wrap_producer(
+        to_attr or name, pairs.relationship(name, process(relationship_spec), to_attr)
+    )

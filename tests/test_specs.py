@@ -105,33 +105,6 @@ class SpecTestCase(TestCase):
             },
         )
 
-    def test_alias(self):
-        owner = Owner.objects.create(name="test owner")
-        Widget.objects.create(name="test widget", owner=owner)
-
-        prepare, project = specs.process(
-            [
-                specs.alias({"name": "name_alias"}, "name"),
-                specs.alias(
-                    "widgets",
-                    {"widget_set": [specs.alias("alias", "name")]},
-                ),
-            ]
-        )
-
-        with self.assertNumQueries(0):
-            queryset = prepare(Owner.objects.all())
-
-        with self.assertNumQueries(2):
-            instance = queryset.first()
-
-        with self.assertNumQueries(0):
-            result = project(instance)
-
-        self.assertEqual(
-            result, {"name_alias": "test owner", "widgets": [{"alias": "test widget"}]}
-        )
-
     def test_relationship_function(self):
         Widget.objects.create(
             name="test widget", owner=Owner.objects.create(name="test owner")
