@@ -27,14 +27,14 @@ def relationship(name, relationship_spec, to_attr=None):
 
 def relationship_or_wrap(name, child_spec):
     if isinstance(child_spec, str):
-        return pairs.wrap_producer(name, pairs.field(child_spec))
-    if isinstance(child_spec, list):
-        return relationship(name, child_spec)
-    if isinstance(child_spec, dict):
+        producer = pairs.field(child_spec)
+    elif isinstance(child_spec, list):
+        producer = pairs.relationship(name, process(child_spec))
+    elif isinstance(child_spec, dict):
         if len(child_spec) != 1:
             raise ValueError("Aliased relationship spec must contain only one key")
         relationship_name, relationship_spec = next(iter(child_spec.items()))
-        return pairs.wrap_producer(
-            name, pairs.relationship(relationship_name, process(relationship_spec))
-        )
-    return pairs.wrap_producer(name, child_spec)
+        producer = pairs.relationship(relationship_name, process(relationship_spec))
+    else:
+        producer = child_spec
+    return pairs.wrap_producer(name, producer)
