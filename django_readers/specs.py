@@ -31,6 +31,8 @@ def relationship_or_wrap(name, child_spec):
     if isinstance(child_spec, list):
         return relationship(name, child_spec)
     if isinstance(child_spec, dict):
+        if len(child_spec) != 1:
+            raise ValueError("Aliased relationship spec must contain only one key")
         relationship_name, relationship_spec = next(iter(child_spec.items()))
         return pairs.wrap_producer(
             name, pairs.relationship(relationship_name, process(relationship_spec))

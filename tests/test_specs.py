@@ -167,3 +167,23 @@ class SpecTestCase(TestCase):
                 "aliased_value_from_pair": "some value",
             },
         )
+
+    def test_wrap_relationship_must_have_only_one_key(self):
+        Widget.objects.create(
+            name="test widget",
+            owner=Owner.objects.create(name="test owner"),
+        )
+
+        with self.assertRaises(ValueError):
+            specs.process(
+                [
+                    {
+                        "alias_for_owner_relationship": {
+                            "owner": [
+                                {"aliased_owner_name": "name"},
+                            ],
+                            "other_thing": ["whatever"],
+                        },
+                    },
+                ]
+            )
