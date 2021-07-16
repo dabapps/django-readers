@@ -55,7 +55,7 @@ These layers can be intermingled in a real-world application. To expain each lay
 
 A queryset preparation function is a function that accepts a queryset as its single argument, and returns a new queryset with some modifications applied.
 
-```
+```python
 def prepare(queryset):
     return queryset.filter(name="shakespeare")
 ```
