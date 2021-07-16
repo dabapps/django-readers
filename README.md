@@ -116,7 +116,7 @@ from datetime import datetime
 def produce_age(instance):
     return datetime.now().year - instance.birth_year
 
-project_age = projectors.wrap_producer("age", produce_age)
+project_age = projectors.producer_to_projector("age", produce_age)
 
 author = Author(name="Some Author", birth_year=1984)
 print(project_age(author))
@@ -129,7 +129,7 @@ A dictionary is returned because these projectors are intended to be _composable
 from django_readers import producers, projectors
 
 project = projectors.combine(
-    projectors.wrap_producer("name", producers.attr("name")),
+    projectors.producer_to_projector("name", producers.attr("name")),
     project_age,
 )
 print(project(author))
@@ -142,11 +142,11 @@ Related objects can also be produced using the `producers.relationship` function
 
 ```python
 project = projectors.combine(
-    projectors.wrap_producer("name", producers.attr("name")),
+    projectors.producer_to_projector("name", producers.attr("name")),
     project_age,
-    projectors.wrap_producer("book_set", producers.relationship("book_set", projectors.combine(
-        projectors.wrap_producer(producers.attr("title")),
-        projectors.wrap_producer(producers.attr("publication_year"),
+    projectors.producer_to_projector("book_set", producers.relationship("book_set", projectors.combine(
+        projectors.producer_to_projector(producers.attr("title")),
+        projectors.producer_to_projector(producers.attr("publication_year"),
     )),
 )
 print(project(author))
@@ -189,12 +189,12 @@ print(project(author))
 
 The `pairs.field` function takes the same `transform_value` and `transform_value_if_none` arguments as `producers.attr` (see above).
 
-When composing multiple pairs together, it is again necessary to wrap the producer to convert it to a projector, thus forming `(prepare, project)` pairs. This can be done with the `pairs.wrap_producer` function:
+When composing multiple pairs together, it is again necessary to wrap the producer to convert it to a projector, thus forming `(prepare, project)` pairs. This can be done with the `pairs.producer_to_projector` function:
 
 ```python
 prepare, project = pairs.combine(
-    pairs.wrap_producer("name", pairs.field("name")),
-    pairs.wrap_producer("birth_year", pairs.field("birth_year")),
+    pairs.producer_to_projector("name", pairs.field("name")),
+    pairs.producer_to_projector("birth_year", pairs.field("birth_year")),
 )
 ```
 
@@ -202,11 +202,11 @@ Relationships can automatically be loaded and projected, too:
 
 ```python
 prepare, project = pairs.combine(
-    pairs.wrap_producer("name", pairs.field("name")),
+    pairs.producer_to_projector("name", pairs.field("name")),
     age_pair,
-    pairs.wrap_producer("book_set", pairs.relationship("book_set", pairs.combine(
-        pairs.wrap_producer("title", pairs.field("title")),
-        pairs.wrap_producer("publication_year", pairs.field("publication_year")),
+    pairs.producer_to_projector("book_set", pairs.relationship("book_set", pairs.combine(
+        pairs.producer_to_projector("title", pairs.field("title")),
+        pairs.producer_to_projector("publication_year", pairs.field("publication_year")),
     )))
 )
 ```
@@ -223,15 +223,15 @@ As a shortcut, the `pairs` module provides functions called `filter`, `exclude` 
 
 ```python
 prepare, project = pairs.combine(
-    pairs.wrap_producer("name", pairs.field("name")),
+    pairs.producer_to_projector("name", pairs.field("name")),
     age_pair,
-    pairs.wrap_producer("book_set", pairs.relationship(
+    pairs.producer_to_projector("book_set", pairs.relationship(
         "book_set",
         pairs.combine(
             pairs.filter(publication_year__gte=2020),
             pairs.order_by("title"),
-            pairs.wrap_producer("title", pairs.field("title")),
-            pairs.wrap_producer("publication_year", pairs.field("publication_year")),
+            pairs.producer_to_projector("title", pairs.field("title")),
+            pairs.producer_to_projector("publication_year", pairs.field("publication_year")),
         ),
         to_attr="recent_books"
     ))

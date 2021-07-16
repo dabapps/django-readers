@@ -20,7 +20,7 @@ def process(spec):
 
 
 def relationship(name, relationship_spec, to_attr=None):
-    return pairs.wrap_producer(
+    return pairs.producer_to_projector(
         to_attr or name, pairs.relationship(name, process(relationship_spec), to_attr)
     )
 
@@ -37,4 +37,4 @@ def relationship_or_wrap(name, child_spec):
         producer = pairs.relationship(relationship_name, process(relationship_spec))
     else:
         producer = child_spec
-    return pairs.wrap_producer(name, producer)
+    return pairs.producer_to_projector(name, producer)

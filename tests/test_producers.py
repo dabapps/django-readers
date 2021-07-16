@@ -56,12 +56,14 @@ class RelationshipTestCase(TestCase):
         produce = producers.relationship(
             "owner",
             projectors.combine(
-                projectors.wrap_producer("name", producers.attr("name")),
-                projectors.wrap_producer(
+                projectors.producer_to_projector("name", producers.attr("name")),
+                projectors.producer_to_projector(
                     "group",
                     producers.relationship(
                         "group",
-                        projectors.wrap_producer("name", producers.attr("name")),
+                        projectors.producer_to_projector(
+                            "name", producers.attr("name")
+                        ),
                     ),
                 ),
             ),
@@ -76,7 +78,7 @@ class RelationshipTestCase(TestCase):
     def test_nullable(self):
         widget = Widget.objects.create(owner=None)
         produce = producers.relationship(
-            "owner", projectors.wrap_producer("name", producers.attr("name"))
+            "owner", projectors.producer_to_projector("name", producers.attr("name"))
         )
         result = produce(widget)
         self.assertEqual(result, None)
@@ -84,7 +86,7 @@ class RelationshipTestCase(TestCase):
     def test_nullable_one_to_one(self):
         widget = Widget.objects.create(thing=None)
         produce = producers.relationship(
-            "thing", projectors.wrap_producer("name", producers.attr("name"))
+            "thing", projectors.producer_to_projector("name", producers.attr("name"))
         )
         result = produce(widget)
         self.assertEqual(result, None)
@@ -100,12 +102,14 @@ class RelationshipTestCase(TestCase):
         produce = producers.relationship(
             "owner_set",
             projectors.combine(
-                projectors.wrap_producer("name", producers.attr("name")),
-                projectors.wrap_producer(
+                projectors.producer_to_projector("name", producers.attr("name")),
+                projectors.producer_to_projector(
                     "widget_set",
                     producers.relationship(
                         "widget_set",
-                        projectors.wrap_producer("name", producers.attr("name")),
+                        projectors.producer_to_projector(
+                            "name", producers.attr("name")
+                        ),
                     ),
                 ),
             ),

@@ -126,7 +126,7 @@ class SpecTestCase(TestCase):
             {"name": "test widget", "owner_attr": {"name": "test owner"}},
         )
 
-    def test_wrap_producer_shortcut(self):
+    def test_producer_to_projector_shortcut(self):
         Widget.objects.create(
             name="test widget",
             owner=Owner.objects.create(

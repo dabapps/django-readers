@@ -10,8 +10,8 @@ class PairsTestCase(TestCase):
             Widget.objects.create(name=name, other=f"other-{name}")
 
         prepare, project = pairs.combine(
-            pairs.wrap_producer("name", pairs.field("name")),
-            pairs.wrap_producer("other", pairs.field("other")),
+            pairs.producer_to_projector("name", pairs.field("name")),
+            pairs.producer_to_projector("other", pairs.field("other")),
         )
 
         queryset = prepare(Widget.objects.all())
@@ -31,10 +31,10 @@ class PairsTestCase(TestCase):
         Widget.objects.create(name=None, other=None)
 
         prepare, project = pairs.combine(
-            pairs.wrap_producer(
+            pairs.producer_to_projector(
                 "name", pairs.field("name", transform_value=title_and_reverse)
             ),
-            pairs.wrap_producer(
+            pairs.producer_to_projector(
                 "other",
                 pairs.field(
                     "other",
@@ -61,20 +61,22 @@ class PairsTestCase(TestCase):
         Widget.objects.create(name="test widget", owner=owner)
 
         prepare, project = pairs.combine(
-            pairs.wrap_producer("name", pairs.field("name")),
-            pairs.wrap_producer(
+            pairs.producer_to_projector("name", pairs.field("name")),
+            pairs.producer_to_projector(
                 "owner",
                 pairs.forward_relationship(
                     "owner",
                     Owner.objects.all(),
                     pairs.combine(
-                        pairs.wrap_producer("name", pairs.field("name")),
-                        pairs.wrap_producer(
+                        pairs.producer_to_projector("name", pairs.field("name")),
+                        pairs.producer_to_projector(
                             "group",
                             pairs.forward_relationship(
                                 "group",
                                 Group.objects.all(),
-                                pairs.wrap_producer("name", pairs.field("name")),
+                                pairs.producer_to_projector(
+                                    "name", pairs.field("name")
+                                ),
                             ),
                         ),
                     ),
@@ -106,13 +108,13 @@ class PairsTestCase(TestCase):
         )
 
         prepare, project = pairs.combine(
-            pairs.wrap_producer("name", pairs.field("name")),
-            pairs.wrap_producer(
+            pairs.producer_to_projector("name", pairs.field("name")),
+            pairs.producer_to_projector(
                 "owner_attr",
                 pairs.forward_relationship(
                     "owner",
                     Owner.objects.all(),
-                    pairs.wrap_producer("name", pairs.field("name")),
+                    pairs.producer_to_projector("name", pairs.field("name")),
                     to_attr="owner_attr",
                 ),
             ),
@@ -138,22 +140,24 @@ class PairsTestCase(TestCase):
         Widget.objects.create(name="widget 3", owner=owner_2)
 
         prepare, project = pairs.combine(
-            pairs.wrap_producer("name", pairs.field("name")),
-            pairs.wrap_producer(
+            pairs.producer_to_projector("name", pairs.field("name")),
+            pairs.producer_to_projector(
                 "owner_set",
                 pairs.reverse_relationship(
                     "owner_set",
                     "group",
                     Owner.objects.all(),
                     pairs.combine(
-                        pairs.wrap_producer("name", pairs.field("name")),
-                        pairs.wrap_producer(
+                        pairs.producer_to_projector("name", pairs.field("name")),
+                        pairs.producer_to_projector(
                             "widget_set",
                             pairs.reverse_relationship(
                                 "widget_set",
                                 "owner",
                                 Widget.objects.all(),
-                                pairs.wrap_producer("name", pairs.field("name")),
+                                pairs.producer_to_projector(
+                                    "name", pairs.field("name")
+                                ),
                             ),
                         ),
                     ),
@@ -198,14 +202,14 @@ class PairsTestCase(TestCase):
         Owner.objects.create(name="owner 2", group=group)
 
         prepare, project = pairs.combine(
-            pairs.wrap_producer("name", pairs.field("name")),
-            pairs.wrap_producer(
+            pairs.producer_to_projector("name", pairs.field("name")),
+            pairs.producer_to_projector(
                 "owner_set_attr",
                 pairs.reverse_relationship(
                     "owner_set",
                     "group",
                     Owner.objects.all(),
-                    pairs.wrap_producer("name", pairs.field("name")),
+                    pairs.producer_to_projector("name", pairs.field("name")),
                     to_attr="owner_set_attr",
                 ),
             ),
@@ -230,21 +234,23 @@ class PairsTestCase(TestCase):
         Thing.objects.create(name="test thing", widget=widget)
 
         prepare, project = pairs.combine(
-            pairs.wrap_producer("name", pairs.field("name")),
-            pairs.wrap_producer(
+            pairs.producer_to_projector("name", pairs.field("name")),
+            pairs.producer_to_projector(
                 "widget",
                 pairs.forward_relationship(
                     "widget",
                     Widget.objects.all(),
                     pairs.combine(
-                        pairs.wrap_producer("name", pairs.field("name")),
-                        pairs.wrap_producer(
+                        pairs.producer_to_projector("name", pairs.field("name")),
+                        pairs.producer_to_projector(
                             "thing",
                             pairs.reverse_relationship(
                                 "thing",
                                 "widget",
                                 Thing.objects.all(),
-                                pairs.wrap_producer("name", pairs.field("name")),
+                                pairs.producer_to_projector(
+                                    "name", pairs.field("name")
+                                ),
                             ),
                         ),
                     ),
@@ -274,21 +280,23 @@ class PairsTestCase(TestCase):
         Thing.objects.create(name="test thing", widget=widget)
 
         prepare, project = pairs.combine(
-            pairs.wrap_producer("name", pairs.field("name")),
-            pairs.wrap_producer(
+            pairs.producer_to_projector("name", pairs.field("name")),
+            pairs.producer_to_projector(
                 "widget_attr",
                 pairs.forward_relationship(
                     "widget",
                     Widget.objects.all(),
                     pairs.combine(
-                        pairs.wrap_producer("name", pairs.field("name")),
-                        pairs.wrap_producer(
+                        pairs.producer_to_projector("name", pairs.field("name")),
+                        pairs.producer_to_projector(
                             "thing_attr",
                             pairs.reverse_relationship(
                                 "thing",
                                 "widget",
                                 Thing.objects.all(),
-                                pairs.wrap_producer("name", pairs.field("name")),
+                                pairs.producer_to_projector(
+                                    "name", pairs.field("name")
+                                ),
                                 to_attr="thing_attr",
                             ),
                         ),
@@ -318,20 +326,22 @@ class PairsTestCase(TestCase):
         category.widget_set.add(widget)
 
         prepare, project = pairs.combine(
-            pairs.wrap_producer("name", pairs.field("name")),
-            pairs.wrap_producer(
+            pairs.producer_to_projector("name", pairs.field("name")),
+            pairs.producer_to_projector(
                 "widget_set",
                 pairs.many_to_many_relationship(
                     "widget_set",
                     Widget.objects.all(),
                     pairs.combine(
-                        pairs.wrap_producer("name", pairs.field("name")),
-                        pairs.wrap_producer(
+                        pairs.producer_to_projector("name", pairs.field("name")),
+                        pairs.producer_to_projector(
                             "category_set",
                             pairs.many_to_many_relationship(
                                 "category_set",
                                 Category.objects.all(),
-                                pairs.wrap_producer("name", pairs.field("name")),
+                                pairs.producer_to_projector(
+                                    "name", pairs.field("name")
+                                ),
                             ),
                         ),
                     ),
@@ -364,20 +374,22 @@ class PairsTestCase(TestCase):
         category.widget_set.add(widget)
 
         prepare, project = pairs.combine(
-            pairs.wrap_producer("name", pairs.field("name")),
-            pairs.wrap_producer(
+            pairs.producer_to_projector("name", pairs.field("name")),
+            pairs.producer_to_projector(
                 "widget_set_attr",
                 pairs.many_to_many_relationship(
                     "widget_set",
                     Widget.objects.all(),
                     pairs.combine(
-                        pairs.wrap_producer("name", pairs.field("name")),
-                        pairs.wrap_producer(
+                        pairs.producer_to_projector("name", pairs.field("name")),
+                        pairs.producer_to_projector(
                             "category_set_attr",
                             pairs.many_to_many_relationship(
                                 "category_set",
                                 Category.objects.all(),
-                                pairs.wrap_producer("name", pairs.field("name")),
+                                pairs.producer_to_projector(
+                                    "name", pairs.field("name")
+                                ),
                                 to_attr="category_set_attr",
                             ),
                         ),
@@ -411,50 +423,56 @@ class PairsTestCase(TestCase):
         Thing.objects.create(name="test thing", widget=widget)
 
         prepare, project = pairs.combine(
-            pairs.wrap_producer("name", pairs.field("name")),
-            pairs.wrap_producer(
+            pairs.producer_to_projector("name", pairs.field("name")),
+            pairs.producer_to_projector(
                 "owner",
                 pairs.relationship(
                     "owner",
                     pairs.combine(
-                        pairs.wrap_producer("name", pairs.field("name")),
-                        pairs.wrap_producer(
+                        pairs.producer_to_projector("name", pairs.field("name")),
+                        pairs.producer_to_projector(
                             "widget_set",
                             pairs.relationship(
                                 "widget_set",
-                                pairs.wrap_producer("name", pairs.field("name")),
+                                pairs.producer_to_projector(
+                                    "name", pairs.field("name")
+                                ),
                             ),
                         ),
                     ),
                 ),
             ),
-            pairs.wrap_producer(
+            pairs.producer_to_projector(
                 "category_set",
                 pairs.relationship(
                     "category_set",
                     pairs.combine(
-                        pairs.wrap_producer("name", pairs.field("name")),
-                        pairs.wrap_producer(
+                        pairs.producer_to_projector("name", pairs.field("name")),
+                        pairs.producer_to_projector(
                             "widget_set",
                             pairs.relationship(
                                 "widget_set",
-                                pairs.wrap_producer("name", pairs.field("name")),
+                                pairs.producer_to_projector(
+                                    "name", pairs.field("name")
+                                ),
                             ),
                         ),
                     ),
                 ),
             ),
-            pairs.wrap_producer(
+            pairs.producer_to_projector(
                 "thing",
                 pairs.relationship(
                     "thing",
                     pairs.combine(
-                        pairs.wrap_producer("name", pairs.field("name")),
-                        pairs.wrap_producer(
+                        pairs.producer_to_projector("name", pairs.field("name")),
+                        pairs.producer_to_projector(
                             "widget",
                             pairs.relationship(
                                 "widget",
-                                pairs.wrap_producer("name", pairs.field("name")),
+                                pairs.producer_to_projector(
+                                    "name", pairs.field("name")
+                                ),
                             ),
                         ),
                     ),
@@ -492,12 +510,12 @@ class PairsTestCase(TestCase):
         )
 
         prepare, project = pairs.combine(
-            pairs.wrap_producer("name", pairs.field("name")),
-            pairs.wrap_producer(
+            pairs.producer_to_projector("name", pairs.field("name")),
+            pairs.producer_to_projector(
                 "owner_attr",
                 pairs.relationship(
                     "owner",
-                    pairs.wrap_producer("name", pairs.field("name")),
+                    pairs.producer_to_projector("name", pairs.field("name")),
                     to_attr="owner_attr",
                 ),
             ),
@@ -527,13 +545,15 @@ class PairsTestCase(TestCase):
                     qs.include_fields("owner__name"),
                 )
             ),
-            pairs.wrap_producer("name", pairs.field("name")),
+            pairs.producer_to_projector("name", pairs.field("name")),
             pairs.project_only(
-                projectors.wrap_producer(
+                projectors.producer_to_projector(
                     "owner",
                     producers.relationship(
                         "owner",
-                        projectors.wrap_producer("name", producers.attr("name")),
+                        projectors.producer_to_projector(
+                            "name", producers.attr("name")
+                        ),
                     ),
                 )
             ),
@@ -557,7 +577,7 @@ class FieldDisplayTestCase(TestCase):
     def test_field_display(self):
         Thing.objects.create(size="L")
         Thing.objects.create(size="S")
-        prepare, project = pairs.wrap_producer(
+        prepare, project = pairs.producer_to_projector(
             "size_display", pairs.field_display("size")
         )
         queryset = prepare(Thing.objects.order_by("size"))
@@ -578,7 +598,7 @@ class FilterTestCase(TestCase):
 
         prepare, project = pairs.combine(
             pairs.filter(name="first"),
-            pairs.wrap_producer("name", pairs.field("name")),
+            pairs.producer_to_projector("name", pairs.field("name")),
         )
 
         queryset = prepare(Widget.objects.all())
@@ -594,7 +614,7 @@ class ExcludeTestCase(TestCase):
 
         prepare, project = pairs.combine(
             pairs.exclude(name="first"),
-            pairs.wrap_producer("name", pairs.field("name")),
+            pairs.producer_to_projector("name", pairs.field("name")),
         )
 
         queryset = prepare(Widget.objects.all())
@@ -611,7 +631,7 @@ class OrderByTestCase(TestCase):
 
         prepare, project = pairs.combine(
             pairs.order_by("name"),
-            pairs.wrap_producer("name", pairs.field("name")),
+            pairs.producer_to_projector("name", pairs.field("name")),
         )
 
         queryset = prepare(Widget.objects.all())
@@ -626,7 +646,7 @@ class PKListTestCase(TestCase):
         Widget.objects.create(name="test 2", owner=owner)
         Widget.objects.create(name="test 3", owner=owner)
 
-        prepare, project = pairs.wrap_producer(
+        prepare, project = pairs.producer_to_projector(
             "widget_set", pairs.pk_list("widget_set")
         )
 
@@ -640,7 +660,7 @@ class PKListTestCase(TestCase):
         Widget.objects.create(name="test 2", owner=owner)
         Widget.objects.create(name="test 3", owner=owner)
 
-        prepare, project = pairs.wrap_producer(
+        prepare, project = pairs.producer_to_projector(
             "widgets", pairs.pk_list("widget_set", to_attr="widgets")
         )
 
@@ -656,7 +676,9 @@ class CountTestCase(TestCase):
         Widget.objects.create(name="test 2", owner=owner)
         Widget.objects.create(name="test 3", owner=owner)
 
-        prepare, project = pairs.wrap_producer("widget_count", pairs.count("widget"))
+        prepare, project = pairs.producer_to_projector(
+            "widget_count", pairs.count("widget")
+        )
 
         queryset = prepare(Owner.objects.all())
         result = project(queryset.first())
@@ -667,7 +689,9 @@ class HasTestCase(TestCase):
     def test_has_false(self):
         Owner.objects.create(name="test owner")
 
-        prepare, project = pairs.wrap_producer("has_widget", pairs.has("widget"))
+        prepare, project = pairs.producer_to_projector(
+            "has_widget", pairs.has("widget")
+        )
 
         queryset = prepare(Owner.objects.all())
         result = project(queryset.first())
@@ -677,7 +701,9 @@ class HasTestCase(TestCase):
         owner = Owner.objects.create(name="test owner")
         Widget.objects.create(name="test", owner=owner)
 
-        prepare, project = pairs.wrap_producer("has_widget", pairs.has("widget"))
+        prepare, project = pairs.producer_to_projector(
+            "has_widget", pairs.has("widget")
+        )
 
         queryset = prepare(Owner.objects.all())
         result = project(queryset.first())

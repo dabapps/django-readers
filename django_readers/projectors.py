@@ -1,4 +1,4 @@
-def wrap_producer(key, producer):
+def producer_to_projector(key, producer):
     def projector(instance):
         return {key: producer(instance)}
 

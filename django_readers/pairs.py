@@ -2,9 +2,9 @@ from django.db.models import Count
 from django_readers import producers, projectors, qs
 
 
-def wrap_producer(name, pair):
+def producer_to_projector(name, pair):
     prepare, produce = pair
-    return prepare, projectors.wrap_producer(name, produce)
+    return prepare, projectors.producer_to_projector(name, produce)
 
 
 def field(name, *, transform_value=None, transform_value_if_none=False):
