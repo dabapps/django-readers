@@ -144,11 +144,21 @@ Related objects can also be produced using the `producers.relationship` function
 project = projectors.combine(
     projectors.producer_to_projector("name", producers.attr("name")),
     projectors.producer_to_projector("age", produce_age),
-    projectors.producer_to_projector("book_set", producers.relationship("book_set", projectors.combine(
-        projectors.producer_to_projector(producers.attr("title")),
-        projectors.producer_to_projector(producers.attr("publication_year"),
-    )),
+    projectors.producer_to_projector(
+        "book_set",
+        producers.relationship(
+            "book_set",
+            projectors.combine(
+                projectors.producer_to_projector("title", producers.attr("title")),
+                projectors.producer_to_projector(
+                    "publication_year",
+                    producers.attr("publication_year"),
+                ),
+            ),
+        ),
+    ),
 )
+
 print(project(author))
 #  {'name': 'Some Author', 'age': 37, 'book_set': [{'title': 'Some Book', 'publication_year': 2019}]}
 ```
