@@ -35,8 +35,7 @@ def project_only(project):
 def field_display(name):
     """
     Works with Django's get_FOO_display mechanism for fields with choices set. Given
-    the name of a field, calls get_<name>_display, and returns a projector that puts
-    the returned value under the key <name>_display.
+    the name of a field, returns a producer that calls get_<name>_display.
     """
     return qs.include_fields(name), producers.method(f"get_{name}_display")
 
