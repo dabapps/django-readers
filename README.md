@@ -143,7 +143,7 @@ Related objects can also be produced using the `producers.relationship` function
 ```python
 project = projectors.combine(
     projectors.producer_to_projector("name", producers.attr("name")),
-    project_age,
+    pairs.producer_to_projector("age", produce_age),
     projectors.producer_to_projector("book_set", producers.relationship("book_set", projectors.combine(
         projectors.producer_to_projector(producers.attr("title")),
         projectors.producer_to_projector(producers.attr("publication_year"),
@@ -203,7 +203,7 @@ Relationships can automatically be loaded and projected, too:
 ```python
 prepare, project = pairs.combine(
     pairs.producer_to_projector("name", pairs.field("name")),
-    age_pair,
+    pairs.producer_to_projector("age", age_pair),
     pairs.producer_to_projector("book_set", pairs.relationship("book_set", pairs.combine(
         pairs.producer_to_projector("title", pairs.field("title")),
         pairs.producer_to_projector("publication_year", pairs.field("publication_year")),
@@ -224,7 +224,7 @@ As a shortcut, the `pairs` module provides functions called `filter`, `exclude` 
 ```python
 prepare, project = pairs.combine(
     pairs.producer_to_projector("name", pairs.field("name")),
-    age_pair,
+    pairs.producer_to_projector("age", age_pair),
     pairs.producer_to_projector("book_set", pairs.relationship(
         "book_set",
         pairs.combine(
@@ -266,7 +266,7 @@ from django_readers import specs
 prepare, project = specs.process(
     [
         "name",
-        age_pair,
+        {"age": age_pair},
         {"book_set": ["title", "publication_year"]},
     ]
 )
@@ -275,17 +275,7 @@ queryset = prepare(Author.objects.all())
 result = [project(instance) for instance in queryset]
 ```
 
-The structure of this specification is heavily inspired by [`django-rest-framework-serialization-spec`](https://github.com/dabapps/django-rest-framework-serialization-spec/), minus the concept of "plugins", which are replaced with directly including `(prepare, project)` pairs in the spec. It should be trivial to convert or "adapt" a `serialization-spec` plugin into a suitable `django-readers` pair.
-
-It is also possible to wrap a spec item in `specs.alias`, which takes the same alias argument as `pairs.alias` (see above), and applies it to the spec item:
-
-```python
-prepare, project = specs.process(
-    [
-        specs.alias("year_of_birth", "birth_year"),
-    ]
-)
-```
+The structure of this specification is heavily inspired by [`django-rest-framework-serialization-spec`](https://github.com/dabapps/django-rest-framework-serialization-spec/), minus the concept of "plugins", which are replaced with directly including `(prepare, produce)` pairs in the spec. It should be trivial to convert or "adapt" a `serialization-spec` plugin into a suitable `django-readers` pair.
 
 ### `django-rest-framework` view mixin
 
