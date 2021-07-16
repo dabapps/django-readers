@@ -165,7 +165,7 @@ Finally, the `producers.method` function will call the given method name on the 
 
 ### `django_readers.pairs`: "reader pairs" combining `prepare` with `produce` and `project`
 
-`prepare` and `produce` (and therefore also `project`) functions are intimately connected, with the `produce`/`project` functions usually depending on fields, annotations or relationships loaded by the `prepare` function. For this reason, `django-readers` expects these functions to live together in two-tuples: `(prepare, produce)` (a "producer pair") and ``(prepare, project)` (a "projector pair"). Remember that the difference between `produce` and `project` is that the former returns a single value, whereas the latter returns a dictionary binding one or more names (keys) to one or more values.
+`prepare` and `produce` (and therefore also `project`) functions are intimately connected, with the `produce`/`project` functions usually depending on fields, annotations or relationships loaded by the `prepare` function. For this reason, `django-readers` expects these functions to live together in two-tuples: `(prepare, produce)` (a "producer pair") and `(prepare, project)` (a "projector pair"). Remember that the difference between `produce` and `project` is that the former returns a single value, whereas the latter returns a dictionary binding one or more names (keys) to one or more values.
 
 In the example used above, the `produce_age` producer depends on the `birth_year` field:
 
