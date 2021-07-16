@@ -143,7 +143,7 @@ Related objects can also be produced using the `producers.relationship` function
 ```python
 project = projectors.combine(
     projectors.producer_to_projector("name", producers.attr("name")),
-    pairs.producer_to_projector("age", produce_age),
+    projectors.producer_to_projector("age", produce_age),
     projectors.producer_to_projector("book_set", producers.relationship("book_set", projectors.combine(
         projectors.producer_to_projector(producers.attr("title")),
         projectors.producer_to_projector(producers.attr("publication_year"),
