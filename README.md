@@ -214,11 +214,20 @@ Relationships can automatically be loaded and projected, too:
 prepare, project = pairs.combine(
     pairs.producer_to_projector("name", pairs.field("name")),
     pairs.producer_to_projector("age", age_pair),
-    pairs.producer_to_projector("book_set", pairs.relationship("book_set", pairs.combine(
-        pairs.producer_to_projector("title", pairs.field("title")),
-        pairs.producer_to_projector("publication_year", pairs.field("publication_year")),
-    )))
+    pairs.producer_to_projector(
+        "book_set",
+        pairs.relationship(
+            "book_set",
+            pairs.combine(
+                pairs.producer_to_projector("title", pairs.field("title")),
+                pairs.producer_to_projector(
+                    "publication_year", pairs.field("publication_year")
+                ),
+            ),
+        ),
+    ),
 )
+
 ```
 
 Again, only the precise fields that are needed are loaded from the database. All relationship functions take an optional `to_attr` argument which is passed to the underlying `Prefetch` object and also changes the key name used by the producer.
@@ -235,16 +244,21 @@ As a shortcut, the `pairs` module provides functions called `filter`, `exclude` 
 prepare, project = pairs.combine(
     pairs.producer_to_projector("name", pairs.field("name")),
     pairs.producer_to_projector("age", age_pair),
-    pairs.producer_to_projector("book_set", pairs.relationship(
+    pairs.producer_to_projector(
         "book_set",
-        pairs.combine(
-            pairs.filter(publication_year__gte=2020),
-            pairs.order_by("title"),
-            pairs.producer_to_projector("title", pairs.field("title")),
-            pairs.producer_to_projector("publication_year", pairs.field("publication_year")),
+        pairs.relationship(
+            "book_set",
+            pairs.combine(
+                pairs.filter(publication_year__gte=2020),
+                pairs.order_by("title"),
+                pairs.producer_to_projector("title", pairs.field("title")),
+                pairs.producer_to_projector(
+                    "publication_year", pairs.field("publication_year")
+                ),
+            ),
+            to_attr="recent_books",
         ),
-        to_attr="recent_books"
-    ))
+    ),
 )
 ```
 
@@ -299,11 +313,13 @@ class AuthorDetailView(SpecMixin, RetrieveAPIView):
     spec = [
         "id",
         "name",
-        {"book_set": [
-            "id",
-            "title",
-            "publication_year",
-        ]},
+        {
+            "book_set": [
+                "id",
+                "title",
+                "publication_year",
+            ]
+        },
     ]
 ```
 
