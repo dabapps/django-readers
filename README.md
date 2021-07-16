@@ -192,8 +192,7 @@ prepare, produce = pairs.field("name")
 queryset = prepare(Author.objects.all())
 print(queryset.query)
 #  SELECT "author"."id", "author"."name" FROM "author"
-result = produce(queryset.first())
-print(project(author))
+print(produce(queryset.first()))
 #  'Some Author'
 ```
 
