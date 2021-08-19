@@ -21,7 +21,7 @@ Install from PyPI
 `django-readers` is a library to help with organising business logic in a Django codebase, following a function-oriented style. It allows you to concisely specify data dependencies in your views and attempts to extract and transform that data as efficiently as possible, eliminating the [N+1 queries problem](https://stackoverflow.com/questions/97197/what-is-the-n1-selects-problem-in-orm-object-relational-mapping). It introduces a few simple concepts, and provides some tools to assemble them together into a working application. It can easily be combined with existing patterns and libraries.
 
 * **queryset preparation functions** replace custom queryset methods and encapsulate data selection: filtering, annotation etc. They can be composed to express complex selection logic.
-* **producer functions** replace model methods and encapsulate business logic for transforming and presenting data. They can be combined to form lightweight business objects (dictionaries) that are the right shape for the code that consumes them.
+* **producer and projector functions** replace model methods and encapsulate business logic for transforming and presenting data. They can be combined to form lightweight business objects (dictionaries) that are the right shape for the code that consumes them.
 * **reader pairs** combine queryset functions and producers, expressing the dependencies between them.
 * a high-level **spec** provides a concise way to express exactly which data should be selected and projected at the point of use.
 
