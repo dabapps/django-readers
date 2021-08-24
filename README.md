@@ -286,13 +286,18 @@ The example from the last section may be written as the following spec:
 ```python
 from django_readers import specs
 
-prepare, project = specs.process(
-    [
-        "name",
-        {"age": age_pair},
-        {"book_set": ["title", "publication_year"]},
-    ]
-)
+spec = [
+    "name",
+    {"age": age_pair},
+    {
+        "book_set": [
+             "title",
+             "publication_year"
+         ]
+    },
+]
+
+prepare, project = specs.process(spec)
 
 queryset = prepare(Author.objects.all())
 result = [project(instance) for instance in queryset]
