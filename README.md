@@ -87,8 +87,10 @@ Business logic that would traditionally go in model methods should instead go in
 ```python
 from datetime import datetime
 
+
 def produce_age(instance):
     return datetime.now().year - instance.birth_year
+
 
 author = Author(name="Some Author", birth_year=1984)
 print(produce_age(author))
@@ -113,8 +115,10 @@ These functions "project" your data layer into your application's business logic
 ```python
 from datetime import datetime
 
+
 def produce_age(instance):
     return datetime.now().year - instance.birth_year
+
 
 project_age = projectors.producer_to_projector("age", produce_age)
 
@@ -226,7 +230,6 @@ prepare, project = pairs.combine(
         ),
     ),
 )
-
 ```
 
 Again, only the precise fields that are needed are loaded from the database. All relationship functions take an optional `to_attr` argument which is passed to the underlying `Prefetch` object.
@@ -291,9 +294,9 @@ spec = [
     {"age": age_pair},
     {
         "book_set": [
-             "title",
-             "publication_year"
-         ]
+            "title",
+            "publication_year",
+        ]
     },
 ]
 
@@ -311,6 +314,7 @@ If you use [django-rest-framework](https://www.django-rest-framework.org/), `dja
 
 ```python
 from django_readers.rest_framework import SpecMixin
+
 
 class AuthorDetailView(SpecMixin, RetrieveAPIView):
     queryset = Author.objects.all()
@@ -340,9 +344,11 @@ In a project using `django-readers`, it is good practice to disallow queries in 
 ```python
 import zen_queries
 
-prepare, project = specs.process([
-    # some spec
-])
+prepare, project = specs.process(
+    [
+        # some spec
+    ]
+)
 
 with zen_queries.queries_disabled():
     queryset = prepare(Author.objects.all())
