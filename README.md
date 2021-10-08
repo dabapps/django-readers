@@ -1,8 +1,6 @@
 django-readers
 ==============
 
-**STATUS: EXPERIMENTAL**
-
 **A lightweight function-oriented toolkit for better organisation of business logic and efficient selection and projection of data in Django projects.**
 
 Tested against Django 2.2 - 3.2 on Python 3.6 - 3.9.
