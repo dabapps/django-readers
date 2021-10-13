@@ -18,7 +18,52 @@ Install from PyPI
 
 ## tl;dr
 
-`django-readers` is a library to help with organising business logic in a Django codebase, following a function-oriented style. It allows you to concisely specify data dependencies in your views and attempts to extract and transform that data as efficiently as possible, eliminating the [N+1 queries problem](https://stackoverflow.com/questions/97197/what-is-the-n1-selects-problem-in-orm-object-relational-mapping). It introduces a few simple concepts, and provides some tools to assemble them together into a working application. It can easily be combined with existing patterns and libraries.
+`django-readers` lets you write Django views like this:
+
+```python
+def author_list(request):
+    spec = [
+        "id",
+        "name",
+        {
+            "book_set": [
+                "id",
+                "title",
+                "publication_year",
+            ]
+        },
+    ]
+
+    prepare, project = specs.process(spec)
+    queryset = prepare(Author.objects.all())
+    return render(
+        request,
+        "author_list.html",
+        {"authors": [project(instance) for instance in queryset]},
+    )
+```
+
+And [Django REST framework](https://www.django-rest-framework.org/) views like this:
+
+```python
+class AuthorListView(SpecMixin, ListAPIView):
+    queryset = Author.objects.all()
+    spec = [
+        "id",
+        "name",
+        {
+            "book_set": [
+                "id",
+                "title",
+                "publication_year",
+            ]
+        },
+    ]
+```
+
+A `django-readers` "spec" precisely specifies the data that your view depends on (which fields from which models). _Only_ this data will be fetched from the database, in the most efficient way possible. This is intended to avoid the [N+1 queries problem](https://stackoverflow.com/questions/97197/what-is-the-n1-selects-problem-in-orm-object-relational-mapping) and can dramatically improve the performance of your application.
+
+However, `django-readers` is more than just this. It is also intended to suggest patterns which help with organising business logic in a Django codebase, following a function-oriented style. It introduces a few simple concepts, and provides some tools to assemble them together into a working application. It can easily be combined with existing patterns and libraries.
 
 * **queryset preparation functions** replace custom queryset methods and encapsulate data selection: filtering, annotation etc. They can be composed to express complex selection logic.
 * **producer and projector functions** replace model methods and encapsulate business logic for transforming and presenting data. They can be combined to form lightweight business objects (dictionaries) that are the right shape for the code that consumes them.
