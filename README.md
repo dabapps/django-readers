@@ -61,7 +61,7 @@ class AuthorListView(SpecMixin, ListAPIView):
     ]
 ```
 
-A `django-readers` "spec" precisely specifies the data (which fields from which models) that is needed by your view. _Only_ this data will be fetched from the database, in the most efficient way possible. This is intended to avoid the [N+1 queries problem](https://stackoverflow.com/questions/97197/what-is-the-n1-selects-problem-in-orm-object-relational-mapping) and can dramatically improve the performance of your application.
+A `django-readers` "spec" precisely specifies the data that your view depends on (which fields from which models). _Only_ this data will be fetched from the database, in the most efficient way possible. This is intended to avoid the [N+1 queries problem](https://stackoverflow.com/questions/97197/what-is-the-n1-selects-problem-in-orm-object-relational-mapping) and can dramatically improve the performance of your application.
 
 However, `django-readers` is more than just this. It is also intended to suggest patterns which help with organising business logic in a Django codebase, following a function-oriented style. It introduces a few simple concepts, and provides some tools to assemble them together into a working application. It can easily be combined with existing patterns and libraries.
 
