@@ -194,7 +194,7 @@ def auto_prefetch_relationship(name, prepare_related_queryset=noop, to_attr=None
     """
     Given the name of a relationship, return a prepare function which introspects the
     relationship to discover its type and generates the correct set of
-    `select_related` and `include_fields` calls to apply to efficiently load it. A
+    `prefetch_related` and `include_fields` calls to apply to efficiently load it. A
     queryset function may also be passed, which will be applied to the related
     queryset.
 
