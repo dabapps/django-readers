@@ -307,6 +307,10 @@ prepare, project = pairs.combine(
 )
 ```
 
+The `pairs` module provides shortcuts for creating your own pairs that affect only the queryset or only the projection: `pairs.with_noop_projector(prepare)` and `pairs.with_noop_queryset_function(project)`.
+
+There are also functions to discard one or other item from the pair: `pairs.discard_projector` and `pairs.discard_queryset_function`. These are useful if you'd like to create a complex pair using the high-level `specs` module (see below) but only actually use one or other item from the pair. Note that these only exist for readability: they are equivalent to simply indexing into the pair (`pair[0]` or `pair[1]` respectively).
+
 `django-readers` also comes with a pair function for working with Django's `get_FOO_display` mechanism. From the Django docs:
 
 > For every field that has `choices` set, the object will have a `get_FOO_display()` method, where `FOO` is the name of the field. This method returns the “human-readable” value of the field.
