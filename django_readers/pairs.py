@@ -25,14 +25,6 @@ def combine(*pairs):
     return qs.pipe(*prepare_fns), projectors.combine(*project_fns)
 
 
-def with_noop_projector(prepare):
-    return prepare, projectors.noop
-
-
-def with_noop_queryset_function(project):
-    return qs.noop, project
-
-
 discard_projector = itemgetter(0)
 
 
@@ -64,15 +56,15 @@ def has(name, distinct=True):
 
 
 def filter(*args, **kwargs):
-    return with_noop_projector(qs.filter(*args, **kwargs))
+    return qs.filter(*args, **kwargs), projectors.noop
 
 
 def exclude(*args, **kwargs):
-    return with_noop_projector(qs.exclude(*args, **kwargs))
+    return qs.exclude(*args, **kwargs), projectors.noop
 
 
 def order_by(*args, **kwargs):
-    return with_noop_projector(qs.order_by(*args, **kwargs))
+    return qs.order_by(*args, **kwargs), projectors.noop
 
 
 """
