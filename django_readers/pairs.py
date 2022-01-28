@@ -123,7 +123,4 @@ def field_list(relationship_name, field_name, to_attr=None):
 
 
 def pk_list(name, to_attr=None):
-    return (
-        qs.auto_prefetch_relationship(name, qs.include_fields("pk"), to_attr=to_attr),
-        producers.pk_list(to_attr or name),
-    )
+    return field_list(name, "pk", to_attr=to_attr)
