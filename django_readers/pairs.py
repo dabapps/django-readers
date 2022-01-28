@@ -122,5 +122,5 @@ def field_list(relationship_name, field_name, to_attr=None):
     )
 
 
-def pk_list(name, to_attr=None):
-    return field_list(name, "pk", to_attr=to_attr)
+def pk_list(relationship_name, to_attr=None):
+    return field_list(relationship_name, "pk", to_attr=to_attr)

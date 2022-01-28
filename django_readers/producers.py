@@ -42,11 +42,11 @@ def field_list(relationship_name, field_name):
     return relationship(relationship_name, attrgetter(field_name))
 
 
-def pk_list(name):
+def pk_list(relationship_name):
     """
     Given an attribute name (which should be a relationship field), return a
     producer which returns a list of the PK of each item in the relationship (or
     just a single PK if this is a to-one field, but this is an inefficient way of
     doing it).
     """
-    return field_list(name, "pk")
+    return field_list(relationship_name, "pk")
