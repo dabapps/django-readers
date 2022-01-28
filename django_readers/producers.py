@@ -34,6 +34,14 @@ def relationship(name, related_projector):
     return producer
 
 
+def field_list(relationship_name, field_name):
+    """
+    Given a relationship name and the name of a field, return a producer which returns
+    a list containing the value of that field for each object in the relationship
+    """
+    return relationship(relationship_name, attrgetter(field_name))
+
+
 def pk_list(name):
     """
     Given an attribute name (which should be a relationship field), return a
