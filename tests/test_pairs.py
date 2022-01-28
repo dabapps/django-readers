@@ -639,6 +639,36 @@ class OrderByTestCase(TestCase):
         self.assertEqual(result, [{"name": "a"}, {"name": "b"}, {"name": "c"}])
 
 
+class FieldListTestCase(TestCase):
+    def test_field_list(self):
+        owner = Owner.objects.create(name="test owner")
+        Widget.objects.create(name="test 1", owner=owner)
+        Widget.objects.create(name="test 2", owner=owner)
+        Widget.objects.create(name="test 3", owner=owner)
+
+        prepare, project = pairs.producer_to_projector(
+            "widget_set", pairs.field_list("widget_set", "name")
+        )
+
+        queryset = prepare(Owner.objects.all())
+        result = project(queryset.first())
+        self.assertEqual(result, {"widget_set": ["test 1", "test 2", "test 3"]})
+
+    def test_field_list_with_to_attr(self):
+        owner = Owner.objects.create(name="test owner")
+        Widget.objects.create(name="test 1", owner=owner)
+        Widget.objects.create(name="test 2", owner=owner)
+        Widget.objects.create(name="test 3", owner=owner)
+
+        prepare, project = pairs.producer_to_projector(
+            "widgets", pairs.field_list("widget_set", "name", to_attr="widgets")
+        )
+
+        queryset = prepare(Owner.objects.all())
+        result = project(queryset.first())
+        self.assertEqual(result, {"widgets": ["test 1", "test 2", "test 3"]})
+
+
 class PKListTestCase(TestCase):
     def test_pk_list(self):
         owner = Owner.objects.create(name="test owner")
