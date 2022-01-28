@@ -49,4 +49,4 @@ def pk_list(name):
     just a single PK if this is a to-one field, but this is an inefficient way of
     doing it).
     """
-    return relationship(name, attrgetter("pk"))
+    return field_list(name, "pk")
