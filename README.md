@@ -281,7 +281,7 @@ Note that `django-readers` _always_ uses `prefetch_related` to load relationship
 
 Of course, it is quite possible to use `select_related` by applying `qs.select_related` at the root of your query, but this must be done manually. `django-readers` also provides `qs.select_related_fields`, which combines `select_related` with `include_fields` to allow you to specify exactly which fields you need from the related objects.
 
-You can use `pairs.pk_list` to produce a list containing just the primary keys of the related objects.
+You can use `pairs.pk_list` to produce a list containing just the primary keys of the related objects. A more general form of this function is `pairs.related_field`, which returns the value (or a list of the values) of any field from a related objects or objects.
 
 As a shortcut, the `pairs` module provides functions called `filter`, `exclude` and `order_by`, which can be used to apply the given queryset functions to the queryset _without affecting the projection_. These are equivalent to (for example) `(qs.filter(arg=value), projectors.noop)` and are most useful for filtering or ordering related objects:
 
