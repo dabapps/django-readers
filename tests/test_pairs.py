@@ -669,6 +669,18 @@ class RelatedFieldValueTestCase(TestCase):
         result = project(queryset.first())
         self.assertEqual(result, {"widgets": ["test 1", "test 2", "test 3"]})
 
+    def test_related_field_value_single_object(self):
+        owner = Owner.objects.create(name="test owner")
+        Widget.objects.create(name="test widget", owner=owner)
+
+        prepare, project = pairs.producer_to_projector(
+            "owner_name", pairs.related_field_value("owner", "name")
+        )
+
+        queryset = prepare(Widget.objects.all())
+        result = project(queryset.first())
+        self.assertEqual(result, {"owner_name": "test owner"})
+
 
 class PKListTestCase(TestCase):
     def test_pk_list(self):
