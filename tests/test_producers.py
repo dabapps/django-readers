@@ -156,14 +156,14 @@ class MethodTestCase(TestCase):
         self.assertEqual(result, "hello, tester!")
 
 
-class FieldListTestCase(TestCase):
-    def test_field_list(self):
+class RelatedFieldValueTestCase(TestCase):
+    def test_related_field_value(self):
         owner = Owner.objects.create(name="test owner")
         Widget.objects.create(name="test 1", owner=owner)
         Widget.objects.create(name="test 2", owner=owner)
         Widget.objects.create(name="test 3", owner=owner)
 
-        produce = producers.field_list("widget_set", "name")
+        produce = producers.related_field_value("widget_set", "name")
         result = produce(owner)
         self.assertEqual(result, ["test 1", "test 2", "test 3"])
 

@@ -34,7 +34,7 @@ def relationship(name, related_projector):
     return producer
 
 
-def field_list(relationship_name, field_name):
+def related_field_value(relationship_name, field_name):
     """
     Given a relationship name and the name of a field, return a producer which returns
     a list containing the value of that field for each object in the relationship
@@ -49,4 +49,4 @@ def pk_list(relationship_name):
     just a single PK if this is a to-one field, but this is an inefficient way of
     doing it).
     """
-    return field_list(relationship_name, "pk")
+    return related_field_value(relationship_name, "pk")
