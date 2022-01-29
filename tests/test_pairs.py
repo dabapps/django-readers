@@ -639,22 +639,22 @@ class OrderByTestCase(TestCase):
         self.assertEqual(result, [{"name": "a"}, {"name": "b"}, {"name": "c"}])
 
 
-class RelatedFieldValueTestCase(TestCase):
-    def test_related_field_value(self):
+class RelatedFieldTestCase(TestCase):
+    def test_related_field(self):
         owner = Owner.objects.create(name="test owner")
         Widget.objects.create(name="test 1", owner=owner)
         Widget.objects.create(name="test 2", owner=owner)
         Widget.objects.create(name="test 3", owner=owner)
 
         prepare, project = pairs.producer_to_projector(
-            "widget_set", pairs.related_field_value("widget_set", "name")
+            "widget_set", pairs.related_field("widget_set", "name")
         )
 
         queryset = prepare(Owner.objects.all())
         result = project(queryset.first())
         self.assertEqual(result, {"widget_set": ["test 1", "test 2", "test 3"]})
 
-    def test_related_field_value_with_to_attr(self):
+    def test_related_field_with_to_attr(self):
         owner = Owner.objects.create(name="test owner")
         Widget.objects.create(name="test 1", owner=owner)
         Widget.objects.create(name="test 2", owner=owner)
@@ -662,19 +662,19 @@ class RelatedFieldValueTestCase(TestCase):
 
         prepare, project = pairs.producer_to_projector(
             "widgets",
-            pairs.related_field_value("widget_set", "name", to_attr="widgets"),
+            pairs.related_field("widget_set", "name", to_attr="widgets"),
         )
 
         queryset = prepare(Owner.objects.all())
         result = project(queryset.first())
         self.assertEqual(result, {"widgets": ["test 1", "test 2", "test 3"]})
 
-    def test_related_field_value_single_object(self):
+    def test_related_field_single_object(self):
         owner = Owner.objects.create(name="test owner")
         Widget.objects.create(name="test widget", owner=owner)
 
         prepare, project = pairs.producer_to_projector(
-            "owner_name", pairs.related_field_value("owner", "name")
+            "owner_name", pairs.related_field("owner", "name")
         )
 
         queryset = prepare(Widget.objects.all())
