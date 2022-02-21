@@ -111,8 +111,16 @@ def relationship(name, relationship_pair, to_attr=None):
     return prepare, producers.relationship(to_attr or name, project_relationship)
 
 
-def pk_list(name, to_attr=None):
+def related_field(relationship_name, field_name, to_attr=None):
     return (
-        qs.auto_prefetch_relationship(name, qs.include_fields("pk"), to_attr=to_attr),
-        producers.pk_list(to_attr or name),
+        qs.auto_prefetch_relationship(
+            relationship_name,
+            qs.include_fields(field_name),
+            to_attr=to_attr,
+        ),
+        producers.related_field(to_attr or relationship_name, field_name),
     )
+
+
+def pk_list(relationship_name, to_attr=None):
+    return related_field(relationship_name, "pk", to_attr=to_attr)
