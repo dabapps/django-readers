@@ -539,14 +539,16 @@ class PairsTestCase(TestCase):
         Widget.objects.create(name="test widget", owner=owner)
 
         prepare, project = pairs.combine(
-            pairs.prepare_only(
+            (
                 qs.pipe(
                     qs.select_related("owner"),
                     qs.include_fields("owner__name"),
-                )
+                ),
+                projectors.noop,
             ),
             pairs.producer_to_projector("name", pairs.field("name")),
-            pairs.project_only(
+            (
+                qs.noop,
                 projectors.producer_to_projector(
                     "owner",
                     producers.relationship(
@@ -555,7 +557,7 @@ class PairsTestCase(TestCase):
                             "name", producers.attr("name")
                         ),
                     ),
-                )
+                ),
             ),
         )
 
@@ -708,3 +710,13 @@ class HasTestCase(TestCase):
         queryset = prepare(Owner.objects.all())
         result = project(queryset.first())
         self.assertEqual(result, {"has_widget": True})
+
+
+class DiscardTestCase(TestCase):
+    def test_discard_projector(self):
+        pair = pairs.field("test")
+        self.assertEqual(pairs.discard_projector(pair), pair[0])
+
+    def test_discard_queryset_function(self):
+        pair = pairs.field("test")
+        self.assertEqual(pairs.discard_queryset_function(pair), pair[1])

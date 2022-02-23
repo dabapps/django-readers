@@ -1,5 +1,6 @@
 from django.db.models import Count
 from django_readers import producers, projectors, qs
+from operator import itemgetter
 
 
 def producer_to_projector(name, pair):
@@ -24,12 +25,10 @@ def combine(*pairs):
     return qs.pipe(*prepare_fns), projectors.combine(*project_fns)
 
 
-def prepare_only(prepare):
-    return prepare, projectors.noop
+discard_projector = itemgetter(0)
 
 
-def project_only(project):
-    return qs.noop, project
+discard_queryset_function = itemgetter(1)
 
 
 def field_display(name):
@@ -57,15 +56,15 @@ def has(name, distinct=True):
 
 
 def filter(*args, **kwargs):
-    return prepare_only(qs.filter(*args, **kwargs))
+    return qs.filter(*args, **kwargs), projectors.noop
 
 
 def exclude(*args, **kwargs):
-    return prepare_only(qs.exclude(*args, **kwargs))
+    return qs.exclude(*args, **kwargs), projectors.noop
 
 
 def order_by(*args, **kwargs):
-    return prepare_only(qs.order_by(*args, **kwargs))
+    return qs.order_by(*args, **kwargs), projectors.noop
 
 
 """
