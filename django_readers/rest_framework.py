@@ -40,8 +40,8 @@ class SpecMixin:
     def project(self):
         return self.reader_pair[1]
 
-    def filter_queryset(self, queryset):
-        queryset = super().filter_queryset(queryset)
+    def get_queryset(self):
+        queryset = super().get_queryset()
         return self.prepare(queryset)
 
     def get_serializer_class(self):
