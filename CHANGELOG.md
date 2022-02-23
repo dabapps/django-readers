@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2022-02-23
+
 ### Added
 - New `pairs.discard_queryset_function` and `pairs.discard_projector` functions to discard one or other item in a reader pair.
 
