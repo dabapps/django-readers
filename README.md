@@ -307,6 +307,8 @@ prepare, project = pairs.combine(
 )
 ```
 
+By convention, to help with readability, it is sensible to put pairs that don't affect the projection before those that do.
+
 `django-readers` also comes with a pair function for working with Django's `get_FOO_display` mechanism. From the Django docs:
 
 > For every field that has `choices` set, the object will have a `get_FOO_display()` method, where `FOO` is the name of the field. This method returns the “human-readable” value of the field.
