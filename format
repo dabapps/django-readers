@@ -3,5 +3,4 @@
 set -e
 
 black django_readers tests
-flake8 django_readers tests
 isort django_readers tests
