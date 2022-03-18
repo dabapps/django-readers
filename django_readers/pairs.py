@@ -55,7 +55,7 @@ def has(name, distinct=True):
     )
 
 
-def sum(name, distinct=True):
+def sum(name, distinct=False):
     attr_name = f"{name}_sum"
     return (
         qs.annotate(**{attr_name: Sum(name, distinct=distinct)}),
