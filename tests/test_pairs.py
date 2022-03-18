@@ -687,6 +687,22 @@ class CountTestCase(TestCase):
         self.assertEqual(result, {"widget_count": 3})
 
 
+class SumTestCase(TestCase):
+    def test_sum(self):
+        owner = Owner.objects.create(name="test owner")
+        Widget.objects.create(name="test 1", owner=owner, value=12)
+        Widget.objects.create(name="test 2", owner=owner, value=34)
+        Widget.objects.create(name="test 3", owner=owner, value=56)
+
+        prepare, project = pairs.producer_to_projector(
+            "widget_total_value", pairs.sum("widget__value")
+        )
+
+        queryset = prepare(Owner.objects.all())
+        result = project(queryset.first())
+        self.assertEqual(result, {"widget_total_value": 102})
+
+
 class HasTestCase(TestCase):
     def test_has_false(self):
         Owner.objects.create(name="test owner")

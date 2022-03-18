@@ -1,4 +1,4 @@
-from django.db.models import Count
+from django.db.models import Count, Sum
 from django_readers import producers, projectors, qs
 from operator import itemgetter
 
@@ -52,6 +52,14 @@ def has(name, distinct=True):
     return (
         qs.annotate(**{attr_name: Count(name, distinct=distinct)}),
         producers.attr(attr_name, transform_value=bool),
+    )
+
+
+def sum(name, distinct=True):
+    attr_name = f"{name}_sum"
+    return (
+        qs.annotate(**{attr_name: Sum(name, distinct=distinct)}),
+        producers.attr(attr_name),
     )
 
 

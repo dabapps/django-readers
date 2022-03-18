@@ -12,6 +12,7 @@ class Owner(models.Model):
 
 class Widget(models.Model):
     name = models.CharField(max_length=100, null=True)
+    value = models.PositiveIntegerField(default=0)
     other = models.CharField(max_length=100, null=True)
     owner = models.ForeignKey(Owner, null=True, on_delete=models.SET_NULL)
 
