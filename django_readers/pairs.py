@@ -67,20 +67,11 @@ def annotate(*args, **kwargs):
 
 
 def count(name, distinct=True):
-    return annotate(
-        **{
-            f"{name}_count": Count(name, distinct=distinct),
-        }
-    )
+    return annotate(Count(name, distinct=distinct))
 
 
 def has(name, distinct=True):
-    return annotate(
-        **{
-            f"{name}_count": Count(name, distinct=distinct),
-        },
-        transform_value=bool,
-    )
+    return annotate(Count(name, distinct=distinct), transform_value=bool)
 
 
 def filter(*args, **kwargs):
