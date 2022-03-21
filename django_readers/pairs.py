@@ -51,7 +51,7 @@ def annotate(*args, **kwargs):
     transform_value_if_none = kwargs.pop("transform_value_if_none", False)
 
     if len(args) + len(kwargs) != 1:
-        raise ValueError("Provide only a single annotation")
+        raise ValueError("Only a single annotation is supported")
 
     annotations = kwargs or {args[0].default_alias: args[0]}
     name, annotation = next(iter(annotations.items()))
