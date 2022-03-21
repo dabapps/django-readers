@@ -43,8 +43,8 @@ def annotate(*args, **kwargs):
     """
     Return a pair that adds an annotation to the queryset and produces the value. Like
     the annotate method on QuerySet, this can take either a positional argument or a
-    keyword argument. Unlike the annotate method, this can only take a single one at a
-    time. Also, this function can optionally take transform_value and
+    keyword argument. Unlike the annotate method, this can only handle a single
+    annotation at a time. Also, this function can optionally take transform_value and
     tranform_value_if_none arguments, which are passed to the producer.
     """
     transform_value = kwargs.pop("transform_value", None)
