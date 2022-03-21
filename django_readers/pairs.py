@@ -39,19 +39,47 @@ def field_display(name):
     return qs.include_fields(name), producers.method(f"get_{name}_display")
 
 
-def count(name, distinct=True):
-    attr_name = f"{name}_count"
+def annotate(*args, **kwargs):
+    """
+    Return a pair that adds an annotation to the queryset and produces the value. Like
+    the annotate method on QuerySet, this can take either a positional argument or a
+    keyword argument. Unlike the annotate method, this can only take a single one at a
+    time. Also, this function can optionally take transform_value and
+    tranform_value_if_none arguments, which are passed to the producer.
+    """
+    transform_value = kwargs.pop("transform_value", None)
+    transform_value_if_none = kwargs.pop("transform_value_if_none", False)
+
+    if len(args) + len(kwargs) != 1:
+        raise ValueError("Provide only a single annotation")
+
+    annotations = kwargs or {args[0].default_alias: args[0]}
+    name, annotation = next(iter(annotations.items()))
+
     return (
-        qs.annotate(**{attr_name: Count(name, distinct=distinct)}),
-        producers.attr(attr_name),
+        qs.annotate(**{name: annotation}),
+        producers.attr(
+            name,
+            transform_value=transform_value,
+            transform_value_if_none=transform_value_if_none,
+        ),
+    )
+
+
+def count(name, distinct=True):
+    return annotate(
+        **{
+            f"{name}_count": Count(name, distinct=distinct),
+        }
     )
 
 
 def has(name, distinct=True):
-    attr_name = f"{name}_count"
-    return (
-        qs.annotate(**{attr_name: Count(name, distinct=distinct)}),
-        producers.attr(attr_name, transform_value=bool),
+    return annotate(
+        **{
+            f"{name}_count": Count(name, distinct=distinct),
+        },
+        transform_value=bool,
     )
 
 

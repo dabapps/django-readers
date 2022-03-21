@@ -1,3 +1,5 @@
+from django.db.models import Count
+from django.db.models.functions import Length
 from django.test import TestCase
 from django_readers import pairs, producers, projectors, qs
 from tests.models import Category, Group, Owner, Thing, Widget
@@ -669,6 +671,90 @@ class PKListTestCase(TestCase):
         queryset = prepare(Owner.objects.all())
         result = project(queryset.first())
         self.assertEqual(result, {"widgets": [1, 2, 3]})
+
+
+class AnnotateTestCase(TestCase):
+    def test_annotate_with_arg(self):
+        owner = Owner.objects.create(name="test owner")
+        Widget.objects.create(name="test 1", owner=owner)
+        Widget.objects.create(name="test 2", owner=owner)
+        Widget.objects.create(name="test 3", owner=owner)
+
+        prepare, project = pairs.producer_to_projector(
+            "widget_count", pairs.annotate(Count("widget"))
+        )
+
+        queryset = prepare(Owner.objects.all())
+        result = project(queryset.first())
+        self.assertEqual(result, {"widget_count": 3})
+
+    def test_annotate_with_kwarg(self):
+        owner = Owner.objects.create(name="test owner")
+        Widget.objects.create(name="test 1", owner=owner)
+        Widget.objects.create(name="test 2", owner=owner)
+        Widget.objects.create(name="test 3", owner=owner)
+
+        prepare, project = pairs.producer_to_projector(
+            "widget_count", pairs.annotate(number_of_widgets=Count("widget"))
+        )
+
+        queryset = prepare(Owner.objects.all())
+        result = project(queryset.first())
+        self.assertEqual(result, {"widget_count": 3})
+
+    def test_transform_value_with_arg(self):
+        owner = Owner.objects.create(name="test owner")
+        Widget.objects.create(name="test 1", owner=owner)
+        prepare, project = pairs.producer_to_projector(
+            "has_many_widgets",
+            pairs.annotate(Count("widget"), transform_value=lambda value: value > 5),
+        )
+
+        queryset = prepare(Owner.objects.all())
+        result = project(queryset.first())
+        self.assertEqual(result, {"has_many_widgets": False})
+
+    def test_transform_value_with_kwarg(self):
+        Owner.objects.create(name="some long name")
+        prepare, project = pairs.producer_to_projector(
+            "has_long_name",
+            pairs.annotate(
+                name_length=Length("name"), transform_value=lambda value: value > 10
+            ),
+        )
+
+        queryset = prepare(Owner.objects.all())
+        result = project(queryset.first())
+        self.assertEqual(result, {"has_long_name": True})
+
+    def test_complex_annotation(self):
+        owner = Owner.objects.create(name="test owner")
+        Widget.objects.create(name="test 1", owner=owner)
+        Widget.objects.create(name="test 2", owner=owner)
+
+        prepare, project = pairs.producer_to_projector(
+            "test",
+            pairs.annotate(
+                test=(Count("widget") + Length("name")),
+                transform_value=lambda value: value + 5,
+            ),
+        )
+
+        queryset = prepare(Owner.objects.all())
+        result = project(queryset.first())
+        self.assertEqual(result, {"test": 17})
+
+    def test_multiple_args_raises_exception(self):
+        with self.assertRaises(ValueError):
+            pairs.annotate(Count("foo"), Count("bar"))
+
+    def test_multiple_kwargs_raises_exception(self):
+        with self.assertRaises(ValueError):
+            pairs.annotate(foo=Count("foo"), bar=Count("bar"))
+
+    def test_arg_and_kwarg_raises_exception(self):
+        with self.assertRaises(ValueError):
+            pairs.annotate(Count("foo"), bar=Count("bar"))
 
 
 class CountTestCase(TestCase):
