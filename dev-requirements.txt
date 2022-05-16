@@ -3,3 +3,4 @@ flake8==4.0.1
 isort==5.10.1
 djangorestframework==3.13.1
 pytz==2021.3
+mkdocs-material==8.2.14

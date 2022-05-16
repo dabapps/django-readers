@@ -1,0 +1,19 @@
+site_name: django-readers
+site_description: A lightweight function-oriented toolkit for better organisation of business logic and efficient selection and projection of data in Django projects.
+
+theme:
+    name: 'material'
+    icon:
+      logo: 'material/book-open-variant'
+    favicon: img/favicon.ico
+
+repo_name: dabapps/django-readers
+repo_url: https://github.com/dabapps/django-readers/
+edit_uri: ""
+
+nav:
+  - Introduction: 'index.md'
+  - Tutorials: 'tutorials.md'
+  - How-to Guides: 'howto.md'
+  - Explanation: 'explanation.md'
+  - Reference: 'reference.md'
