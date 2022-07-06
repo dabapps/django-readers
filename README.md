@@ -5,7 +5,7 @@ django-readers
 
 Tested against Django 2.2, 3.2 and 4.0 on Python 3.6, 3.7, 3.8, 3.9 and 3.10
 
-![Build Status](https://github.com/dabapps/django-readers/workflows/CI/badge.svg)
+![Build Status](https://github.com/dabapps/django-readers/workflows/CI/badge.svg?branch=main)
 [![pypi release](https://img.shields.io/pypi/v/django-readers.svg)](https://pypi.python.org/pypi/django-readers)
 
 ### Installation
