@@ -44,7 +44,7 @@ def author_list(request):
             "book_set": [
                 "id",
                 "title",
-                "publication_year",
+                "publication_date",
             ]
         },
     ]
@@ -70,7 +70,7 @@ class AuthorListView(SpecMixin, ListAPIView):
             "book_set": [
                 "id",
                 "title",
-                "publication_year",
+                "publication_date",
             ]
         },
     ]

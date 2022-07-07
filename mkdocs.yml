@@ -7,13 +7,20 @@ theme:
       logo: 'material/book-open-variant'
     favicon: img/favicon.ico
 
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      use_pygments: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+
 repo_name: dabapps/django-readers
 repo_url: https://github.com/dabapps/django-readers/
 edit_uri: ""
 
 nav:
   - Introduction: 'index.md'
-  - Tutorials: 'tutorials.md'
+  - Tutorial: 'tutorial.md'
   - How-to Guides: 'howto.md'
   - Explanation: 'explanation.md'
   - Reference: 'reference.md'
