@@ -19,6 +19,9 @@
 
 _A lightweight function-oriented toolkit for better organisation of business logic and efficient selection and projection of data in Django projects._
 
+!!! danger "Work in progress"
+    This documentation is under active development and is incomplete. Please see [this Pull Request](https://github.com/dabapps/django-readers/pull/59) to track progress on the docs and provide feedback. For now, it may be better to refer to [the project README](https://github.com/dabapps/django-readers#readme) for information.
+
 ## What is django-readers?
 
 `django-readers` is both a **small library** (less than 500 lines of Python) and a **collection of recommended patterns** for structuring your code. It is intended to help with code that performs _reads_: querying your database and presenting the data to the user. It can be used with views that render HTML as well as [Django REST framework](https://www.django-rest-framework.org/) API views, and indeed anywhere else in your project where data is retrieved from the database.
