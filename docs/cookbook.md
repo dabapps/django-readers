@@ -129,7 +129,10 @@ published_in_2022 = (
     producers.attr("published_in_2022"),
 )
 
-spec = ["title", {"published_in_2022": published_in_2022}]
+spec = [
+    "title",
+    {"published_in_2022": published_in_2022},
+]
 ```
 
 ## Retrieve a value from a model property that requires a model field to be loaded
