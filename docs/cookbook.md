@@ -141,12 +141,9 @@ spec = [
 class Book(models.Model):
     ...
 
-    def published_in_year(self, year):
-        return self.publication_date.year == year
-
     @property
     def published_this_year(self):
-        return self.published_in_year(date.today().year)
+        return self.publication_date.year == date.today().year
 ```
 
 ```python
@@ -162,6 +159,14 @@ spec = [
 ```
 
 ## Call a method on a model that requires a model field to be loaded
+
+```python
+class Book(models.Model):
+    ...
+
+    def published_in_year(self, year):
+        return self.publication_date.year == year
+```
 
 ```python
 spec = [
