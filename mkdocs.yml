@@ -21,6 +21,6 @@ edit_uri: ""
 nav:
   - Introduction: 'index.md'
   - Tutorial: 'tutorial.md'
-  - How-to Guides: 'howto.md'
+  - Cookbook: 'cookbook.md'
   - Explanation: 'explanation.md'
   - Reference: 'reference.md'
