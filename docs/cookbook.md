@@ -207,7 +207,9 @@ spec = [
     {
         "publisher": (
             qs.select_related_fields("publisher__name"),
-            pairs.discard_queryset_function(specs.relationship("publisher", ["name"])),
+            pairs.discard_queryset_function(
+                specs.relationship("publisher", ["name"]),
+            ),
         )
     },
 ]
