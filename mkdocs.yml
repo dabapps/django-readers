@@ -2,10 +2,14 @@ site_name: django-readers
 site_description: A lightweight function-oriented toolkit for better organisation of business logic and efficient selection and projection of data in Django projects.
 
 theme:
-    name: 'material'
-    icon:
-      logo: 'material/book-open-variant'
-    favicon: img/favicon.ico
+  name: 'material'
+  icon:
+    logo: 'material/book-open-variant'
+  favicon: img/favicon.ico
+  palette:
+    primary: pink
+    accent: pink
+
 
 markdown_extensions:
   - admonition
