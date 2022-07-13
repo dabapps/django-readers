@@ -615,3 +615,32 @@ Vary: Accept
   ]
 }
 ```
+
+## A note on `django-zen-queries`
+
+An important pattern to avoid inefficient database queries in Django projects is to isolate the *fetching of data* from the *rendering of data*. This pattern can be implemented with the help of [`django-zen-queries`](https://github.com/dabapps/django-zen-queries), which allows you to mark blocks of code under which database queries are not allowed.
+
+In a project using `django-readers`, it is good practice to disallow queries in the `prepare` and `project` phases:
+
+```python
+import zen_queries
+
+prepare, project = specs.process(
+    [
+        # some spec
+    ]
+)
+
+with zen_queries.queries_disabled():
+    queryset = prepare(Author.objects.all())
+
+queryset = zen_queries.fetch(queryset)  # execute the database queries
+
+with zen_queries.queries_disabled():
+    result = [project(instance) for instance in queryset]
+
+# ...render result as JSON or in a template
+```
+
+To enforce this, if `django-zen-queries` is installed (which is recommended!), `django-readers` will automatically apply
+`queries_disabled()` to the `prepare` and `project` functions returned by `specs.process`, **so there is no need to apply it manually as in the above example**.
