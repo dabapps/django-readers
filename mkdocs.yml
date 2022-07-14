@@ -17,6 +17,9 @@ markdown_extensions:
       use_pygments: true
   - pymdownx.inlinehilite
   - pymdownx.superfences
+  - toc:
+      permalink: true
+  - attr_list
 
 repo_name: dabapps/django-readers
 repo_url: https://github.com/dabapps/django-readers/
@@ -27,4 +30,10 @@ nav:
   - Tutorial: 'tutorial.md'
   - Cookbook: 'cookbook.md'
   - Explanation: 'explanation.md'
-  - Reference: 'reference.md'
+  - Reference:
+      - Queryset functions: 'reference/queryset-functions.md'
+      - Producers: 'reference/producers.md'
+      - Projectors: 'reference/projectors.md'
+      - Pairs: 'reference/pairs.md'
+      - Specs: 'reference/specs.md'
+      - SpecMixin: 'reference/specmixin.md'
