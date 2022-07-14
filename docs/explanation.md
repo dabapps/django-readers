@@ -40,9 +40,9 @@ def prepare(queryset):
 
 These functions are used to encapsulate database query logic which would traditionally live in a custom queryset method.
 
-`django-readers` provides a library of functions (under `django_readers.qs`) which mirror all the default methods on the base `QuerySet` that return a new queryset, as well as some extra utility functions.
+`django-readers` provides a [library of functions under `django_readers.qs`](reference/queryset-functions.md) which mirror all the default methods on the base `QuerySet` that return a new queryset, as well as some extra utility functions.
 
-Queryset functions can be combined with the `pipe` function (named following standard functional programming parlance). `qs.pipe` returns a new queryset function that calls each function in its argument list in turn, passing the return value of the first as the argument of the second, and so on. It literally "pipes" your queryset through its list of functions.
+Queryset functions can be combined with the [`qs.pipe`](reference/queryset-functions.md#pipe) function (named following standard functional programming parlance). `qs.pipe` returns a new queryset function that calls each function in its argument list in turn, passing the return value of the first as the argument of the second, and so on. It literally "pipes" your queryset through its list of functions.
 
 ```python
 from django_readers import qs
@@ -58,7 +58,7 @@ queryset = recent_books_with_prefetched_authors(Book.objects.all())
 
 ### Producers and projectors
 
-A producer is a function that accepts a model instance as its single argument, and returns a value representing a subset or transformation of the instance data.
+A [producer](reference/producers.md) is a function that accepts a model instance as its single argument, and returns a value representing a subset or transformation of the instance data.
 
 Business logic that would traditionally go in model methods should instead go in producers.
 
@@ -86,9 +86,9 @@ print(produce_name(author))
 #  'Some Author'
 ```
 
-Producers return a value, but in order to convert a model instance into a lightweight business object (a dictionary) suitable for passing around your project, this value must be combined with a name. This is the role of a projector. A projector function takes a model instance and returns a dictionary mapping keys to the values returned by producer functions.
+Producers return a value, but in order to convert a model instance into a lightweight business object (a dictionary) suitable for passing around your project, this value must be combined with a name. This is the role of a [projector](reference/projectors.md). A projector function takes a model instance and returns a dictionary mapping keys to the values returned by producer functions.
 
-These functions "project" your data layer into your application's business logic domain. Think of the dictionary returned by a projector (the "projection") as the simplest possible domain object. Generally speaking, it's not necessary to write your own projector functions - you can simply wrap a producer function.
+These functions "project" your data layer into your application's business logic domain. Think of the dictionary returned by a projector (the "projection") as the simplest possible domain object. Generally speaking, it's not necessary to write your own projector functions - you can simply wrap a producer function with [`projectors.producer_to_projector`](reference/projectors.md#producer_to_projector)
 
 ```python
 from datetime import datetime
@@ -106,7 +106,7 @@ print(project_age(author))
 #  {'age': 37}
 ```
 
-Like queryset functions, projectors are intended to be _composable_: multiple simple projector functions can be combined into a more complex projector function that returns a dictionary containing the keys and values from all of its child projectors. This is done using the `projectors.combine` function:
+Like queryset functions, projectors are intended to be _composable_: multiple simple projector functions can be combined into a more complex projector function that returns a dictionary containing the keys and values from all of its child projectors. This is done using the [`projectors.combine`](reference/projectors.md#combine) function:
 
 ```python
 from django_readers import producers, projectors
@@ -121,7 +121,7 @@ print(project(author))
 
 This composition generally happens at the place in your codebase where the domain model is actually being _used_ (in a view, say). The projection will therefore contain precisely the keys needed by that view. This solves the problem of models becoming vast ever-growing flat namespaces containing all the functionality needed by all parts of your application.
 
-Related objects can also be produced using the `producers.relationship` function, resulting in a nested projection:
+Related objects can also be produced using the [`producers.relationship`](reference/producers.md#relationship) function, resulting in a nested projection:
 
 ```python
 project = projectors.combine(
@@ -167,7 +167,7 @@ In the example used above, the `produce_age` producer depends on the `birth_year
 age_pair = (qs.include_fields("birth_year"), produce_age)
 ```
 
-`django-readers` includes some useful functions that create pairs. These attempt to produce the most efficient queries they can, which means loading only those database fields which are required to produce the value:
+`django-readers` includes [some useful functions that create pairs](reference/pairs.md). These attempt to generate the most efficient queries they can, which means loading only those database fields which are required to produce the value or values required:
 
 ```python
 from django_readers import pairs
@@ -180,7 +180,7 @@ print(produce(queryset.first()))
 #  'Some Author'
 ```
 
-When composing multiple pairs together, it is again necessary to wrap the producer to convert it to a projector, thus forming `(prepare, project)` pairs. This can be done with the `pairs.producer_to_projector` function:
+When composing multiple pairs together, it is again necessary to wrap the producer to convert it to a projector, thus forming `(prepare, project)` pairs. This can be done with the [`pairs.producer_to_projector`](reference/pairs.md#producer_to_projector) function:
 
 ```python
 prepare, project = pairs.combine(
@@ -214,11 +214,11 @@ Again, only the precise fields that are needed are loaded from the database. All
 
 Note that `django-readers` _always_ uses `prefetch_related` to load relationships, even in circumstances where `select_related` would usually be used (ie `ForeignKey` and `OneToOneField`), resulting in one query per relationship. This approach allows the code to be "fractal": the tree of `(prepare, project)` pairs can be recursively applied to the tree of related querysets.
 
-Of course, it is quite possible to use `select_related` by applying `qs.select_related` at the root of your query, but this must be done manually. To help with this, `django-readers` provides `qs.select_related_fields`, which combines `select_related` with `include_fields` to allow you to specify exactly which fields you need from the related objects. Also, the `pairs` module provides functions to discard one or other item from the pair: `pairs.discard_projector` and `pairs.discard_queryset_function`. These are useful if you'd like to create a complex pair using the high-level `specs` module (see below) but only actually use one or other item from the pair. Note that these only exist for readability: they are equivalent to simply indexing into the pair (`pair[0]` or `pair[1]` respectively).
+Of course, it is quite possible to use `select_related` by applying `qs.select_related` at the root of your query, but this must be done manually. To help with this, `django-readers` provides [`qs.select_related_fields`](reference/queryset-functions.md#select_related_fields), which combines `select_related` with `include_fields` to allow you to specify exactly which fields you need from the related objects. Also, the `pairs` module provides functions to discard one or other item from the pair: [`pairs.discard_projector`](reference/pairs.md#discard_projector) and [`pairs.discard_queryset_function`](reference/pairs.md#discard_queryset_function). These are useful if you'd like to create a complex pair using the high-level `specs` module (see below) but only actually use one or other item from the pair. Note that these only exist for readability: they are equivalent to simply indexing into the pair (`pair[0]` or `pair[1]` respectively).
 
 ### Specs
 
-Manually assembling trees of pairs as seen above may seem long-winded. The `specs` module provides a layer of syntactic sugar that makes it much easier. This layer is the real magic of `django-readers`: a straightforward way of specifying the shape of your data in order to efficiently select and project a complex tree of related objects.
+Manually assembling trees of pairs as seen above may seem long-winded. [The `specs` module](reference/specs.md) provides a layer of syntactic sugar that makes it much easier. This layer is the real magic of `django-readers`: a straightforward way of specifying the shape of your data in order to efficiently select and project a complex tree of related objects.
 
 The resulting nested dictionary structure may be returned from as view as a JSON response (assuming all your producers return JSON-serializable values), or included in a template context in place of a queryset or model instance.
 
@@ -252,33 +252,6 @@ result = [project(instance) for instance in queryset]
 
 !!! note
     The structure of this specification is heavily inspired by [`django-rest-framework-serialization-spec`](https://github.com/dabapps/django-rest-framework-serialization-spec/), minus the concept of "plugins", which are replaced with directly including `(prepare, produce)` pairs in the spec. It should be trivial to convert or "adapt" a `serialization-spec` plugin into a suitable `django-readers` pair.
-
-## `django-rest-framework` view mixin
-
-If you use [django-rest-framework](https://www.django-rest-framework.org/), `django-readers` provides a shortcut that allows you to easily use a `spec` to serialize your data:
-
-```python
-from django_readers.rest_framework import SpecMixin
-
-
-class AuthorDetailView(SpecMixin, RetrieveAPIView):
-    queryset = Author.objects.all()
-    spec = [
-        "id",
-        "name",
-        {
-            "book_set": [
-                "id",
-                "title",
-                "publication_date",
-            ]
-        },
-    ]
-```
-
-This mixin is only suitable for use with `RetrieveAPIView` or `ListAPIView`. It doesn't use a "real" Serializer: it calls the `project` function that is the result of processing your `spec`. We recommend using separate views for endpoints that modify data, rather than combining these concerns into a single endpoint.
-
-If your endpoint needs to provide dynamic behaviour based on the user making the request, you should instead override the `get_spec` method and return your spec.
 
 ## Where should this code go?
 
