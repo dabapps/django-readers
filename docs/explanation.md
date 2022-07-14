@@ -8,7 +8,7 @@ However, `django-readers` is more than just this. It is also intended to suggest
 
 * **queryset preparation functions** replace custom queryset methods and encapsulate data selection: filtering, annotation etc. They can be composed to express complex selection logic.
 * **producer and projector functions** replace model methods and encapsulate business logic for transforming and presenting data. They can be combined to form lightweight business objects (dictionaries) that are the right shape for the code that consumes them.
-* **reader pairs** combine queryset functions and producers, expressing the dependencies between them.
+* **reader pairs** combine queryset functions and producers (or projectors), expressing the dependencies between them.
 * a high-level **spec** provides a concise way to express exactly which data should be selected and projected at the point of use.
 
 ## Motivation
