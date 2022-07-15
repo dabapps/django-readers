@@ -1,4 +1,14 @@
-This tutorial assumes you understand the basics of Django (models, views, templates etc). If you don't, make sure you've been through [the Django tutorial](https://docs.djangoproject.com/) first. The section on Django REST framework assumes that you understand how REST framework works. Again, make sure you've read [the docs](https://www.django-rest-framework.org/) first.
+## Installing django-readers
+
+Install from [PyPI](https://pypi.org/project/django-readers/):
+
+```shell
+pip install django-readers
+```
+
+## Prerequisites
+
+This tutorial assumes you understand the basics of Django (models, views, templates etc). If you don't, make sure you've been through [the Django tutorial](https://docs.djangoproject.com/) first. The section on Django REST framework assumes that you've read and understood [the docs](https://www.django-rest-framework.org/).
 
 ## Example models
 
