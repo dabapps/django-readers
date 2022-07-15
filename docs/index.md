@@ -9,7 +9,7 @@
 <div align="center">
   <p>
     <a href="https://github.com/dabapps/django-readers/actions">
-      <img src="https://github.com/dabapps/django-readers/workflows/CI/badge.svg" alt="Test Suite">
+      <img src="https://github.com/dabapps/django-readers/workflows/CI/badge.svg?branch=main" alt="Test Suite">
     </a>
     <a href="https://pypi.org/project/django-readers/">
       <img src="https://badge.fury.io/py/django-readers.svg" alt="Package version">
