@@ -5,11 +5,13 @@ theme:
   name: 'material'
   icon:
     logo: 'material/book-open-variant'
+    repo: 'fontawesome/brands/github'
   favicon: img/favicon.ico
   palette:
     primary: pink
     accent: pink
 
+copyright: '<a href="https://www.dabapps.com">A DabApps project</a>'
 
 markdown_extensions:
   - admonition
