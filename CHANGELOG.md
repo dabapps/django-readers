@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - New `pairs.annotate` function allowing you to annotate a queryset with aggregates, functions etc and produce the result.
+- New `pairs.sum` function to annotate a queryset with the `Sum` aggregate function and produce the result.
 
 ## [1.1.0] - 2022-02-23
 
