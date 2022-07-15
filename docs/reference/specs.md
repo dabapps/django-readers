@@ -8,6 +8,8 @@ A spec is a list. Under the hood, the `specs` module is a very lightweight wrapp
     * If the value is anything else (a string or a `(prepare, produce)` pair), the value returned by the produce function in the pair is projected under the specified key (a shortcut for [`pairs.producer_to_projector`](pairs.md#producer_to_projector))
 * _projector pairs_ of `(prepare, project)` functions (see previous section), which are left as-is.
 
+Import like this: `from django_readers import specs`
+
 ## `specs.process(spec)` {: #process}
 
 Takes a spec and returns a projector pair `(prepare, project)`.
