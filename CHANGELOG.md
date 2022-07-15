@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **BACKWARDS INCOMPATIBLE**: The default value of the `distinct` argument for the `pairs.count` and `pairs.has` functions has changed from `True` to `False`. This now matches the default value of the `distinct` arguments to Django's `Count` annotation. To retain current behaviour, add `distinct=True` to all calls to these two functions in your codebase. For background on this decision, see [this discussion](https://github.com/dabapps/django-readers/discussions/66).
+
 ## [1.1.0] - 2022-02-23
 
 ### Added

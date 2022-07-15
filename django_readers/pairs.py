@@ -66,20 +66,15 @@ def annotate(*args, **kwargs):
     )
 
 
-def count(name, distinct=True):
+def count(name, *args, **kwargs):
     return annotate(
-        **{
-            f"{name}_count": Count(name, distinct=distinct),
-        }
+        **{f"{name}_count": Count(name, *args, **kwargs)},
     )
 
 
-def has(name, distinct=True):
+def has(name, *args, **kwargs):
     return annotate(
-        **{
-            f"{name}_count": Count(name, distinct=distinct),
-        },
-        transform_value=bool,
+        **{f"{name}_count": Count(name, *args, **kwargs)}, transform_value=bool
     )
 
 
