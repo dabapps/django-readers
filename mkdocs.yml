@@ -41,3 +41,4 @@ nav:
       - SpecMixin: 'reference/specmixin.md'
   - Community:
       - Changelog: 'community/changelog.md'
+      - License: 'community/license.md'
