@@ -60,6 +60,10 @@ Returns a pair which annotates a `Count` of the named relationship field onto th
 
 Returns a pair which annotates a `Count` of the named relationship field onto the queryset, and produces a boolean representing whether or not that count is zero. The `*args` and `**kwargs` parameters to this function are passed directly to the underlying `Count` annotation, so can be used to provide `distinct` and `filter` arguments.
 
+## `pairs.sum(name, *args, **kwargs)` {: #sum}
+
+Returns a pair which annotates a `Count` of the named relationship field onto the queryset, and produces its value. The `*args` and `**kwargs` parameters to this function are passed directly to the underlying `Sum` annotation, so can be used to provide `distinct` and `filter` arguments etc.
+
 ## `pairs.filter(*args, **kwargs)` {: #filter}
 
 Returns a pair consisting of a [`qs.filter`](queryset-functions.md#functions-that-mirror-built-in-queryset-methods) queryset function, and a [no-op projector](projectors.md#noop). Most useful for filtering relationships.
