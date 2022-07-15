@@ -14,7 +14,7 @@ from django_readers import pairs
 prepare, produce = pairs.field("name")
 queryset = prepare(Author.objects.all())
 print(queryset.query)
-#  SELECT "author"."id", "author"."name" FROM "author"
+#  SELECT "author"."id", "author"."name" FROM "books_author"
 print(produce(queryset.first()))
 #  'Some Author'
 ```
@@ -29,19 +29,36 @@ A pair function for working with Django's `get_FOO_display` mechanism. From the 
 
 The `pairs.field_display` function takes the field name as its single argument and returns a pair which loads the field from the database, and then produces the result of calling `get_<field>_display`.
 
-## `pairs.count(name, distinct=True)` {: #count}
+## `pairs.annotate(*args, **kwargs)` {: #annotate}
 
-Returns a pair which annotates a count of the named relationship field onto the queryset, and produces its value.
+Returns a pair that adds an annotation to the queryset and produces the value. Like the `annotate` method on `QuerySet`, this can take either a positional argument (if the function supports this) or a keyword argument. Unlike the annotate method, this can only handle a single annotation at a time.
 
-!!! note
-    Unlike Django's default for the `Count` annotation, the value of the `distinct` argument defaults to `True` rather than `False`. This is usually more likely to give you the correct answer.
+This function can optionally take `transform_value` and `tranform_value_if_none` keyword arguments, which are passed to the [producer](producers.md#attr).
 
-## `pairs.has(name, distinct=True)` {: #has}
+For example:
 
-Returns a pair which annotates a count of the named relationship field onto the queryset, and produces a boolean representing whether or not that count is zero.
+```python
+from django.db.models.functions import ExtractYear
+from django_readers import pairs
 
-!!! note
-    Unlike Django's default for the `Count` annotation, the value of the `distinct` argument defaults to `True` rather than `False`. This is usually more likely to give you the correct answer.
+prepare, project = pairs.annotate(
+    publication_year=ExtractYear("publication_date"),
+)
+queryset = prepare(Book.objects.all())
+print(queryset.query)
+#  SELECT "book"."id", EXTRACT('year' FROM "book"."publication_date"
+#  AT TIME ZONE 'UTC') AS "publication_year" FROM "books_book"
+print(produce(queryset.first()))
+#  2013
+```
+
+## `pairs.count(name, *args, **kwargs)` {: #count}
+
+Returns a pair which annotates a `Count` of the named relationship field onto the queryset, and produces its value. The `*args` and `**kwargs` parameters to this function are passed directly to the underlying `Count` annotation, so can be used to provide `distinct` and `filter` arguments.
+
+## `pairs.has(name, *args, **kwargs)` {: #has}
+
+Returns a pair which annotates a `Count` of the named relationship field onto the queryset, and produces a boolean representing whether or not that count is zero. The `*args` and `**kwargs` parameters to this function are passed directly to the underlying `Count` annotation, so can be used to provide `distinct` and `filter` arguments.
 
 ## `pairs.filter(*args, **kwargs)` {: #filter}
 
