@@ -24,7 +24,7 @@ _A lightweight function-oriented toolkit for better organisation of business log
 
 
 !!! important "A word from our sponsor"
-    `django-readers` is developed and supported by [DabApps](https://www.dabapps.com), a UK-based web and mobile agency. We design and build bespoke software that helps our clients succeed. We ❤️ Django and use it for all server-side code. And… [we're hiring](https://www.dabapps.com/careers/)!
+    `django-readers` is developed and supported by [DabApps](https://www.dabapps.com), a UK-based web and mobile agency. We design and build bespoke software that helps our clients succeed. We ❤️ Django and use it for all server-side code. And [we're hiring](https://www.dabapps.com/careers/)!
 
 ## What is django-readers?
 
