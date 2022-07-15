@@ -64,9 +64,9 @@ queryset = prepare(Author.objects.all())
 Think of `pipe` as being a nicer way to nest queryset function calls:
 
 ```python
-queryset = qs.filter(name__startswith="Fred",)(
-    qs.include_fields("email",)(
-        qs.include_fields("name",)(
+queryset = qs.filter(name__startswith="Fred")(
+    qs.include_fields("email")(
+        qs.include_fields("name")(
             Author.objects.all(),
         )
     )
