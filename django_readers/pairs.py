@@ -1,4 +1,4 @@
-from django.db.models import Count
+from django.db.models import Count, Sum
 from django_readers import producers, projectors, qs
 from operator import itemgetter
 
@@ -75,6 +75,12 @@ def count(name, *args, **kwargs):
 def has(name, *args, **kwargs):
     return annotate(
         **{f"{name}_count": Count(name, *args, **kwargs)}, transform_value=bool
+    )
+
+
+def sum(name, *args, **kwargs):
+    return annotate(
+        **{f"{name}_sum": Sum(name, *args, **kwargs)},
     )
 
 
