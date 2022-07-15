@@ -64,8 +64,12 @@ queryset = prepare(Author.objects.all())
 Think of `pipe` as being a nicer way to nest queryset function calls:
 
 ```python
-queryset = qs.filter(name__startswith="Fred")(
-    qs.include_fields("email")(qs.include_fields("name")(Author.objects.all()))
+queryset = qs.filter(name__startswith="Fred",)(
+    qs.include_fields("email",)(
+        qs.include_fields("name",)(
+            Author.objects.all(),
+        )
+    )
 )
 ```
 
@@ -75,7 +79,8 @@ Combines `select_related` with `include_fields` to allow you to specify exactly 
 
 ```python
 prepare = qs.pipe(
-    qs.include_fields("title"), qs.select_related_fields("publisher__name")
+    qs.include_fields("title"),
+    qs.select_related_fields("publisher__name"),
 )
 ```
 
