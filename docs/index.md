@@ -28,8 +28,8 @@ _A lightweight function-oriented toolkit for better organisation of business log
 
 It lets you:
 
-* Query your database more efficiently, by defining precisely which fields and relationships you need. It can help eliminate [the N+1 queries problem](https://stackoverflow.com/questions/97197/what-is-the-n1-selects-problem-in-orm-object-relational-mapping).
-* Create [Django REST framework](https://www.django-rest-framework.org/) API endpoints using a declarative specificiation of their data shape, without needing to write serializer classes.
+* Query your database more efficiently, by specifying precisely which fields and relationships you need to load. It can help eliminate [the N+1 queries problem](https://stackoverflow.com/questions/97197/what-is-the-n1-selects-problem-in-orm-object-relational-mapping).
+* Create [Django REST framework](https://www.django-rest-framework.org/) API endpoints using a declarative specification of their data shape, without needing to write serializer classes.
 * Optionally, structure your business logic code following function-oriented idioms that may result in a more maintainable, testable codebase and helps prevent "fat models" turning into [big balls of mud](https://en.wikipedia.org/wiki/Big_ball_of_mud).
 
 `django-readers` is intended to feel like Django. You can use as much or as little of the library or the patterns as you like, and mix it in with an existing project. It doesn't attempt to hide away any parts of Django itself, and it introduces only a few straightforward concepts.
