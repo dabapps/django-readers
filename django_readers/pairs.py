@@ -78,11 +78,9 @@ def has(name, *args, **kwargs):
     )
 
 
-def sum(name, distinct=False):
-    attr_name = f"{name}_sum"
-    return (
-        qs.annotate(**{attr_name: Sum(name, distinct=distinct)}),
-        producers.attr(attr_name),
+def sum(name, *args, **kwargs):
+    return annotate(
+        **{f"{name}_sum": Sum(name, *args, **kwargs)},
     )
 
 
