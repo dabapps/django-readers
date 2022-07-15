@@ -17,6 +17,8 @@ markdown_extensions:
       use_pygments: true
   - pymdownx.inlinehilite
   - pymdownx.superfences
+  - pymdownx.snippets:
+      check_paths: true
   - toc:
       permalink: true
   - attr_list
@@ -37,3 +39,5 @@ nav:
       - Pairs: 'reference/pairs.md'
       - Specs: 'reference/specs.md'
       - SpecMixin: 'reference/specmixin.md'
+  - Community:
+      - Changelog: 'community/changelog.md'
