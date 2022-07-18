@@ -1,4 +1,4 @@
-If you use [django-rest-framework](https://www.django-rest-framework.org/), `django-readers` provides a view mixin that allows you to easily use a `spec` to serialize your data:
+If you use [django-rest-framework](https://www.django-rest-framework.org/), `django-readers` provides a view mixin that allows you to easily use a [spec](specs.md) to serialize your data:
 
 ```python
 from django_readers.rest_framework import SpecMixin

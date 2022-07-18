@@ -8,7 +8,7 @@ pip install django-readers
 
 ## Prerequisites
 
-This tutorial assumes you understand the basics of Django (models, views, templates etc). If you don't, make sure you've been through [the Django tutorial](https://docs.djangoproject.com/) first. The section on Django REST framework assumes that you've read and understood [the docs](https://www.django-rest-framework.org/).
+This tutorial assumes you understand the basics of Django (models, views, templates etc). Make sure you've been through [the Django tutorial](https://docs.djangoproject.com/) first. The section on Django REST framework assumes that you've read and understood [the docs](https://www.django-rest-framework.org/).
 
 ## Example models
 
@@ -33,11 +33,11 @@ class Book(models.Model):
     publication_date = models.DateField()
 ```
 
-We're going to go through a step-by-step set of requirements from an imaginary client who has asked us to build a simple book listing application. We're going to assume the Django project itself has already been set up, and focus on a single view and a single template.
+We're going to go through a step-by-step set of requirements from an imaginary client who has asked you to build a simple book listing application. We're going to assume the Django project itself has already been set up, and focus on a single view and a single template.
 
 ## Requirement 1: a list of book titles (without `django-readers`)
 
-First, the client wants us to build a page containing a list of all of the books in the database, showing only their titles. The standard Django approach to this would be as follows:
+First, the client wants you to build a page containing a list of all of the books in the database, showing only their titles. The standard Django approach to this would be as follows:
 
 ```python
 def book_list(request):
@@ -55,7 +55,7 @@ def book_list(request):
 </ul>
 ```
 
-Here we're passing the queryset of books itself into the template, and inside our `for` loop we have instances of the `Book` model. When we iterate over the queryset, a database query something like this will be executed:
+The queryset of books is passed into the template, and inside the `for` loop we have instances of the `Book` model. When the queryset is iterated, a database query something like this will be executed:
 
 ```sql
 SELECT "books_book"."id",
@@ -70,7 +70,7 @@ FROM "books_book"
 
 ## Requirement 2: add the publisher name for each book (without `django-readers`)
 
-Now, the client wants us to show the name of the publisher after the book title. This looks like it should just involve a tweak to the HTML template, so we pass this work over to our frontend developer, who changes the template so it looks like this:
+Now, the client wants you to show the name of the publisher after the book title. This looks like it should just involve a tweak to the HTML template, so we pass this work over to our frontend developer, who changes the template so it looks like this:
 
 ```django hl_lines="5"
 <ul>
@@ -120,20 +120,15 @@ ON ("books_book"."publisher_id" = "books_publisher"."id")
 
 The problem with this is that the view code and the template code are now _coupled_ in a very unpredictable and hard-to-reason-about way. A small, innocuous-looking change to the code in either the view or template can drastically impact the performance. This coupling problem only gets worse as the complexity of the application increases.
 
-!!! note
-    YAGNI, "You Aren't Gonna Need It", it's a [well-understood mantra](https://martinfowler.com/bliki/Yagni.html) in software development. It means that you should only make changes to your software (including adding abstraction and generalising code structures) when you are sure that you absolutely need them, and not before. Related to this is the famous quote from Donald Knuth: "premature optimization is the root of all evil". This suggests that usually performance concerns fall under YAGNI: you shouldn't spend time making code fast until its slowness becomes a real problem for users.
+`django-readers` takes a different approach. Rather than decoupling the building of the queryset (which happens in the view) from the use of the data (which happens in the template), we instead explicitly perform all data fetching in the view. The template then deals only with presentation: instead of passing a queryset into the template and allowing the template code to access arbitrary attributes or methods on the model instances, we instead extract precisely the data we need from the database, convert it into basic data structures (Python dictionaries) and pass those into the template instead.
 
-    As a counterpoint to this advice, Simon Willison coined the phrase [PAGNI](https://simonwillison.net/2021/Jul/1/pagnis/), "Probably Are Gonna Need It". PAGNI applies in situations "when the cost of adding something later is so dramatically expensive compared with the cost of adding it early on that it’s worth taking the risk [...] when you know from experience that an initial investment will pay off many times over."
+This means that template authors can't blindly follow relationships and incur extra queries, because the attributes that express those relationships simply don't exist in the template context. To mitigate the burden of having to fine-tune querysets by hand for efficiency, a high-level "spec" is used to describe exactly which fields and relationships are needed, and `django-readers` is responsible for building the queryset and converting the model instances into dictionaries.
 
-    `django-readers` (and its sister project `django-zen-queries`) were built partly as a result of a strong belief (gained through many years of experience) that understanding and controlling your application's database querying behaviour firmly falls into the PAGNI category. This is particularly true of applications that you know are going to be complex: any code abstraction patterns you decide to follow in order to manage the complexity _must_ take into account query patterns or they are highly likely to cause terrible performance problems. This is the heart of the [object-relational impedance mismatch](https://en.wikipedia.org/wiki/Object%E2%80%93relational_impedance_mismatch).
-
-`django-readers` takes a different approach. Rather than decoupling queryset building (in the view) from the use of the data (which happens in the template), we instead explicitly perform all data fetching in the view. The template then deals only with presentation: instead of passing a queryset into the template (and allowing the template code to access arbitrary attributes or methods on the model instances) we instead extract precisely the data we need from the database, convert it into basic data structures (Python dictionaries) and pass those into the template instead.
-
-This means that template authors can't blindly follow relationships and incur extra queries, because the attributes that express those relationships simply don't exist in the template context unless they are explicitly fetched. But to mitigate the burden of having to fine-tune our querysets "by hand" for efficiency, we use a high-level "spec" to describe the fields and relationships we need, and `django-readers` is responsible for building the queryset and converting the model instances into dictionaries.
+For more on the motivation behind `django-readers`, see the [Explanation page](explanation.md).
 
 ## Requirement 1 revisited: a list of book titles (with `django-readers`)
 
-Let's go back to our initial requirement: just show a list of book titles. Remember that we only needed the `title` field, but Django wastefully extracted _all_ of the fields on the `Book` model from the database. `django-readers` fixes this:
+Let's go back to the initial requirement: just show a list of book titles. Remember that we only needed the `title` field, but Django wastefully extracted _all_ of the fields on the `Book` model from the database. `django-readers` fixes this:
 
 ```python
 from django_readers import specs
@@ -151,24 +146,24 @@ def book_list(request):
     )
 ```
 
-As you can see, at its simplest a `django-readers` spec is just a list of field names. `specs.process` takes the spec and returns _a pair of functions_, which (by convention) we call `prepare` and `project`.
+As you can see, at its simplest a `django-readers` spec is just a list of field names. `specs.process` takes the spec and returns _a pair of functions_. By convention, we call these functions `prepare` and `project`.
 
 !!! note
-    `prepare` and `project` are `django-readers`-specific terms. There is one other `django-readers` concept beginning with P, `produce`, which will be introduced fully later, but here are their rough definitions to set the scene:
+    _prepare_ and _project_ are `django-readers`-specific terms. There is one other `django-readers` concept beginning with P, _produce_, which will be introduced fully later, but here are their rough definitions to set the scene:
 
-    A `prepare` function takes a queryset and returns another queryset with one or more modifications applied (like `prefetch_related` or `only`: just like chaining queryset methods). This process is called "preparing the queryset".
+    A prepare function takes a queryset and returns a clone of the queryset with one or more modifications applied, such as `prefetch_related`, `filter`, `only` etc. This is called "preparing the queryset". Queryset functions can be composed, just like chaining queryset methods.
 
-    A `produce` function (a "producer") takes a model instance and returns ("produces") a value derived from that instance. Often this is the value of an attribute on the model.
+    A produce function (a "producer") takes a model instance and returns ("produces") a value derived from that instance. Often this is the value of an attribute on the model.
 
-    A `project` function (a "projector") takes a model instance and returns a dictionary (the "projection") which maps one or more names (the dictionary keys) to one or more values derived from the instance (often the values of one or more attributes and possibly nested dictionaries representing related models). It _projects_ your data layer into your application's business logic domain. Think of the dictionary returned by a projector (the "projection") as the simplest possible domain object. Generally speaking, it's not necessary to write your own projector functions: you can wrap a producer function to bind the value it returns to a name.
+    A project function (a "projector") is similar to a producer in that it takes a model instance, but rather than returning just a value, it and returns a dictionary (the "projection") mapping one or more names (the dictionary keys) to one or more values derived from the instance (often the values of one or more attributes and possibly nested dictionaries representing related models). It _projects_ your data layer into your application's business logic domain. Think of the dictionary returned by a projector as the simplest possible domain object. Generally speaking, it's not necessary to write your own projector functions: `django-readers` comes with a [`producer_to_projector`](reference/projectors.md#producer_to_projector) utility that takes a producer function and a name, and creates a projector function that returns a dictionary mapping the name to the value returned by the producer.
 
-The `prepare` function is responsible for building the queryset. It takes a queryset as an argument (in this case `Book.objects.all()`) and returns a new queryset which is fine-tuned to fetch only the data we're interested in.
+The `prepare` function is responsible for building the queryset. It takes a queryset as an argument (in this case `Book.objects.all()`) and returns a new queryset that is fine-tuned to fetch only the data we're interested in.
 
 When we evaluate the prepared queryset, Django can now issue a much more optimised query to the database:
 
 ```sql
 SELECT "books_book"."id",
-       "books_book"."title",
+       "books_book"."title"
 FROM "books_book"
 ```
 
@@ -217,7 +212,7 @@ def book_list(request):
     )
 ```
 
-Now, the `prepare` function (as well as selecting only the `title` field) adds a `prefetch_related` to the `Book` queryset which fetches the related `Publisher`. By providing the list of fields we want from the `Publisher` too, `django-readers` can make sure it efficiently builds the related `Publisher` queryset in just the same way. Now we get two queries, one to fetch the books:
+Now, the `prepare` function (as well as selecting only the `title` field) adds a `prefetch_related` to the `Book` queryset to fetch the related `Publisher`. By providing the list of fields we want from the `Publisher` too, `django-readers` can make sure it efficiently builds the related `Publisher` queryset in just the same way. Now we get two queries, one to fetch the books:
 
 ```sql
 SELECT "books_book"."id",
@@ -238,9 +233,9 @@ WHERE "books_publisher"."id" IN (1, 2, 3)
 !!! note
     Note that `django-readers` _always_ uses `prefetch_related` to load relationships, even in circumstances where `select_related` would usually be used (ie `ForeignKey` and `OneToOneField`), resulting in one query per relationship. This approach allows the code to be "fractal": the tree of specs can be recursively applied to the tree of related querysets.
 
-    Using `prefetch_related` for foreign key relationships does have some drawbacks: the "join" between books and publishers is performed in Python, rather than in the database, which can be slower and use more memory. Of course, using `prefetch_related` is still much better than doing nothing and emitting N queries!
+    Using `prefetch_related` for foreign key relationships does have some drawbacks: the "join" between books and publishers is performed in Python, rather than in the database. This can be can be slower and use more memory. Of course, using `prefetch_related` is still much better than doing nothing and emitting N queries!
     
-    It is also quite possible to build queries with `django-readers` that _do_ use `select_related` (ie perform joins in the database), but this must be done in a more manual way, which we will cover elsewhere in the docs.
+    It is also quite possible to build queries with `django-readers` that _do_ use `select_related` (ie perform joins in the database), but this must be done in a more manual way. We'll cover this elsewhere in the docs.
 
 The `project` function then includes the fields we asked for from the related objects too, so after iterating over the queryset and projecting each instance, the value of the `books` variable in the template context will be:
 
@@ -343,13 +338,13 @@ The value of the `books` variable in the template context will now be:
 
 ## Requirement 4: include a count of published books with each publisher
 
-Now, the client wants to include a count of how many books each publisher has published alongside the name of the publisher. How would we accomplish this with `django-readers`?
+Now, the client wants you to include a count of how many books each publisher has published alongside the name of the publisher. How would we accomplish this with `django-readers`?
 
 So far, we've only seen two types of value inside a spec: strings (representing the name of a field on the model) and dictionaries with string keys and list values (representing a relationship to another model).
 
-But we can also completely customise the spec to do whatever we want. This is how `django-readers` scales conceptually from very simple to arbitrarily complex requirements.
+But we can also completely customise the spec to do whatever we want. This is how `django-readers` scales to accomodate to arbitrarily complex requirements.
 
-`django-readers` comes with a library of functions that can be used to add commonly-used aggregations to a spec, such as counting related objects. We add these to a spec using the same single-key-dictionary syntax.
+`django-readers` comes with a library of functions that can be used to add commonly-used aggregations to a spec, such as counting related objects. These are included in a spec using the same single-key-dictionary syntax as we've already seen for relationships:
 
 ```python hl_lines="10"
 from django_readers import pairs, specs
@@ -382,7 +377,7 @@ def book_list(request):
 
 The client has a new requirement: for books that were published more than five years ago, they want to add a "vintage" label alongside the book title.
 
-There are a few places we could put the business logic to implement this requirement, including in the view and in the template. Common best practice in the Django community would be to put this logic in a method on the `Book` model, like this:
+There are a few places you could put the business logic to implement this requirement, including in the view and in the template. Common best practice in the Django community would be to put this logic in a method on the `Book` model, like this:
 
 ```python hl_lines="1 10-13"
 from datetime import date
@@ -412,7 +407,9 @@ def produce_is_vintage(book):
     return years_since_publication > 5
 ```
 
-Now, in order to make our database query efficient, we need to identify the _data dependencies_ of this producer function. Which fields from the model does it need to do its work? We can see that it uses just one field from the model: the `publication_date`. So, we need to create a _queryset function_ that prepares the queryset by including this `publication_date` field in the query. `django-readers` comes with a library of functions under `django_readers.qs` that help with creating queryset functions. In this case, we need the `include_fields` function:
+Now, in order to make the database query efficient, you need to identify the _data dependencies_ of this producer function. Which fields from the model does it need to do its work? By looking at the code, you can see that it uses just one field from the model: the `publication_date`. So, as well as writing the producer function, you need to create a _queryset function_ that prepares the queryset by including this `publication_date` field in the query.
+
+`django-readers` comes with a library of functions under `django_readers.qs` that help with creating queryset functions. In this case, you need to use the [`include_fields`](reference/queryset-functions.md#include_fields) function:
 
 ```python hl_lines="2 5"
 from datetime import date
@@ -427,7 +424,7 @@ def produce_is_vintage(book):
     return years_since_publication > 5
 ```
 
-Finally, to express the dependency between the producer function and the queryset function, we put the two functions together in a tuple which we call a _reader pair_ (or, commonly, just a "pair"):
+Finally, to express the dependency between the producer function and the queryset function, the two functions are put together in a tuple called a _reader pair_ (or, commonly, just a "pair"):
 
 ```python hl_lines="13"
 from datetime import date
@@ -445,7 +442,7 @@ def produce_is_vintage(book):
 is_vintage = (prepare_is_vintage, produce_is_vintage)
 ```
 
-Now we have a created our custom pair, we can use it in our spec. We again use the dictionary syntax:
+Now you've have a created your custom pair, you can use it in your spec. Again we use the dictionary syntax:
 
 ```python hl_lines="1-13 30"
 from datetime import date
@@ -533,11 +530,11 @@ The value of the `books` variable in the template context will now be:
 
 ## Requirement 6: add an API endpoint to list books
 
-Our client has now decided that it's time to build a JavaScript frontend for their website, and wants us to expose the data via an API endpoint rather than rendering the HTML on the server.
+The client has now decided that it's time to build a JavaScript frontend for their website, and wants to expose the book data via an API endpoint rather than rendering the HTML on the server.
 
-The best way to build APIs with Django is to use [Django REST framework](https://www.django-rest-framework.org/). `django-readers` provides a mixin which allows us to use a spec to define the "shape" of the data that we want our endpoint to return. As we've already seen, `django-readers` will extract this data from the database as efficiently as it can. This makes it very quick to build endpoints without compromising on performance.
+The best way to build APIs with Django is to use [Django REST framework](https://www.django-rest-framework.org/). `django-readers` provides a mixin that allows you to use a spec to define the "shape" of the data that the endpoint should return. As we've already seen, `django-readers` will extract this data from the database as efficiently as it can. This makes it very quick to build endpoints without compromising on performance.
 
-We're going to illustrate this by re-using the spec from above. To avoid repeating the example code again, we're going to assume that the `is_vintage` pair is defined already.
+We're going to illustrate this by re-using the spec from the previous section. To avoid repeating the example code again, we're going to assume that the `is_vintage` pair is defined already.
 
 ```python
 from django_readers.rest_framework import SpecMixin
@@ -563,7 +560,7 @@ class BookListView(SpecMixin, ListAPIView):
     ]
 ```
 
-That's it! Once we've wired up this view in our `urls.py` we can start making requests to it. The JSON data returned from this endpoint will be exactly the same "shape" as the template context above:
+That's it! Once you've wired up this view in your `urls.py` you can start making requests to it. The JSON data returned from this endpoint will be exactly the same "shape" as the template context above:
 
 ```
 GET /api/books/
@@ -628,7 +625,7 @@ Vary: Accept
 
 ## A note on `django-zen-queries`
 
-An important pattern to avoid inefficient database queries in Django projects is to isolate the *fetching of data* from the *rendering of data*. This pattern can be implemented with the help of [`django-zen-queries`](https://github.com/dabapps/django-zen-queries), which allows you to mark blocks of code under which database queries are not allowed.
+An important pattern to avoid inefficient database queries in Django projects is to isolate the *fetching of data* from the *rendering of data*. This pattern can be implemented with the help of [`django-zen-queries`](https://github.com/dabapps/django-zen-queries), a library that allows you to mark blocks of code under which database queries are not allowed.
 
 In a project using `django-readers`, it is good practice to disallow queries in the `prepare` and `project` phases:
 

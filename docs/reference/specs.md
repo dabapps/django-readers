@@ -1,12 +1,12 @@
-Manually assembling trees of pairs as seen above may seem long-winded. The `specs` module provides a layer of syntactic sugar that makes it much easier. This layer is the real magic of `django-readers`: a straightforward way of specifying the shape of your data in order to efficiently select and project a complex tree of related objects.
+The `specs` module provides a layer of syntactic sugar on top of [pairs](pairs.md) that makes it much quicker and easier to assemble complex trees of producers and projectors. This layer is the real magic of `django-readers`: a straightforward way of specifying the shape of your data in order to efficiently select and project a complex tree of related objects.
 
 A spec is a list. Under the hood, the `specs` module is a very lightweight wrapper on top of [`pairs`](pairs.md). Simple transformations are applied to each item in the spec to replace it with the relevant pair function. The list may contain:
 
-* _strings_, which are interpreted as field names and are replaced with [`pairs.field`](pairs.md#field),
-* _dictionaries_, which serve two purposes:
-    * If the value is a list, they are interpreted as relationships (with the key specifying the relationship name and the value being a "child spec" for projecting the related objects) and are replaced with [`pairs.relationship`](pairs.md#relationship).
-    * If the value is anything else (a string or a `(prepare, produce)` pair), the value returned by the produce function in the pair is projected under the specified key (a shortcut for [`pairs.producer_to_projector`](pairs.md#producer_to_projector))
-* _projector pairs_ of `(prepare, project)` functions, which are left as-is.
+* _Strings_. These are interpreted as field names and are replaced with [`pairs.field`](pairs.md#field).
+* _Dictionaries_ serve two purposes:
+    * If the dictionary value is a list, they are interpreted as relationships, with the key specifying the relationship name and the value being a "child spec" for projecting the related objects. This is a shortcut for [`pairs.relationship`](pairs.md#relationship).
+    * If the value is anything else (a string or a `(prepare, produce)` pair), the value returned by the produce function in the pair is projected under the specified key. This is a shortcut for [`pairs.producer_to_projector`](pairs.md#producer_to_projector).
+* _Projector pairs_ of `(prepare, project)` functions. These are left as-is, allowing you to implement your own arbitrarily complex logic if needed.
 
 Import like this: `from django_readers import specs`
 

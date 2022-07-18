@@ -21,7 +21,14 @@ Second, it is bad for code organisation, particularly in larger projects. Your `
 
 Third and worst, often model methods themselves perform queries against other models. This is a disaster for application performance, leading to inefficient query patterns that can be very difficult to fix. When they _are_ fixed (through judicious use of `select_related` and `prefetch_related` on the queryset), the model methods become tightly coupled to the precise way that the query is built, resulting in unpredictable and brittle code.
 
-**`django-readers` encourages you to instead structure your code around plain functions rather than methods on classes. You can put these functions wherever you like in your codebase. Complex business logic is built by composing and combining these functions.**
+`django-readers` encourages you to structure your code around plain functions rather than methods on classes. You can put these functions wherever you like in your codebase. Complex business logic is built by composing and combining these functions.
+
+!!! note
+    YAGNI, "You Aren't Gonna Need It", it's a [well-understood mantra](https://martinfowler.com/bliki/Yagni.html) in software development. It means that you should only make changes to your software (including adding abstraction and generalising code structures) when you are sure that you absolutely need them, and not before. Related to this is the famous quote from Donald Knuth: "premature optimization is the root of all evil". This suggests that usually performance concerns fall under YAGNI: you shouldn't spend time making code fast until its slowness becomes a real problem for users.
+
+    As a counterpoint to this advice, Simon Willison coined the phrase [PAGNI](https://simonwillison.net/2021/Jul/1/pagnis/), "Probably Are Gonna Need It". PAGNI applies in situations "when the cost of adding something later is so dramatically expensive compared with the cost of adding it early on that it’s worth taking the risk [...] when you know from experience that an initial investment will pay off many times over."
+
+    `django-readers` (and its sister project [`django-zen-queries`](https://github.com/dabapps/django-zen-queries)) were built partly as a result of a strong belief (gained through many years of experience) that understanding and controlling your application's database querying behaviour firmly falls into the PAGNI category. This is particularly true of applications that you know are going to be complex: any code abstraction patterns you decide to follow in order to manage the complexity _must_ take into account query patterns or they are highly likely to cause terrible performance problems. This is the heart of the [object-relational impedance mismatch](https://en.wikipedia.org/wiki/Object%E2%80%93relational_impedance_mismatch).
 
 ## Features and concepts
 
@@ -31,7 +38,7 @@ These layers can be intermingled in a real-world application. To expain each lay
 
 ### Queryset preparation functions
 
-A queryset preparation function is a function that accepts a queryset as its single argument, and returns a new queryset with some modifications applied. These functions are used to encapsulate database query logic which would traditionally live in a custom queryset method. If you were writing one of these yourself, it might look like this:
+A queryset preparation function is a function that accepts a queryset as its single argument, and returns a new queryset with some modifications applied. These functions are used to encapsulate database query logic that would traditionally live in a custom queryset method. If you were writing one of these yourself, it might look like this:
 
 ```python
 def prepare(queryset):
@@ -153,7 +160,7 @@ print(project(author))
 #   }
 ```
 
-Note above that the second argument to `producers.relationship` is a projector function which projects each related object.
+Note above that the second argument to `producers.relationship` is a projector function to project each related object.
 
 ### Pairs
 
@@ -165,7 +172,7 @@ In the example used above, the `produce_age` producer depends on the `birth_year
 age_pair = (qs.include_fields("birth_year"), produce_age)
 ```
 
-`django-readers` includes [some useful functions that create pairs](reference/pairs.md). These attempt to generate the most efficient queries they can, which means loading only those database fields which are required to produce the value or values required:
+`django-readers` includes [some useful functions that create pairs](reference/pairs.md). These attempt to generate the most efficient queries they can, which means loading only those database fields required to produce the value or values:
 
 ```python
 from django_readers import pairs
@@ -218,11 +225,7 @@ Manually assembling trees of pairs as seen above may seem long-winded. [The `spe
 
 The resulting nested dictionary structure may be returned from as view as a JSON response (assuming all your producers return JSON-serializable values), or included in a template context in place of a queryset or model instance.
 
-A spec is a list. Under the hood, the `specs` module is a very lightweight wrapper on top of `pairs`. Each item in the list undergoes a simple transformation to replace it with a pair function. The list may contain:
-
-* _strings_, which are interpreted as field names and are replaced with `pairs.field`,
-* _dictionaries_, which serve two purposes: if the value is a list, they are interpreted as relationships (with the keys specifying the relationship name and the values being specs for projecting the related objects) and are replaced with `pairs.relationship`. If the value is anything else (a string or a `(prepare, produce)` pair), the value returned by the produce function in the pair is projected under the specified key.
-* _pairs_ of `(prepare, project)` functions (see previous section), which are left as-is.
+A spec is a list. Under the hood, the `specs` module is a very lightweight wrapper on top of `pairs`. Each item in the list undergoes a simple transformation to replace it with a pair function. See [the reference documentation for specs](reference/specs.md) for details.
 
 The example from the last section may be written as the following spec:
 

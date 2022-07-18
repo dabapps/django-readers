@@ -19,6 +19,12 @@
 
 _A lightweight function-oriented toolkit for better organisation of business logic and efficient selection and projection of data in Django projects._
 
+Install from [PyPI](https://pypi.org/project/django-readers/):
+
+```shell
+pip install django-readers
+```
+
 !!! danger "Work in progress"
     This documentation is under active development and is incomplete. Please see [this Pull Request](https://github.com/dabapps/django-readers/pull/59) to track progress on the docs and provide feedback. For now, it may be better to refer to [the project README](https://github.com/dabapps/django-readers#readme) for information.
 
