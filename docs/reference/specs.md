@@ -6,7 +6,7 @@ A spec is a list. Under the hood, the `specs` module is a very lightweight wrapp
 * _dictionaries_, which serve two purposes:
     * If the value is a list, they are interpreted as relationships (with the key specifying the relationship name and the value being a "child spec" for projecting the related objects) and are replaced with [`pairs.relationship`](pairs.md#relationship).
     * If the value is anything else (a string or a `(prepare, produce)` pair), the value returned by the produce function in the pair is projected under the specified key (a shortcut for [`pairs.producer_to_projector`](pairs.md#producer_to_projector))
-* _projector pairs_ of `(prepare, project)` functions (see previous section), which are left as-is.
+* _projector pairs_ of `(prepare, project)` functions, which are left as-is.
 
 Import like this: `from django_readers import specs`
 

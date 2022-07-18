@@ -31,16 +31,14 @@ These layers can be intermingled in a real-world application. To expain each lay
 
 ### Queryset preparation functions
 
-A queryset preparation function is a function that accepts a queryset as its single argument, and returns a new queryset with some modifications applied.
+A queryset preparation function is a function that accepts a queryset as its single argument, and returns a new queryset with some modifications applied. These functions are used to encapsulate database query logic which would traditionally live in a custom queryset method. If you were writing one of these yourself, it might look like this:
 
 ```python
 def prepare(queryset):
     return queryset.filter(name="shakespeare")
 ```
 
-These functions are used to encapsulate database query logic which would traditionally live in a custom queryset method.
-
-`django-readers` provides a [library of functions under `django_readers.qs`](reference/queryset-functions.md) which mirror all the default methods on the base `QuerySet` that return a new queryset, as well as some extra utility functions.
+However, you don't usually need to write your own queryset functions: `django-readers` provides a [library of functions under `django_readers.qs`](reference/queryset-functions.md) which mirror all the default methods on the base `QuerySet` that return a new queryset, as well as some extra utility functions.
 
 Queryset functions can be combined with the [`qs.pipe`](reference/queryset-functions.md#pipe) function (named following standard functional programming parlance). `qs.pipe` returns a new queryset function that calls each function in its argument list in turn, passing the return value of the first as the argument of the second, and so on. It literally "pipes" your queryset through its list of functions.
 
@@ -88,7 +86,7 @@ print(produce_name(author))
 
 Producers return a value, but in order to convert a model instance into a lightweight business object (a dictionary) suitable for passing around your project, this value must be combined with a name. This is the role of a [projector](reference/projectors.md). A projector function takes a model instance and returns a dictionary mapping keys to the values returned by producer functions.
 
-These functions "project" your data layer into your application's business logic domain. Think of the dictionary returned by a projector (the "projection") as the simplest possible domain object. Generally speaking, it's not necessary to write your own projector functions - you can simply wrap a producer function with [`projectors.producer_to_projector`](reference/projectors.md#producer_to_projector)
+These functions "project" your data layer into your application's business logic domain. Think of the dictionary returned by a projector (the "projection") as the simplest possible domain object. Generally speaking, it's not necessary to write your own projector functions. You can instead wrap a producer function with [`projectors.producer_to_projector`](reference/projectors.md#producer_to_projector)
 
 ```python
 from datetime import datetime
@@ -212,9 +210,7 @@ prepare, project = pairs.combine(
 
 Again, only the precise fields that are needed are loaded from the database. All relationship functions take an optional `to_attr` argument which is passed to the underlying `Prefetch` object.
 
-Note that `django-readers` _always_ uses `prefetch_related` to load relationships, even in circumstances where `select_related` would usually be used (ie `ForeignKey` and `OneToOneField`), resulting in one query per relationship. This approach allows the code to be "fractal": the tree of `(prepare, project)` pairs can be recursively applied to the tree of related querysets.
-
-Of course, it is quite possible to use `select_related` by applying `qs.select_related` at the root of your query, but this must be done manually. To help with this, `django-readers` provides [`qs.select_related_fields`](reference/queryset-functions.md#select_related_fields), which combines `select_related` with `include_fields` to allow you to specify exactly which fields you need from the related objects. Also, the `pairs` module provides functions to discard one or other item from the pair: [`pairs.discard_projector`](reference/pairs.md#discard_projector) and [`pairs.discard_queryset_function`](reference/pairs.md#discard_queryset_function). These are useful if you'd like to create a complex pair using the high-level `specs` module (see below) but only actually use one or other item from the pair. Note that these only exist for readability: they are equivalent to simply indexing into the pair (`pair[0]` or `pair[1]` respectively).
+Note that `django-readers` _always_ uses `prefetch_related` to load relationships, even in circumstances where `select_related` would usually be used (ie `ForeignKey` and `OneToOneField`), resulting in one query per relationship. This approach allows the code to be "fractal": the tree of `(prepare, project)` pairs can be recursively applied to the tree of related querysets. It is possible to use `select_related` but this [must be done manually](cookbook.md#use-select_related-instead-of-prefetch_related).
 
 ### Specs
 
@@ -222,7 +218,7 @@ Manually assembling trees of pairs as seen above may seem long-winded. [The `spe
 
 The resulting nested dictionary structure may be returned from as view as a JSON response (assuming all your producers return JSON-serializable values), or included in a template context in place of a queryset or model instance.
 
-A spec is a list. Under the hood, the `specs` module is a very lightweight wrapper on top of `pairs` - it applies simple transformations to the items in the list to replace them with the relevant pair functions. The list may contain:
+A spec is a list. Under the hood, the `specs` module is a very lightweight wrapper on top of `pairs`. Each item in the list undergoes a simple transformation to replace it with a pair function. The list may contain:
 
 * _strings_, which are interpreted as field names and are replaced with `pairs.field`,
 * _dictionaries_, which serve two purposes: if the value is a list, they are interpreted as relationships (with the keys specifying the relationship name and the values being specs for projecting the related objects) and are replaced with `pairs.relationship`. If the value is anything else (a string or a `(prepare, produce)` pair), the value returned by the produce function in the pair is projected under the specified key.

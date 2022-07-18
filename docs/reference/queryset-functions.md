@@ -87,7 +87,7 @@ prepare = qs.pipe(
 ## Prefetching
 
 !!! note
-    The below functions return functions that use `prefetch_related` to efficiently load related objects. We use `prefetch_related` to load all relationship types because this means our functions can be recursive - we can apply pairs to the related querysets, all the way down the tree.
+    The below functions return functions that use `prefetch_related` to efficiently load related objects. We use `prefetch_related` to load all relationship types because this means our functions can be recursive: we can apply pairs to the related querysets, all the way down the tree.
 
 There are six types of relationship from the point of view of the "main" object:
 

@@ -162,7 +162,7 @@ As you can see, at its simplest a `django-readers` spec is just a list of field 
 
     A `project` function (a "projector") takes a model instance and returns a dictionary (the "projection") which maps one or more names (the dictionary keys) to one or more values derived from the instance (often the values of one or more attributes and possibly nested dictionaries representing related models). It _projects_ your data layer into your application's business logic domain. Think of the dictionary returned by a projector (the "projection") as the simplest possible domain object. Generally speaking, it's not necessary to write your own projector functions: you can wrap a producer function to bind the value it returns to a name.
 
-The `prepare` function is responsible for building the queryset - it takes a queryset as an argument (in this case `Book.objects.all()`) and returns a new queryset which is fine-tuned to fetch only the data we're interested in.
+The `prepare` function is responsible for building the queryset. It takes a queryset as an argument (in this case `Book.objects.all()`) and returns a new queryset which is fine-tuned to fetch only the data we're interested in.
 
 When we evaluate the prepared queryset, Django can now issue a much more optimised query to the database:
 
@@ -172,7 +172,7 @@ SELECT "books_book"."id",
 FROM "books_book"
 ```
 
-We still need the `id` field (Django uses the primary key to track the identity of the model instance so it's always included) but apart from that, we only get the `title` - just what we need.
+We still need the `id` field (Django uses the primary key to track the identity of the model instance so it's always included) but apart from that, we only get the `title`: just what we need.
 
 The `project` function operates on model instances. It takes an instance as its argument and returns a dictionary containing only the fields we've asked for in the spec. So in this case, it might return:
 
