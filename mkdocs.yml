@@ -1,0 +1,46 @@
+site_name: django-readers
+site_description: A lightweight function-oriented toolkit for better organisation of business logic and efficient selection and projection of data in Django projects.
+
+theme:
+  name: 'material'
+  icon:
+    logo: 'material/book-open-variant'
+    repo: 'fontawesome/brands/github'
+  favicon: img/favicon.ico
+  palette:
+    primary: pink
+    accent: pink
+
+copyright: '<a href="https://www.dabapps.com">A DabApps project</a>'
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      use_pygments: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.snippets:
+      check_paths: true
+  - toc:
+      permalink: true
+  - attr_list
+
+repo_name: dabapps/django-readers
+repo_url: https://github.com/dabapps/django-readers/
+edit_uri: ""
+
+nav:
+  - Introduction: 'index.md'
+  - Tutorial: 'tutorial.md'
+  - Cookbook: 'cookbook.md'
+  - Explanation: 'explanation.md'
+  - Reference:
+      - Queryset functions: 'reference/queryset-functions.md'
+      - Producers: 'reference/producers.md'
+      - Projectors: 'reference/projectors.md'
+      - Pairs: 'reference/pairs.md'
+      - Specs: 'reference/specs.md'
+      - SpecMixin: 'reference/specmixin.md'
+  - Community:
+      - Changelog: 'community/changelog.md'
+      - License: 'community/license.md'
