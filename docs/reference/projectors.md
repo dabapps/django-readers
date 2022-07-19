@@ -1,4 +1,4 @@
-Projector functions take a model instance as their single argument and return a dictionary mapping one or more keys to value derived from that instance, usually via [producer functions](producers.md). The `projectors` module contains higher-order functions that create projectors from producers, and compose projectors together.
+Projector functions take a model instance as their single argument and return a dictionary mapping one or more keys to one or more values derived from that instance, usually via [producer functions](producers.md). The `projectors` module contains higher-order functions that create projectors from producers, and compose projectors together.
 
 Import like this: `from django_readers import projectors`
 

@@ -120,9 +120,9 @@ ON ("books_book"."publisher_id" = "books_publisher"."id")
 
 The problem with this is that the view code and the template code are now _coupled_ in a very unpredictable and hard-to-reason-about way. A small, innocuous-looking change to the code in either the view or template can drastically impact the performance. This coupling problem only gets worse as the complexity of the application increases.
 
-`django-readers` takes a different approach. Rather than decoupling the building of the queryset (which happens in the view) from the use of the data (which happens in the template), we instead explicitly perform all data fetching in the view. The template then deals only with presentation: instead of passing a queryset into the template and allowing the template code to access arbitrary attributes or methods on the model instances, we instead extract precisely the data we need from the database, convert it into basic data structures (Python dictionaries) and pass those into the template instead.
+`django-readers` takes a different approach. We explicitly perform all data fetching in the view. The template then deals only with presentation: instead of passing a queryset into the template and allowing the template code to access arbitrary attributes or methods on the model instances, we instead extract precisely the data we need from the database, convert it into basic data structures (Python dictionaries) and pass those into the template instead. This means that template authors can't blindly follow relationships and incur extra queries, because the attributes that express those relationships simply don't exist in the template context.
 
-This means that template authors can't blindly follow relationships and incur extra queries, because the attributes that express those relationships simply don't exist in the template context. To mitigate the burden of having to fine-tune querysets by hand for efficiency, a high-level "spec" is used to describe exactly which fields and relationships are needed, and `django-readers` is responsible for building the queryset and converting the model instances into dictionaries.
+To mitigate the burden of having to fine-tune querysets by hand for efficiency, a high-level "spec" is used to describe exactly which fields and relationships are needed, and `django-readers` is responsible for building the queryset and converting the model instances into dictionaries.
 
 For more on the motivation behind `django-readers`, see the [Explanation page](explanation.md).
 
@@ -151,7 +151,7 @@ As you can see, at its simplest a `django-readers` spec is just a list of field 
 !!! note
     _prepare_ and _project_ are `django-readers`-specific terms. There is one other `django-readers` concept beginning with P, _produce_, which will be introduced fully later, but here are their rough definitions to set the scene:
 
-    A prepare function takes a queryset and returns a clone of the queryset with one or more modifications applied, such as `prefetch_related`, `filter`, `only` etc. This is called "preparing the queryset". Queryset functions can be composed, just like chaining queryset methods.
+    A prepare function (a "queryset function") takes a queryset and returns a clone of the queryset with one or more modifications applied, such as `prefetch_related`, `filter`, `only` etc. This is called "preparing the queryset". Queryset functions can be composed, just like chaining queryset methods.
 
     A produce function (a "producer") takes a model instance and returns ("produces") a value derived from that instance. Often this is the value of an attribute on the model.
 
@@ -231,11 +231,11 @@ WHERE "books_publisher"."id" IN (1, 2, 3)
 ```
 
 !!! note
-    Note that `django-readers` _always_ uses `prefetch_related` to load relationships, even in circumstances where `select_related` would usually be used (ie `ForeignKey` and `OneToOneField`), resulting in one query per relationship. This approach allows the code to be "fractal": the tree of specs can be recursively applied to the tree of related querysets.
+    Note that `django-readers` _always_ uses `prefetch_related` to load relationships, even in circumstances where `select_related` would usually be used (i.e. `ForeignKey` and `OneToOneField`), resulting in one query per relationship. This approach allows the code to be "fractal": the tree of specs can be recursively applied to the tree of related querysets.
 
-    Using `prefetch_related` for foreign key relationships does have some drawbacks: the "join" between books and publishers is performed in Python, rather than in the database. This can be can be slower and use more memory. Of course, using `prefetch_related` is still much better than doing nothing and emitting N queries!
+    Using `prefetch_related` for foreign key relationships does have some drawbacks: the "join" between books and publishers is performed in Python, rather than in the database. This can be can be slower and use more memory. Of course, using `prefetch_related` is (usually) still much better than doing nothing and emitting N queries!
     
-    It is also quite possible to build queries with `django-readers` that _do_ use `select_related` (ie perform joins in the database), but this must be done in a more manual way. We'll cover this elsewhere in the docs.
+    It is also quite possible to build queries with `django-readers` that _do_ use `select_related` (i.e. perform joins in the database), but this must be done in a more manual way. We'll cover this elsewhere in the docs.
 
 The `project` function then includes the fields we asked for from the related objects too, so after iterating over the queryset and projecting each instance, the value of the `books` variable in the template context will be:
 
@@ -560,7 +560,7 @@ class BookListView(SpecMixin, ListAPIView):
     ]
 ```
 
-That's it! Once you've wired up this view in your `urls.py` you can start making requests to it. The JSON data returned from this endpoint will be exactly the same "shape" as the template context above:
+Once you've wired up this view in your `urls.py` you can start making requests to it. The JSON data returned from this endpoint will be exactly the same "shape" as the template context above:
 
 ```
 GET /api/books/

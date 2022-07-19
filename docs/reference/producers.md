@@ -14,7 +14,7 @@ print(value)
 # prints "Pro Django"
 ```
 
-The `producers.attr` function takes an optional argument `transform_value`, which is a function that receives the value of the attribute and returns a new value. This is useful if the value of the attribute needs to be converted in some way during projection.
+The `producers.attr` function takes an optional argument `transform_value`, which is a function that receives the value of the attribute and returns a new value. This is useful if the value of the attribute needs to be converted in some way.
 
 For example, imagine you have an `IntegerField` but you want the produced value to be a stringified version of the integer value. In that case, you can use `producers.attr("my_integer_field", transform_value=str)`.
 
@@ -44,11 +44,11 @@ print(value)
 !!! note
     You shouldn't generally need to use this function directly, instead it would be called for you via a higher-level construct such as a [pair function](pairs.md) or a [spec](specs.md).
 
-Given an attribute name and a projector, return a producer which plucks the attribute off the instance, figures out whether it represents a single object or an iterable/queryset of objects, and applies the given [projector](projectors.md) to the related object or objects.
+Given an attribute name and a [projector](projectors.md), return a producer which plucks the attribute off the instance, figures out whether it represents a single object or an iterable/queryset of objects, and applies the given projector to the related object or objects.
 
 ## `producers.pk_list(name)` {: #pk_list}
 
 !!! note
     You shouldn't generally need to use this function directly, instead it would be called for you via a higher-level [pair function](pairs.md#pk_list).
 
-Given an attribute name (which should be a relationship field), return a producer which returns a list of the PK of each item in the relationship (or just a single PK if this is a to-one field, but this is an inefficient way of doing it).
+Given an attribute name (which should be a relationship field), return a producer which returns a flat list of the primary key of each item in the relationship (or just a single PK if this is a to-one field, but this is usually an inefficient way of doing it).
