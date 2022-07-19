@@ -269,3 +269,11 @@ The other common task needed is data validation. We'd suggest Django forms and/o
 Not really, although it does solve some of the same problems. It suggests alternative (and, we think, beneficial) ways to structure your business logic without attempting to hide or abstract away the underlying Django concepts, and so should be easily understandable by any experienced Django developer. You can easily "mix and match" `django-readers` concepts into an existing application.
 
 If you are someone who feels more comfortable thinking in terms of established Design Patterns, you may consider the dictionaries returned from projector functions as simple [Data Transfer Objects](https://martinfowler.com/eaaCatalog/dataTransferObject.html), and the idea of dividing read and write logic into `readers` and `actions` as a version of [CQRS](https://martinfowler.com/bliki/CQRS.html).
+
+## Is `django-readers` a serialization or data conversion library?
+
+Not really, although again it does solve some of the same problems. `django-readers` is often compared to projects like [`attrs`](https://www.attrs.org/)/[`cattrs`](https://cattrs.readthedocs.io/) and [`pydantic`](https://pydantic-docs.helpmanual.io/).
+
+However, `django-readers` is focused on the _shape_ of the data and how to extract it from the database (via the Django ORM) efficiently, rather than converting and validating the types. It eschews a class-oriented style in favour of plain, composable functions operating on plain data structures like dictionaries, and deliberately avoids static type annotations.
+
+If your intention is to render your data to JSON, we recommend you use `django-readers` to project the model field values, and then lean on Django or Django REST framework's built-in rich encoders for converting types like `datetime` and `UUID` to JSON-friendly strings.
