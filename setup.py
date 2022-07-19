@@ -11,7 +11,7 @@ import sys
 name = "django-readers"
 package = "django_readers"
 description = "A lightweight function-oriented toolkit for better organisation of business logic and efficient selection and projection of data in Django projects."
-url = "https://github.com/dabapps/django-readers"
+url = "https://www.django-readers.org"
 author = "DabApps"
 author_email = "hello@dabapps.com"
 license = "BSD"
