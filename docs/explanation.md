@@ -80,7 +80,7 @@ print(produce_age(author))
 #  37
 ```
 
-The simplest producer is one that returns the value of an object attribute. `django-readers` provides a producer that does this:
+The simplest producer is one that returns the value of an object attribute. `django-readers` provides a function to create producers that do this:
 
 ```python
 from django_readers import producers
@@ -217,7 +217,7 @@ prepare, project = pairs.combine(
 
 Again, only the precise fields that are needed are loaded from the database. All relationship functions take an optional `to_attr` argument which is passed to the underlying `Prefetch` object.
 
-Note that `django-readers` _always_ uses `prefetch_related` to load relationships, even in circumstances where `select_related` would usually be used (ie `ForeignKey` and `OneToOneField`), resulting in one query per relationship. This approach allows the code to be "fractal": the tree of `(prepare, project)` pairs can be recursively applied to the tree of related querysets. It is possible to use `select_related` but this [must be done manually](cookbook.md#use-select_related-instead-of-prefetch_related).
+Note that `django-readers` _always_ uses `prefetch_related` to load relationships, even in circumstances where `select_related` would usually be used (i.e. `ForeignKey` and `OneToOneField`), resulting in one query per relationship. This approach allows the code to be "fractal": the tree of `(prepare, project)` pairs can be recursively applied to the tree of related querysets. It is possible to use `select_related` but this [must be done manually](cookbook.md#use-select_related-instead-of-prefetch_related).
 
 ### Specs
 
