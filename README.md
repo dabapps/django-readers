@@ -3,7 +3,7 @@ django-readers
 
 **A lightweight function-oriented toolkit for better organisation of business logic and efficient selection and projection of data in Django projects.**
 
-Tested against Django 3.2, 4.0 and 4.1 on Python 3.6, 3.7, 3.8, 3.9 and 3.10
+Tested against Django 3.2, 4.0 and 4.1 on Python 3.7, 3.8, 3.9, 3.10 and 3.11.
 
 ![Build Status](https://github.com/dabapps/django-readers/workflows/CI/badge.svg?branch=main)
 [![pypi release](https://img.shields.io/pypi/v/django-readers.svg)](https://pypi.python.org/pypi/django-readers)
