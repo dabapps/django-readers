@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add support for Django 4.1
 - Drop support for Django 2.2
+- Add support for Python 3.11
+- Drop support for Python 3.6
 
 ## [2.0.0] - 2022-07-19
 
