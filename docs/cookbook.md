@@ -186,10 +186,10 @@ spec = [
 def email_domain_is(domain):
     prepare = qs.include_fields("email")
 
-    def project(author):
+    def produce(author):
         return author.email.endswith(domain)
 
-    return prepare, project
+    return prepare, produce
 ```
 
 ```python
