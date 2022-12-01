@@ -46,6 +46,9 @@ class CategoryDetailView(SpecMixin, RetrieveAPIView):
     ]
 
 
+upper_name = pairs.field("name", transform_value=lambda value: value.upper())
+
+
 class RESTFrameworkTestCase(TestCase):
     def test_list(self):
         Widget.objects.create(
@@ -148,7 +151,6 @@ class SpecToSerializerClassTestCase(TestCase):
         self.assertEqual(repr(cls()), expected)
 
     def test_output_field(self):
-        upper_name = pairs.field("name", transform_value=lambda value: value.upper())
         spec = [
             "name",
             {
@@ -167,3 +169,7 @@ class SpecToSerializerClassTestCase(TestCase):
                 upper_name = CharField(read_only=True)"""
         )
         self.assertEqual(repr(cls()), expected)
+
+    def test_output_field_raises_with_field_class(self):
+        with self.assertRaises(TypeError):
+            WithOutputField(upper_name, output_field=serializers.CharField)

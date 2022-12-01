@@ -118,5 +118,7 @@ class SpecMixin:
 
 class WithOutputField:
     def __init__(self, pair, *, output_field):
+        if not isinstance(output_field, serializers.Field):
+            raise TypeError("output_field must be an instance of Field")
         self.pair = pair
         self.output_field = output_field
