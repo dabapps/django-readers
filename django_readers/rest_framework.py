@@ -68,7 +68,7 @@ def spec_to_serializer_class(serializer_name, model, spec):
         serializer_name,
         (serializers.Serializer,),
         {
-            "to_representation": lambda self, instance: self.context["view"].project(
+            "to_representation": lambda self, instance: self.context["project"](
                 instance
             ),
             **fields,
@@ -107,3 +107,6 @@ class SpecMixin:
         name = self.__class__.__name__.replace("View", "") + "Serializer"
         model = getattr(getattr(self, "queryset", None), "model", None)
         return spec_to_serializer_class(name, model, self.spec)
+
+    def get_serializer_context(self):
+        return {"project": self.project, **super().get_serializer_context()}
