@@ -5,7 +5,7 @@ from rest_framework import serializers
 from rest_framework.utils import model_meta
 
 
-def spec_to_serializer_class(serializer_name, model, spec):
+def spec_to_serializer_class(serializer_name, model, spec, is_root=True):
     field_builder = serializers.ModelSerializer()
     info = model_meta.get_field_info(model)
 
@@ -36,6 +36,7 @@ def spec_to_serializer_class(serializer_name, model, spec):
                         f"{capfirst}Serializer",
                         rel_info.related_model,
                         child_spec,
+                        is_root=False,
                     )
                     fields[name] = child_serializer(
                         read_only=True,
@@ -55,6 +56,7 @@ def spec_to_serializer_class(serializer_name, model, spec):
                         f"{capfirst}Serializer",
                         rel_info.related_model,
                         relationship_spec,
+                        is_root=False,
                     )
                     fields[name] = child_serializer(
                         read_only=True,
@@ -64,16 +66,12 @@ def spec_to_serializer_class(serializer_name, model, spec):
                 else:
                     fields[name] = serializers.ReadOnlyField()
 
-    return type(
-        serializer_name,
-        (serializers.Serializer,),
-        {
-            "to_representation": lambda self, instance: self.context["project"](
-                instance
-            ),
-            **fields,
-        },
-    )
+    if is_root:
+        fields["to_representation"] = lambda self, instance: self.context["project"](
+            instance
+        )
+
+    return type(serializer_name, (serializers.Serializer,), fields)
 
 
 class SpecMixin:
