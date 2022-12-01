@@ -1,8 +1,9 @@
 from django.test import TestCase
-from django_readers.rest_framework import SpecMixin
+from django_readers.rest_framework import spec_to_serializer_class, SpecMixin
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.test import APIRequestFactory
 from tests.models import Category, Group, Owner, Widget
+from textwrap import dedent
 
 
 class WidgetListView(SpecMixin, ListAPIView):
@@ -97,3 +98,45 @@ class RESTFrameworkTestCase(TestCase):
                 ],
             },
         )
+
+
+class SpecToSerializerClassTestCase(TestCase):
+    def test_basic_spec(self):
+        spec = ["name"]
+
+        cls = spec_to_serializer_class("CategorySerializer", Category, spec)
+
+        expected = dedent(
+            """\
+            CategorySerializer():
+                name = CharField(max_length=100, read_only=True)"""
+        )
+        self.assertEqual(repr(cls()), expected)
+
+    def test_nested_spec(self):
+        spec = [
+            "name",
+            {
+                "widget_set": [
+                    "name",
+                    {
+                        "owner": [
+                            "name",
+                        ]
+                    },
+                ]
+            },
+        ]
+
+        cls = spec_to_serializer_class("CategorySerializer", Category, spec)
+
+        expected = dedent(
+            """\
+            CategorySerializer():
+                name = CharField(max_length=100, read_only=True)
+                widget_set = WidgetSetSerializer(many=True, read_only=True):
+                    name = CharField(allow_null=True, max_length=100, read_only=True, required=False)
+                    owner = OwnerSerializer(read_only=True):
+                        name = CharField(max_length=100, read_only=True)"""
+        )
+        self.assertEqual(repr(cls()), expected)
