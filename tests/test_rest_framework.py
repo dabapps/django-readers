@@ -1,5 +1,11 @@
 from django.test import TestCase
-from django_readers.rest_framework import spec_to_serializer_class, SpecMixin
+from django_readers import pairs
+from django_readers.rest_framework import (
+    spec_to_serializer_class,
+    SpecMixin,
+    WithOutputField,
+)
+from rest_framework import serializers
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.test import APIRequestFactory
 from tests.models import Category, Group, Owner, Widget
@@ -138,5 +144,26 @@ class SpecToSerializerClassTestCase(TestCase):
                     name = CharField(allow_null=True, max_length=100, read_only=True, required=False)
                     owner = OwnerSerializer(read_only=True):
                         name = CharField(max_length=100, read_only=True)"""
+        )
+        self.assertEqual(repr(cls()), expected)
+
+    def test_output_field(self):
+        upper_name = pairs.field("name", transform_value=lambda value: value.upper())
+        spec = [
+            "name",
+            {
+                "upper_name": WithOutputField(
+                    upper_name, output_field=serializers.CharField()
+                )
+            },
+        ]
+
+        cls = spec_to_serializer_class("CategorySerializer", Category, spec)
+
+        expected = dedent(
+            """\
+            CategorySerializer():
+                name = CharField(max_length=100, read_only=True)
+                upper_name = CharField(read_only=True)"""
         )
         self.assertEqual(repr(cls()), expected)

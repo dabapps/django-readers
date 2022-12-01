@@ -1,3 +1,4 @@
+from copy import deepcopy
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import cached_property
 from django_readers import specs
@@ -63,6 +64,12 @@ def spec_to_serializer_class(serializer_name, model, spec, is_root=True):
                         many=rel_info.to_many,
                         source=relationship_name,
                     )
+                elif isinstance(child_spec, WithOutputField):
+                    # We copy the field so its _creation_counter is correct and
+                    # it appears in the right order in the resulting serializer
+                    output_field = deepcopy(child_spec.output_field)
+                    output_field._kwargs["read_only"] = True
+                    fields[name] = output_field
                 else:
                     fields[name] = serializers.ReadOnlyField()
 
@@ -70,7 +77,6 @@ def spec_to_serializer_class(serializer_name, model, spec, is_root=True):
         fields["to_representation"] = lambda self, instance: self.context["project"](
             instance
         )
-
     return type(serializer_name, (serializers.Serializer,), fields)
 
 
@@ -108,3 +114,9 @@ class SpecMixin:
 
     def get_serializer_context(self):
         return {"project": self.project, **super().get_serializer_context()}
+
+
+class WithOutputField:
+    def __init__(self, pair, *, output_field):
+        self.pair = pair
+        self.output_field = output_field
