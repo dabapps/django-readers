@@ -88,8 +88,30 @@ class SpecMixin:
             raise ImproperlyConfigured("SpecMixin requires spec or get_spec")
         return self.spec
 
+    def _preprocess_spec(self, spec):
+        spec = deepcopy(spec)
+        for item in spec:
+            if isinstance(item, dict):
+                for name, child_spec in item.items():
+                    if isinstance(child_spec, WithOutputField):
+                        item[name] = child_spec.pair
+                    elif isinstance(child_spec, list):
+                        item[name] = self._preprocess_spec(child_spec)
+                    elif isinstance(child_spec, dict):
+                        if len(child_spec) != 1:
+                            raise ValueError(
+                                "Aliased relationship spec must contain only one key"
+                            )
+                        relationship_name, relationship_spec = next(
+                            iter(child_spec.items())
+                        )
+                        item[name] = {
+                            relationship_name: self._preprocess_spec(relationship_spec),
+                        }
+        return spec
+
     def get_reader_pair(self):
-        return specs.process(self.get_spec())
+        return specs.process(self._preprocess_spec(self.get_spec()))
 
     @cached_property
     def reader_pair(self):

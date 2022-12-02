@@ -173,3 +173,51 @@ class SpecToSerializerClassTestCase(TestCase):
     def test_output_field_raises_with_field_class(self):
         with self.assertRaises(TypeError):
             WithOutputField(upper_name, output_field=serializers.CharField)
+
+    def test_output_field_is_ignored_when_calling_view(self):
+        class WidgetListView(SpecMixin, ListAPIView):
+            queryset = Widget.objects.all()
+            spec = [
+                "name",
+                {
+                    "upper_name": WithOutputField(
+                        upper_name, output_field=serializers.CharField()
+                    )
+                },
+                {
+                    "owned_by": {
+                        "owner": [
+                            "name",
+                            {
+                                "upper_name": WithOutputField(
+                                    upper_name, output_field=serializers.CharField()
+                                )
+                            },
+                        ]
+                    }
+                },
+            ]
+
+        Widget.objects.create(
+            name="test widget",
+            owner=Owner.objects.create(name="test owner"),
+        )
+
+        request = APIRequestFactory().get("/")
+        view = WidgetListView.as_view()
+
+        response = view(request)
+
+        self.assertEqual(
+            response.data,
+            [
+                {
+                    "name": "test widget",
+                    "upper_name": "TEST WIDGET",
+                    "owned_by": {
+                        "name": "test owner",
+                        "upper_name": "TEST OWNER",
+                    },
+                }
+            ],
+        )
