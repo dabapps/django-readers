@@ -150,6 +150,8 @@ class SpecToSerializerClassTestCase(TestCase):
         )
         self.assertEqual(repr(cls()), expected)
 
+
+class OutputFieldTestCase(TestCase):
     def test_output_field(self):
         spec = [
             "name",
