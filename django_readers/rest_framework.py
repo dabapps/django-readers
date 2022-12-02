@@ -94,7 +94,11 @@ class SpecMixin:
             if isinstance(item, dict):
                 for name, child_spec in item.items():
                     if isinstance(child_spec, WithOutputField):
-                        item[name] = child_spec.pair
+                        item[name] = (
+                            child_spec.pair(self.request)
+                            if child_spec.needs_request
+                            else child_spec.pair
+                        )
                     elif isinstance(child_spec, list):
                         item[name] = self._preprocess_spec(child_spec)
                     elif isinstance(child_spec, dict):
@@ -139,8 +143,9 @@ class SpecMixin:
 
 
 class WithOutputField:
-    def __init__(self, pair, *, output_field):
-        if not isinstance(output_field, serializers.Field):
+    def __init__(self, pair, *, output_field=None, needs_request=False):
+        if output_field and not isinstance(output_field, serializers.Field):
             raise TypeError("output_field must be an instance of Field")
         self.pair = pair
-        self.output_field = output_field
+        self.output_field = output_field or serializers.ReadOnlyField()
+        self.needs_request = needs_request

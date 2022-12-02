@@ -223,3 +223,64 @@ class OutputFieldTestCase(TestCase):
                 }
             ],
         )
+
+    def test_needs_request(self):
+        def user_name(request):
+            return lambda qs: qs, lambda _: request.user.name
+
+        class WidgetListView(SpecMixin, ListAPIView):
+            queryset = Widget.objects.all()
+            spec = [
+                "name",
+                {
+                    "user_name": WithOutputField(
+                        user_name,
+                        output_field=serializers.CharField(),
+                        needs_request=True,
+                    )
+                },
+                {
+                    "owned_by": {
+                        "owner": [
+                            "name",
+                            {
+                                "user_name": WithOutputField(
+                                    user_name,
+                                    output_field=serializers.CharField(),
+                                    needs_request=True,
+                                )
+                            },
+                        ]
+                    }
+                },
+            ]
+
+        Widget.objects.create(
+            name="test widget",
+            owner=Owner.objects.create(name="test owner"),
+        )
+
+        class FakeUser:
+            def __init__(self, name):
+                self.name = name
+                self.is_active = True
+
+        request = APIRequestFactory().get("/")
+        request.user = FakeUser(name="Test User")
+        view = WidgetListView.as_view()
+
+        response = view(request)
+
+        self.assertEqual(
+            response.data,
+            [
+                {
+                    "name": "test widget",
+                    "user_name": "Test User",
+                    "owned_by": {
+                        "name": "test owner",
+                        "user_name": "Test User",
+                    },
+                }
+            ],
+        )
