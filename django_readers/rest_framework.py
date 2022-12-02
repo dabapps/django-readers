@@ -146,6 +146,10 @@ class WithOutputField:
     def __init__(self, pair, *, output_field=None, needs_request=False):
         if output_field and not isinstance(output_field, serializers.Field):
             raise TypeError("output_field must be an instance of Field")
+
+        if needs_request and not callable(pair_or_fn):
+            raise TypeError("First argument must be callable if needs_request is True")
+
         self.pair = pair
         self.output_field = output_field or serializers.ReadOnlyField()
         self.needs_request = needs_request

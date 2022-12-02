@@ -284,3 +284,7 @@ class OutputFieldTestCase(TestCase):
                 }
             ],
         )
+
+    def test_output_field_raises_with_incorrect_callable(self):
+        with self.assertRaises(TypeError):
+            WithOutputField(upper_name, needs_request=True)
