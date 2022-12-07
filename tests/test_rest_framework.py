@@ -150,6 +150,58 @@ class SpecToSerializerClassTestCase(TestCase):
         )
         self.assertEqual(repr(cls()), expected)
 
+    def test_all_relationship_types(self):
+        spec = [
+            "name",
+            {
+                "group": [
+                    "name",
+                ]
+            },
+            {
+                "widget_set": [
+                    "name",
+                    {
+                        "category_set": [
+                            "name",
+                        ]
+                    },
+                    {
+                        "thing": [
+                            "name",
+                            {
+                                "related_widget": {
+                                    "widget": [
+                                        "name",
+                                    ]
+                                }
+                            },
+                        ]
+                    },
+                ]
+            },
+        ]
+
+        cls = spec_to_serializer_class("OwnerSerializer", Owner, spec)
+
+        expected = dedent(
+            """\
+            OwnerSerializer():
+                name = CharField(max_length=100, read_only=True)
+                group = GroupSerializer(read_only=True):
+                    name = CharField(max_length=100, read_only=True)
+                widget_set = WidgetSetSerializer(many=True, read_only=True):
+                    name = CharField(allow_null=True, max_length=100, read_only=True, required=False)
+                    category_set = CategorySetSerializer(many=True, read_only=True):
+                        name = CharField(max_length=100, read_only=True)
+                    thing = ThingSerializer(read_only=True):
+                        name = CharField(max_length=100, read_only=True)
+                        related_widget = WidgetSerializer(read_only=True, source='widget'):
+                            name = CharField(allow_null=True, max_length=100, read_only=True, required=False)"""
+        )
+
+        self.assertEqual(repr(cls()), expected)
+
 
 class OutputFieldTestCase(TestCase):
     def test_output_field(self):
