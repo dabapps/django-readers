@@ -20,6 +20,8 @@ def spec_to_serializer_class(serializer_name, model, spec, is_root=True):
         if isinstance(item, dict):
             for name, child_spec in item.items():
                 if isinstance(child_spec, str):
+                    # This is a model field, so we can use ModelSerializer
+                    # machinery to figure out which output field type to use
                     field_class, field_kwargs = field_builder.build_field(
                         child_spec,
                         info,
@@ -31,6 +33,8 @@ def spec_to_serializer_class(serializer_name, model, spec, is_root=True):
                     field_kwargs.setdefault("read_only", True)
                     fields[name] = field_class(**field_kwargs)
                 elif isinstance(child_spec, list):
+                    # This is a relationship, so we recurse and create
+                    # a nested serializer to represent it
                     rel_info = info.relations[name]
                     capfirst = snake_case_to_capfirst(name)
                     child_serializer = spec_to_serializer_class(
@@ -44,6 +48,9 @@ def spec_to_serializer_class(serializer_name, model, spec, is_root=True):
                         many=rel_info.to_many,
                     )
                 elif isinstance(child_spec, dict):
+                    # This is an aliased relationship, so we basically
+                    # do the same as the previous case, but handled
+                    # slightly differently to set the `source` correctly
                     if len(child_spec) != 1:
                         raise ValueError(
                             "Aliased relationship spec must contain only one key"
@@ -65,12 +72,14 @@ def spec_to_serializer_class(serializer_name, model, spec, is_root=True):
                         source=relationship_name,
                     )
                 elif isinstance(child_spec, WithOutputField):
+                    # The output field has been explicity configured in the spec.
                     # We copy the field so its _creation_counter is correct and
                     # it appears in the right order in the resulting serializer
                     output_field = deepcopy(child_spec.output_field)
                     output_field._kwargs["read_only"] = True
                     fields[name] = output_field
                 else:
+                    # Fallback case: we don't know what field type to use
                     fields[name] = serializers.ReadOnlyField()
 
     if is_root:
