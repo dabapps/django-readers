@@ -185,14 +185,14 @@ def output_field(output_field):
     return decorator
 
 
-def call_with_request(fn):
-    fn.call_with_request = True
-    return fn
-
-
 class out:
     def __init__(self, output_field):
         self.output_field = output_field
 
     def __rrshift__(self, other):
         return output_field(self.output_field)(other)
+
+
+def call_with_request(fn):
+    fn.call_with_request = True
+    return fn
