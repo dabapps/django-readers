@@ -3,7 +3,7 @@ from django_readers import pairs
 from django_readers.rest_framework import (
     call_with_request,
     out,
-    set_output_field,
+    output_field,
     spec_to_serializer_class,
     SpecMixin,
 )
@@ -209,7 +209,7 @@ class OutputFieldTestCase(TestCase):
     def test_output_field(self):
         spec = [
             "name",
-            {"upper_name": set_output_field(serializers.CharField())(upper_name)},
+            {"upper_name": output_field(serializers.CharField())(upper_name)},
         ]
 
         cls = spec_to_serializer_class("CategorySerializer", Category, spec)
@@ -240,20 +240,20 @@ class OutputFieldTestCase(TestCase):
 
     def test_output_field_raises_with_field_class(self):
         with self.assertRaises(TypeError):
-            set_output_field(serializers.CharField)(upper_name)
+            output_field(serializers.CharField)(upper_name)
 
     def test_output_field_is_ignored_when_calling_view(self):
         class WidgetListView(SpecMixin, ListAPIView):
             queryset = Widget.objects.all()
             spec = [
                 "name",
-                {"upper_name": set_output_field(serializers.CharField())(upper_name)},
+                {"upper_name": output_field(serializers.CharField())(upper_name)},
                 {
                     "owned_by": {
                         "owner": [
                             "name",
                             {
-                                "upper_name": set_output_field(serializers.CharField())(
+                                "upper_name": output_field(serializers.CharField())(
                                     upper_name
                                 )
                             },
@@ -297,7 +297,7 @@ class NeedsRequestTestCase(TestCase):
             spec = [
                 "name",
                 {
-                    "user_name": set_output_field(serializers.CharField())(
+                    "user_name": output_field(serializers.CharField())(
                         call_with_request(user_name)
                     ),
                 },
@@ -306,7 +306,7 @@ class NeedsRequestTestCase(TestCase):
                         "owner": [
                             "name",
                             {
-                                "user_name": set_output_field(serializers.CharField())(
+                                "user_name": output_field(serializers.CharField())(
                                     call_with_request(user_name)
                                 )
                             },

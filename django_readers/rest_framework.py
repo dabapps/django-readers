@@ -151,7 +151,7 @@ class PairWithOutputField(tuple):
     output_field = serializers.ReadOnlyField()
 
 
-def set_output_field(output_field):
+def output_field(output_field):
     if not isinstance(output_field, serializers.Field):
         raise TypeError("output_field must be an instance of Field")
 
@@ -174,4 +174,4 @@ class out:
         self.output_field = output_field
 
     def __rrshift__(self, other):
-        return set_output_field(self.output_field)(other)
+        return output_field(self.output_field)(other)
