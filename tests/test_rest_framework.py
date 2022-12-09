@@ -1,9 +1,11 @@
 from django.test import TestCase
 from django_readers import pairs
 from django_readers.rest_framework import (
+    call_with_request,
+    out,
+    set_output_field,
     spec_to_serializer_class,
     SpecMixin,
-    WithOutputField,
 )
 from rest_framework import serializers
 from rest_framework.generics import ListAPIView, RetrieveAPIView
@@ -207,11 +209,23 @@ class OutputFieldTestCase(TestCase):
     def test_output_field(self):
         spec = [
             "name",
-            {
-                "upper_name": WithOutputField(
-                    upper_name, output_field=serializers.CharField()
-                )
-            },
+            {"upper_name": set_output_field(serializers.CharField())(upper_name)},
+        ]
+
+        cls = spec_to_serializer_class("CategorySerializer", Category, spec)
+
+        expected = dedent(
+            """\
+            CategorySerializer():
+                name = CharField(max_length=100, read_only=True)
+                upper_name = CharField(read_only=True)"""
+        )
+        self.assertEqual(repr(cls()), expected)
+
+    def test_out_shortcut(self):
+        spec = [
+            "name",
+            {"upper_name": upper_name >> out(serializers.CharField())},
         ]
 
         cls = spec_to_serializer_class("CategorySerializer", Category, spec)
@@ -226,25 +240,21 @@ class OutputFieldTestCase(TestCase):
 
     def test_output_field_raises_with_field_class(self):
         with self.assertRaises(TypeError):
-            WithOutputField(upper_name, output_field=serializers.CharField)
+            set_output_field(serializers.CharField)(upper_name)
 
     def test_output_field_is_ignored_when_calling_view(self):
         class WidgetListView(SpecMixin, ListAPIView):
             queryset = Widget.objects.all()
             spec = [
                 "name",
-                {
-                    "upper_name": WithOutputField(
-                        upper_name, output_field=serializers.CharField()
-                    )
-                },
+                {"upper_name": set_output_field(serializers.CharField())(upper_name)},
                 {
                     "owned_by": {
                         "owner": [
                             "name",
                             {
-                                "upper_name": WithOutputField(
-                                    upper_name, output_field=serializers.CharField()
+                                "upper_name": set_output_field(serializers.CharField())(
+                                    upper_name
                                 )
                             },
                         ]
@@ -276,7 +286,9 @@ class OutputFieldTestCase(TestCase):
             ],
         )
 
-    def test_needs_request(self):
+
+class NeedsRequestTestCase(TestCase):
+    def test_call_with_request(self):
         def user_name(request):
             return lambda qs: qs, lambda _: request.user.name
 
@@ -285,21 +297,17 @@ class OutputFieldTestCase(TestCase):
             spec = [
                 "name",
                 {
-                    "user_name": WithOutputField(
-                        user_name,
-                        output_field=serializers.CharField(),
-                        needs_request=True,
-                    )
+                    "user_name": set_output_field(serializers.CharField())(
+                        call_with_request(user_name)
+                    ),
                 },
                 {
                     "owned_by": {
                         "owner": [
                             "name",
                             {
-                                "user_name": WithOutputField(
-                                    user_name,
-                                    output_field=serializers.CharField(),
-                                    needs_request=True,
+                                "user_name": set_output_field(serializers.CharField())(
+                                    call_with_request(user_name)
                                 )
                             },
                         ]
@@ -336,7 +344,3 @@ class OutputFieldTestCase(TestCase):
                 }
             ],
         )
-
-    def test_output_field_raises_with_incorrect_callable(self):
-        with self.assertRaises(TypeError):
-            WithOutputField(upper_name, needs_request=True)

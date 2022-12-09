@@ -71,7 +71,7 @@ def spec_to_serializer_class(serializer_name, model, spec, is_root=True):
                         many=rel_info.to_many,
                         source=relationship_name,
                     )
-                elif isinstance(child_spec, WithOutputField):
+                elif hasattr(child_spec, "output_field"):
                     # The output field has been explicity configured in the spec.
                     # We copy the field so its _creation_counter is correct and
                     # it appears in the right order in the resulting serializer
@@ -102,8 +102,8 @@ class SpecMixin:
         for item in spec:
             if isinstance(item, dict):
                 for name, child_spec in item.items():
-                    if isinstance(child_spec, WithOutputField):
-                        item[name] = child_spec.resolve_pair(self.request)
+                    if getattr(child_spec, "call_with_request", False):
+                        item[name] = child_spec(self.request)
                     elif isinstance(child_spec, list):
                         item[name] = self._preprocess_spec(child_spec)
                     elif isinstance(child_spec, dict):
@@ -147,19 +147,31 @@ class SpecMixin:
         return {"project": self.project, **super().get_serializer_context()}
 
 
-class WithOutputField:
-    def __init__(self, pair_or_callable, *, output_field=None, needs_request=False):
-        if output_field and not isinstance(output_field, serializers.Field):
-            raise TypeError("output_field must be an instance of Field")
+class PairWithOutputField(tuple):
+    output_field = serializers.ReadOnlyField()
 
-        if needs_request and not callable(pair_or_callable):
-            raise TypeError("First argument must be callable if needs_request is True")
 
-        self.pair_or_callable = pair_or_callable
-        self.output_field = output_field or serializers.ReadOnlyField()
-        self.needs_request = needs_request
+def set_output_field(output_field):
+    if not isinstance(output_field, serializers.Field):
+        raise TypeError("output_field must be an instance of Field")
 
-    def resolve_pair(self, request):
-        if self.needs_request:
-            return self.pair_or_callable(request)
-        return self.pair_or_callable
+    def decorator(pair_or_callable):
+        if isinstance(pair_or_callable, tuple):
+            pair_or_callable = PairWithOutputField(pair_or_callable)
+        pair_or_callable.output_field = output_field
+        return pair_or_callable
+
+    return decorator
+
+
+def call_with_request(fn):
+    fn.call_with_request = True
+    return fn
+
+
+class out:
+    def __init__(self, output_field):
+        self.output_field = output_field
+
+    def __rrshift__(self, other):
+        return set_output_field(self.output_field)(other)
