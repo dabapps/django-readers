@@ -98,14 +98,15 @@ class SpecMixin:
         return self.spec
 
     def _preprocess_spec(self, spec):
-        spec = deepcopy(spec)
+        processed_spec = []
         for item in spec:
             if isinstance(item, dict):
+                processed_item = {}
                 for name, child_spec in item.items():
                     if getattr(child_spec, "call_with_request", False):
-                        item[name] = child_spec(self.request)
+                        processed_item[name] = child_spec(self.request)
                     elif isinstance(child_spec, list):
-                        item[name] = self._preprocess_spec(child_spec)
+                        processed_item[name] = self._preprocess_spec(child_spec)
                     elif isinstance(child_spec, dict):
                         if len(child_spec) != 1:
                             raise ValueError(
@@ -114,10 +115,18 @@ class SpecMixin:
                         relationship_name, relationship_spec = next(
                             iter(child_spec.items())
                         )
-                        item[name] = {
+                        processed_item[name] = {
                             relationship_name: self._preprocess_spec(relationship_spec),
                         }
-        return spec
+                    else:
+                        processed_item[name] = child_spec
+                processed_spec.append(processed_item)
+            elif callable(item) and getattr(item, "call_with_request", False):
+                processed_spec.append(item(self.request))
+            else:
+                processed_spec.append(item)
+
+        return processed_spec
 
     def get_reader_pair(self):
         return specs.process(self._preprocess_spec(self.get_spec()))

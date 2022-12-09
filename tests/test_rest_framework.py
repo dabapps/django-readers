@@ -288,7 +288,7 @@ class OutputFieldTestCase(TestCase):
 
 
 class NeedsRequestTestCase(TestCase):
-    def test_call_with_request(self):
+    def test_call_producer_pair_with_request(self):
         def user_name(request):
             return lambda qs: qs, lambda _: request.user.name
 
@@ -340,6 +340,61 @@ class NeedsRequestTestCase(TestCase):
                     "owned_by": {
                         "name": "test owner",
                         "user_name": "Test User",
+                    },
+                }
+            ],
+        )
+
+    def test_call_projector_pair_with_request(self):
+        def user_name_and_id(request):
+            return lambda qs: qs, lambda _: {
+                "user_name": request.user.name,
+                "user_id": request.user.id,
+            }
+
+        class WidgetListView(SpecMixin, ListAPIView):
+            queryset = Widget.objects.all()
+            spec = [
+                "name",
+                call_with_request(user_name_and_id),
+                {
+                    "owned_by": {
+                        "owner": [
+                            "name",
+                            call_with_request(user_name_and_id),
+                        ]
+                    }
+                },
+            ]
+
+        Widget.objects.create(
+            name="test widget",
+            owner=Owner.objects.create(name="test owner"),
+        )
+
+        class FakeUser:
+            def __init__(self, id, name):
+                self.name = name
+                self.id = id
+                self.is_active = True
+
+        request = APIRequestFactory().get("/")
+        request.user = FakeUser(id="12345", name="Test User")
+        view = WidgetListView.as_view()
+
+        response = view(request)
+
+        self.assertEqual(
+            response.data,
+            [
+                {
+                    "name": "test widget",
+                    "user_name": "Test User",
+                    "user_id": "12345",
+                    "owned_by": {
+                        "name": "test owner",
+                        "user_name": "Test User",
+                        "user_id": "12345",
                     },
                 }
             ],
