@@ -81,6 +81,13 @@ def spec_to_serializer_class(serializer_name, model, spec, is_root=True):
                 else:
                     # Fallback case: we don't know what field type to use
                     fields[name] = serializers.ReadOnlyField()
+        elif hasattr(item, "output_field"):
+            # This must be a projector pair, so `output_field` is actually a
+            # dictionary mapping field names to Fields
+            for name, field in item.output_field.items():
+                output_field = deepcopy(field)
+                output_field._kwargs["read_only"] = True
+                fields[name] = output_field
 
     if is_root:
         fields["to_representation"] = lambda self, instance: self.context["project"](
@@ -161,7 +168,12 @@ class PairWithOutputField(tuple):
 
 
 def output_field(output_field):
-    if not isinstance(output_field, serializers.Field):
+    if isinstance(output_field, dict):
+        if not all(
+            isinstance(item, serializers.Field) for item in output_field.values()
+        ):
+            raise TypeError("Each value must be an instance of Field")
+    elif not isinstance(output_field, serializers.Field):
         raise TypeError("output_field must be an instance of Field")
 
     def decorator(pair_or_callable):

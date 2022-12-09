@@ -286,6 +286,35 @@ class OutputFieldTestCase(TestCase):
             ],
         )
 
+    def test_output_field_with_producer_pair(self):
+        @output_field(
+            {
+                "upper_name": serializers.CharField(),
+                "name_length": serializers.IntegerField(),
+            }
+        )
+        def upper_name_and_name_length(instance):
+            return {
+                "upper_name": instance.name.upper(),
+                "name_length": len(instance.name),
+            }
+
+        spec = [
+            "name",
+            upper_name_and_name_length,
+        ]
+
+        cls = spec_to_serializer_class("CategorySerializer", Category, spec)
+
+        expected = dedent(
+            """\
+            CategorySerializer():
+                name = CharField(max_length=100, read_only=True)
+                upper_name = CharField(read_only=True)
+                name_length = IntegerField(read_only=True)"""
+        )
+        self.assertEqual(repr(cls()), expected)
+
 
 class NeedsRequestTestCase(TestCase):
     def test_call_producer_pair_with_request(self):
