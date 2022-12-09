@@ -148,7 +148,7 @@ class SpecMixin:
 
 
 class PairWithOutputField(tuple):
-    output_field = serializers.ReadOnlyField()
+    output_field = None
 
 
 def output_field(output_field):
