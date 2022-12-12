@@ -2,98 +2,128 @@ from copy import deepcopy
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import cached_property
 from django_readers import specs
+from django_readers.utils import SpecVisitor
 from rest_framework import serializers
 from rest_framework.utils import model_meta
 
 
-def spec_to_serializer_class(serializer_name, model, spec, is_root=True):
-    field_builder = serializers.ModelSerializer()
-    info = model_meta.get_field_info(model)
+class _SpecToSerializerVisitor(SpecVisitor):
+    def __init__(self, model):
+        self.model = model
+        self.field_builder = serializers.ModelSerializer()
+        self.info = model_meta.get_field_info(model)
+        self.fields = {}
 
-    def snake_case_to_capfirst(snake_case):
+    def _snake_case_to_capfirst(self, snake_case):
         return "".join(part.title() for part in snake_case.split("_"))
 
-    fields = {}
-    for item in spec:
-        if isinstance(item, str):
-            item = {item: item}
-        if isinstance(item, dict):
-            for name, child_spec in item.items():
-                if isinstance(child_spec, str):
-                    # This is a model field, so we can use ModelSerializer
-                    # machinery to figure out which output field type to use
-                    field_class, field_kwargs = field_builder.build_field(
-                        child_spec,
-                        info,
-                        model,
-                        0,
-                    )
-                    if name != child_spec:
-                        field_kwargs["source"] = child_spec
-                    field_kwargs.setdefault("read_only", True)
-                    fields[name] = field_class(**field_kwargs)
-                elif isinstance(child_spec, list):
-                    # This is a relationship, so we recurse and create
-                    # a nested serializer to represent it
-                    rel_info = info.relations[name]
-                    capfirst = snake_case_to_capfirst(name)
-                    child_serializer = spec_to_serializer_class(
-                        f"{capfirst}Serializer",
-                        rel_info.related_model,
-                        child_spec,
-                        is_root=False,
-                    )
-                    fields[name] = child_serializer(
-                        read_only=True,
-                        many=rel_info.to_many,
-                    )
-                elif isinstance(child_spec, dict):
-                    # This is an aliased relationship, so we basically
-                    # do the same as the previous case, but handled
-                    # slightly differently to set the `source` correctly
-                    if len(child_spec) != 1:
-                        raise ValueError(
-                            "Aliased relationship spec must contain only one key"
-                        )
-                    relationship_name, relationship_spec = next(
-                        iter(child_spec.items())
-                    )
-                    rel_info = info.relations[relationship_name]
-                    capfirst = snake_case_to_capfirst(relationship_name)
-                    child_serializer = spec_to_serializer_class(
-                        f"{capfirst}Serializer",
-                        rel_info.related_model,
-                        relationship_spec,
-                        is_root=False,
-                    )
-                    fields[name] = child_serializer(
-                        read_only=True,
-                        many=rel_info.to_many,
-                        source=relationship_name,
-                    )
-                elif hasattr(child_spec, "output_field"):
-                    # The output field has been explicity configured in the spec.
-                    # We copy the field so its _creation_counter is correct and
-                    # it appears in the right order in the resulting serializer
-                    output_field = deepcopy(child_spec.output_field)
-                    output_field._kwargs["read_only"] = True
-                    fields[name] = output_field
-                else:
-                    # Fallback case: we don't know what field type to use
-                    fields[name] = serializers.ReadOnlyField()
-        elif hasattr(item, "output_field"):
+    def visit_str(self, item):
+        return self.visit_dict_item_str(item, item)
+
+    def visit_dict_item_str(self, key, value):
+        # This is a model field, so we can use ModelSerializer
+        # machinery to figure out which output field type to use
+        field_class, field_kwargs = self.field_builder.build_field(
+            value,
+            self.info,
+            self.model,
+            0,
+        )
+        if key != value:
+            field_kwargs["source"] = value
+        field_kwargs.setdefault("read_only", True)
+        self.fields[key] = field_class(**field_kwargs)
+        return key, value
+
+    def visit_dict_item_list(self, key, value):
+        # This is a relationship, so we recurse and create
+        # a nested serializer to represent it
+        rel_info = self.info.relations[key]
+        capfirst = self._snake_case_to_capfirst(key)
+        child_serializer = spec_to_serializer_class(
+            f"{capfirst}Serializer",
+            rel_info.related_model,
+            value,
+            is_root=False,
+        )
+        self.fields[key] = child_serializer(
+            read_only=True,
+            many=rel_info.to_many,
+        )
+        return key, value
+
+    def visit_dict_item_dict(self, key, value):
+        # This is an aliased relationship, so we basically
+        # do the same as the previous case, but handled
+        # slightly differently to set the `source` correctly
+        relationship_name, relationship_spec = next(iter(value.items()))
+        rel_info = self.info.relations[relationship_name]
+        capfirst = self._snake_case_to_capfirst(relationship_name)
+        child_serializer = spec_to_serializer_class(
+            f"{capfirst}Serializer",
+            rel_info.related_model,
+            relationship_spec,
+            is_root=False,
+        )
+        self.fields[key] = child_serializer(
+            read_only=True,
+            many=rel_info.to_many,
+            source=relationship_name,
+        )
+        return key, value
+
+    def visit_dict_item_tuple(self, key, value):
+        # The output field has been explicity configured in the spec.
+        # We copy the field so its _creation_counter is correct and
+        # it appears in the right order in the resulting serializer
+        if hasattr(value, "output_field"):
+            output_field = deepcopy(value.output_field)
+            output_field._kwargs["read_only"] = True
+            self.fields[key] = output_field
+        else:
+            # Fallback case: we don't know what field type to use
+            self.fields[key] = serializers.ReadOnlyField()
+        return key, value
+
+    visit_dict_item_callable = visit_dict_item_tuple
+
+    def visit_tuple(self, item):
+        if hasattr(item, "output_field"):
             # This must be a projector pair, so `output_field` is actually a
             # dictionary mapping field names to Fields
             for name, field in item.output_field.items():
                 output_field = deepcopy(field)
                 output_field._kwargs["read_only"] = True
-                fields[name] = output_field
+                self.fields[name] = output_field
+        return item
 
+    visit_callable = visit_tuple
+
+
+class _ToRepresentationMixin:
+    def to_representation(self, instance):
+        return self.context["project"](instance)
+
+
+def spec_to_serializer_class(serializer_name, model, spec, is_root=True):
+    visitor = _SpecToSerializerVisitor(model)
+    visitor.visit(spec)
+
+    bases = (serializers.Serializer,)
     if is_root:
-        fields["to_representation"] = lambda self, instance: self.context["project"](
-            instance
-        )
-    return type(serializer_name, (serializers.Serializer,), fields)
+        bases = (_ToRepresentationMixin,) + bases
+
+    return type(serializer_name, bases, visitor.fields)
+
+
+class _CallWithRequestVisitor(SpecVisitor):
+    def __init__(self, request):
+        self.request = request
+
+    def visit_callable(self, fn):
+        if getattr(fn, "call_with_request", False):
+            return fn(self.request)
+        return fn
 
 
 class SpecMixin:
@@ -105,35 +135,8 @@ class SpecMixin:
         return self.spec
 
     def _preprocess_spec(self, spec):
-        processed_spec = []
-        for item in spec:
-            if isinstance(item, dict):
-                processed_item = {}
-                for name, child_spec in item.items():
-                    if getattr(child_spec, "call_with_request", False):
-                        processed_item[name] = child_spec(self.request)
-                    elif isinstance(child_spec, list):
-                        processed_item[name] = self._preprocess_spec(child_spec)
-                    elif isinstance(child_spec, dict):
-                        if len(child_spec) != 1:
-                            raise ValueError(
-                                "Aliased relationship spec must contain only one key"
-                            )
-                        relationship_name, relationship_spec = next(
-                            iter(child_spec.items())
-                        )
-                        processed_item[name] = {
-                            relationship_name: self._preprocess_spec(relationship_spec),
-                        }
-                    else:
-                        processed_item[name] = child_spec
-                processed_spec.append(processed_item)
-            elif callable(item) and getattr(item, "call_with_request", False):
-                processed_spec.append(item(self.request))
-            else:
-                processed_spec.append(item)
-
-        return processed_spec
+        visitor = _CallWithRequestVisitor(self.request)
+        return visitor.visit(spec)
 
     def get_reader_pair(self):
         return specs.process(self._preprocess_spec(self.get_spec()))
