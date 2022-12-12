@@ -121,9 +121,7 @@ class _CallWithRequestVisitor(SpecVisitor):
         self.request = request
 
     def visit_callable(self, fn):
-        if getattr(fn, "call_with_request", False):
-            return fn(self.request)
-        return fn
+        return fn(self.request)
 
 
 class SpecMixin:
@@ -194,8 +192,3 @@ class out:
 
     def __rrshift__(self, other):
         return output_field(self.output_field)(other)
-
-
-def call_with_request(fn):
-    fn.call_with_request = True
-    return fn

@@ -1,7 +1,6 @@
 from django.test import TestCase
 from django_readers import pairs
 from django_readers.rest_framework import (
-    call_with_request,
     out,
     output_field,
     spec_to_serializer_class,
@@ -316,7 +315,7 @@ class OutputFieldTestCase(TestCase):
         self.assertEqual(repr(cls()), expected)
 
 
-class NeedsRequestTestCase(TestCase):
+class CallableTestCase(TestCase):
     def test_call_producer_pair_with_request(self):
         def user_name(request):
             return lambda qs: qs, lambda _: request.user.name
@@ -326,9 +325,7 @@ class NeedsRequestTestCase(TestCase):
             spec = [
                 "name",
                 {
-                    "user_name": output_field(serializers.CharField())(
-                        call_with_request(user_name)
-                    ),
+                    "user_name": output_field(serializers.CharField())(user_name),
                 },
                 {
                     "owned_by": {
@@ -336,7 +333,7 @@ class NeedsRequestTestCase(TestCase):
                             "name",
                             {
                                 "user_name": output_field(serializers.CharField())(
-                                    call_with_request(user_name)
+                                    user_name
                                 )
                             },
                         ]
@@ -385,12 +382,12 @@ class NeedsRequestTestCase(TestCase):
             queryset = Widget.objects.all()
             spec = [
                 "name",
-                call_with_request(user_name_and_id),
+                user_name_and_id,
                 {
                     "owned_by": {
                         "owner": [
                             "name",
-                            call_with_request(user_name_and_id),
+                            user_name_and_id,
                         ]
                     }
                 },
