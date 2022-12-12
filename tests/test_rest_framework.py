@@ -1,11 +1,6 @@
 from django.test import TestCase
 from django_readers import pairs
-from django_readers.rest_framework import (
-    out,
-    output_field,
-    spec_to_serializer_class,
-    SpecMixin,
-)
+from django_readers.rest_framework import out, spec_to_serializer_class, SpecMixin
 from rest_framework import serializers
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.test import APIRequestFactory
@@ -208,7 +203,7 @@ class OutputFieldTestCase(TestCase):
     def test_output_field(self):
         spec = [
             "name",
-            {"upper_name": output_field(serializers.CharField())(upper_name)},
+            {"upper_name": out(serializers.CharField())(upper_name)},
         ]
 
         cls = spec_to_serializer_class("CategorySerializer", Category, spec)
@@ -221,7 +216,7 @@ class OutputFieldTestCase(TestCase):
         )
         self.assertEqual(repr(cls()), expected)
 
-    def test_out_shortcut(self):
+    def test_out_rrshift(self):
         spec = [
             "name",
             {"upper_name": upper_name >> out(serializers.CharField())},
@@ -237,25 +232,21 @@ class OutputFieldTestCase(TestCase):
         )
         self.assertEqual(repr(cls()), expected)
 
-    def test_output_field_raises_with_field_class(self):
+    def test_out_raises_with_field_class(self):
         with self.assertRaises(TypeError):
-            output_field(serializers.CharField)(upper_name)
+            out(serializers.CharField)
 
     def test_output_field_is_ignored_when_calling_view(self):
         class WidgetListView(SpecMixin, ListAPIView):
             queryset = Widget.objects.all()
             spec = [
                 "name",
-                {"upper_name": output_field(serializers.CharField())(upper_name)},
+                {"upper_name": out(serializers.CharField())(upper_name)},
                 {
                     "owned_by": {
                         "owner": [
                             "name",
-                            {
-                                "upper_name": output_field(serializers.CharField())(
-                                    upper_name
-                                )
-                            },
+                            {"upper_name": out(serializers.CharField())(upper_name)},
                         ]
                     }
                 },
@@ -285,8 +276,8 @@ class OutputFieldTestCase(TestCase):
             ],
         )
 
-    def test_output_field_with_producer_pair(self):
-        @output_field(
+    def test_out_with_producer_pair(self):
+        @out(
             {
                 "upper_name": serializers.CharField(),
                 "name_length": serializers.IntegerField(),
@@ -325,17 +316,13 @@ class CallableTestCase(TestCase):
             spec = [
                 "name",
                 {
-                    "user_name": output_field(serializers.CharField())(user_name),
+                    "user_name": out(serializers.CharField())(user_name),
                 },
                 {
                     "owned_by": {
                         "owner": [
                             "name",
-                            {
-                                "user_name": output_field(serializers.CharField())(
-                                    user_name
-                                )
-                            },
+                            {"user_name": out(serializers.CharField())(user_name)},
                         ]
                     }
                 },

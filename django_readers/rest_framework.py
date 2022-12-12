@@ -76,10 +76,10 @@ class _SpecToSerializerVisitor(SpecVisitor):
         # The output field has been explicity configured in the spec.
         # We copy the field so its _creation_counter is correct and
         # it appears in the right order in the resulting serializer
-        if hasattr(value, "output_field"):
-            output_field = deepcopy(value.output_field)
-            output_field._kwargs["read_only"] = True
-            self.fields[key] = output_field
+        if hasattr(value, "out"):
+            field = deepcopy(value.out)
+            field._kwargs["read_only"] = True
+            self.fields[key] = field
         else:
             # Fallback case: we don't know what field type to use
             self.fields[key] = serializers.ReadOnlyField()
@@ -88,13 +88,13 @@ class _SpecToSerializerVisitor(SpecVisitor):
     visit_dict_item_callable = visit_dict_item_tuple
 
     def visit_tuple(self, item):
-        if hasattr(item, "output_field"):
-            # This must be a projector pair, so `output_field` is actually a
+        if hasattr(item, "out"):
+            # This must be a projector pair, so `out` is actually a
             # dictionary mapping field names to Fields
-            for name, field in item.output_field.items():
-                output_field = deepcopy(field)
-                output_field._kwargs["read_only"] = True
-                self.fields[name] = output_field
+            for name, field in item.out.items():
+                field = deepcopy(field)
+                field._kwargs["read_only"] = True
+                self.fields[name] = field
         return item
 
     visit_callable = visit_tuple
@@ -164,31 +164,27 @@ class SpecMixin:
         return {"project": self.project, **super().get_serializer_context()}
 
 
-class PairWithOutputField(tuple):
-    output_field = None
+class PairWithOutAttribute(tuple):
+    out = None
 
 
-def output_field(output_field):
-    if isinstance(output_field, dict):
+def out(field_or_dict):
+    if isinstance(field_or_dict, dict):
         if not all(
-            isinstance(item, serializers.Field) for item in output_field.values()
+            isinstance(item, serializers.Field) for item in field_or_dict.values()
         ):
             raise TypeError("Each value must be an instance of Field")
-    elif not isinstance(output_field, serializers.Field):
-        raise TypeError("output_field must be an instance of Field")
+    elif not isinstance(field_or_dict, serializers.Field):
+        raise TypeError("Must be an instance of Field")
 
-    def decorator(pair_or_callable):
-        if isinstance(pair_or_callable, tuple):
-            pair_or_callable = PairWithOutputField(pair_or_callable)
-        pair_or_callable.output_field = output_field
-        return pair_or_callable
+    class ShiftableDecorator:
+        def __call__(self, pair_or_callable):
+            if isinstance(pair_or_callable, tuple):
+                pair_or_callable = PairWithOutAttribute(pair_or_callable)
+            pair_or_callable.out = field_or_dict
+            return pair_or_callable
 
-    return decorator
+        def __rrshift__(self, other):
+            return self(other)
 
-
-class out:
-    def __init__(self, output_field):
-        self.output_field = output_field
-
-    def __rrshift__(self, other):
-        return output_field(self.output_field)(other)
+    return ShiftableDecorator()
