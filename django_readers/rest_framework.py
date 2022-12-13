@@ -124,7 +124,8 @@ def spec_to_serializer_class(serializer_name, model, spec, is_root=True):
     if is_root:
         bases = (_ToRepresentationMixin,) + bases
 
-    return type(serializer_name, bases, visitor.fields)
+    meta = type("Meta", (), {"model": model})
+    return type(serializer_name, bases, {"Meta": meta, **visitor.fields})
 
 
 class _CallWithRequestVisitor(SpecVisitor):
@@ -168,7 +169,10 @@ class SpecMixin:
 
     def get_serializer_class(self):
         name = self.__class__.__name__.replace("View", "") + "Serializer"
-        model = getattr(getattr(self, "queryset", None), "model", None)
+        if hasattr(self, "model"):
+            model = self.model
+        else:
+            model = getattr(getattr(self, "queryset", None), "model", None)
         return spec_to_serializer_class(name, model, self.spec)
 
     def get_serializer_context(self):
