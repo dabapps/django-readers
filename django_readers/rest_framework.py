@@ -17,6 +17,14 @@ class _SpecToSerializerVisitor(SpecVisitor):
     def _snake_case_to_capfirst(self, snake_case):
         return "".join(part.title() for part in snake_case.split("_"))
 
+    def _prepare_field(self, field):
+        # We copy the field so its _creation_counter is correct and
+        # it appears in the right order in the resulting serializer.
+        # We also force it to be read_only
+        field = deepcopy(field)
+        field._kwargs["read_only"] = True
+        return field
+
     def visit_str(self, item):
         return self.visit_dict_item_str(item, item)
 
@@ -24,10 +32,9 @@ class _SpecToSerializerVisitor(SpecVisitor):
         # This is a model field name. First, check if the
         # field has been explicitly overridden
         if hasattr(value, "out"):
-            field = deepcopy(value.out)
-            field._kwargs["read_only"] = True
+            field = self._prepare_field(value.out)
             self.fields[key] = field
-            return key, value
+            return key, field
 
         # No explicit override, so we can use ModelSerializer
         # machinery to figure out which field type to use
@@ -82,11 +89,8 @@ class _SpecToSerializerVisitor(SpecVisitor):
 
     def visit_dict_item_tuple(self, key, value):
         # The output field has been explicity configured in the spec.
-        # We copy the field so its _creation_counter is correct and
-        # it appears in the right order in the resulting serializer
         if hasattr(value, "out"):
-            field = deepcopy(value.out)
-            field._kwargs["read_only"] = True
+            field = self._prepare_field(value.out)
             self.fields[key] = field
         else:
             # Fallback case: we don't know what field type to use
@@ -100,8 +104,7 @@ class _SpecToSerializerVisitor(SpecVisitor):
             # This must be a projector pair, so `out` is actually a
             # dictionary mapping field names to Fields
             for name, field in item.out.items():
-                field = deepcopy(field)
-                field._kwargs["read_only"] = True
+                field = self._prepare_field(field)
                 self.fields[name] = field
         return item
 
