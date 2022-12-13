@@ -33,7 +33,7 @@ class _SpecToSerializerVisitor(SpecVisitor):
         # field has been explicitly overridden
         if hasattr(value, "out"):
             field = self._prepare_field(value.out)
-            self.fields[key] = field
+            self.fields[str(key)] = field
             return key, field
 
         # No explicit override, so we can use ModelSerializer
