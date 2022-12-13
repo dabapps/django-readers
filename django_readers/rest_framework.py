@@ -21,8 +21,16 @@ class _SpecToSerializerVisitor(SpecVisitor):
         return self.visit_dict_item_str(item, item)
 
     def visit_dict_item_str(self, key, value):
-        # This is a model field, so we can use ModelSerializer
-        # machinery to figure out which output field type to use
+        # This is a model field name. First, check if the
+        # field has been explicitly overridden
+        if hasattr(value, "out"):
+            field = deepcopy(value.out)
+            field._kwargs["read_only"] = True
+            self.fields[key] = field
+            return key, value
+
+        # No explicit override, so we can use ModelSerializer
+        # machinery to figure out which field type to use
         field_class, field_kwargs = self.field_builder.build_field(
             value,
             self.info,
@@ -168,6 +176,10 @@ class PairWithOutAttribute(tuple):
     out = None
 
 
+class StringWithOutAttribute(str):
+    out = None
+
+
 def out(field_or_dict):
     if isinstance(field_or_dict, dict):
         if not all(
@@ -178,11 +190,13 @@ def out(field_or_dict):
         raise TypeError("Must be an instance of Field")
 
     class ShiftableDecorator:
-        def __call__(self, pair_or_callable):
-            if isinstance(pair_or_callable, tuple):
-                pair_or_callable = PairWithOutAttribute(pair_or_callable)
-            pair_or_callable.out = field_or_dict
-            return pair_or_callable
+        def __call__(self, item):
+            if isinstance(item, str):
+                item = StringWithOutAttribute(item)
+            if isinstance(item, tuple):
+                item = PairWithOutAttribute(item)
+            item.out = field_or_dict
+            return item
 
         def __rrshift__(self, other):
             return self(other)

@@ -232,6 +232,20 @@ class OutputFieldTestCase(TestCase):
         )
         self.assertEqual(repr(cls()), expected)
 
+    def test_field_name_override(self):
+        spec = [
+            "name" >> out(serializers.IntegerField()),
+        ]
+
+        cls = spec_to_serializer_class("CategorySerializer", Category, spec)
+
+        expected = dedent(
+            """\
+            CategorySerializer():
+                name = IntegerField(read_only=True)"""
+        )
+        self.assertEqual(repr(cls()), expected)
+
     def test_out_raises_with_field_class(self):
         with self.assertRaises(TypeError):
             out(serializers.CharField)
