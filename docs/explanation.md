@@ -223,7 +223,7 @@ Note that `django-readers` _always_ uses `prefetch_related` to load relationship
 
 Manually assembling trees of pairs as seen above may seem long-winded. [The `specs` module](reference/specs.md) provides a layer of syntactic sugar that makes it much easier. This layer is the real magic of `django-readers`: a straightforward way of specifying the shape of your data in order to efficiently select and project a complex tree of related objects.
 
-The resulting nested dictionary structure may be returned from as view as a JSON response (assuming all your producers return JSON-serializable values), or included in a template context in place of a queryset or model instance.
+The resulting nested dictionary structure may be returned from a view as a JSON response (assuming all your producers return JSON-serializable values), or included in a template context in place of a queryset or model instance.
 
 A spec is a list. Under the hood, the `specs` module is a very lightweight wrapper on top of `pairs`. Each item in the list undergoes a simple transformation to replace it with a pair function. See [the reference documentation for specs](reference/specs.md) for details.
 
