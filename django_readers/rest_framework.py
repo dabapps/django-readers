@@ -8,8 +8,9 @@ from rest_framework.utils import model_meta
 
 
 class _SpecToSerializerVisitor(SpecVisitor):
-    def __init__(self, model):
+    def __init__(self, model, name):
         self.model = model
+        self.name = name
         self.field_builder = serializers.ModelSerializer()
         self.info = model_meta.get_field_info(model)
         self.fields = {}
@@ -56,7 +57,7 @@ class _SpecToSerializerVisitor(SpecVisitor):
         rel_info = self.info.relations[key]
         capfirst = self._snake_case_to_capfirst(key)
         child_serializer = spec_to_serializer_class(
-            f"{capfirst}Serializer",
+            f"{self.name}{capfirst}",
             rel_info.related_model,
             value,
             is_root=False,
@@ -75,7 +76,7 @@ class _SpecToSerializerVisitor(SpecVisitor):
         rel_info = self.info.relations[relationship_name]
         capfirst = self._snake_case_to_capfirst(relationship_name)
         child_serializer = spec_to_serializer_class(
-            f"{capfirst}Serializer",
+            f"{self.name}{capfirst}",
             rel_info.related_model,
             relationship_spec,
             is_root=False,
@@ -116,8 +117,8 @@ class _ToRepresentationMixin:
         return self.context["project"](instance)
 
 
-def spec_to_serializer_class(serializer_name, model, spec, is_root=True):
-    visitor = _SpecToSerializerVisitor(model)
+def spec_to_serializer_class(name_prefix, model, spec, is_root=True):
+    visitor = _SpecToSerializerVisitor(model, name_prefix)
     visitor.visit(spec)
 
     bases = (serializers.Serializer,)
@@ -125,7 +126,7 @@ def spec_to_serializer_class(serializer_name, model, spec, is_root=True):
         bases = (_ToRepresentationMixin,) + bases
 
     meta = type("Meta", (), {"model": model})
-    return type(serializer_name, bases, {"Meta": meta, **visitor.fields})
+    return type(name_prefix + "Serializer", bases, {"Meta": meta, **visitor.fields})
 
 
 class _CallWithRequestVisitor(SpecVisitor):
@@ -168,7 +169,7 @@ class SpecMixin:
         return self.prepare(queryset)
 
     def get_serializer_class(self):
-        name = self.__class__.__name__.replace("View", "") + "Serializer"
+        name = self.__class__.__name__.replace("View", "")  # + "Serializer"
         if hasattr(self, "model"):
             model = self.model
         else:

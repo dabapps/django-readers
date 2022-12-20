@@ -109,7 +109,7 @@ class SpecToSerializerClassTestCase(TestCase):
     def test_basic_spec(self):
         spec = ["name"]
 
-        cls = spec_to_serializer_class("CategorySerializer", Category, spec)
+        cls = spec_to_serializer_class("Category", Category, spec)
 
         expected = dedent(
             """\
@@ -133,15 +133,15 @@ class SpecToSerializerClassTestCase(TestCase):
             },
         ]
 
-        cls = spec_to_serializer_class("CategorySerializer", Category, spec)
+        cls = spec_to_serializer_class("Category", Category, spec)
 
         expected = dedent(
             """\
             CategorySerializer():
                 name = CharField(max_length=100, read_only=True)
-                widget_set = WidgetSetSerializer(many=True, read_only=True):
+                widget_set = CategoryWidgetSetSerializer(many=True, read_only=True):
                     name = CharField(allow_null=True, max_length=100, read_only=True, required=False)
-                    owner = OwnerSerializer(read_only=True):
+                    owner = CategoryWidgetSetOwnerSerializer(read_only=True):
                         name = CharField(max_length=100, read_only=True)"""
         )
         self.assertEqual(repr(cls()), expected)
@@ -178,24 +178,53 @@ class SpecToSerializerClassTestCase(TestCase):
             },
         ]
 
-        cls = spec_to_serializer_class("OwnerSerializer", Owner, spec)
+        cls = spec_to_serializer_class("Owner", Owner, spec)
 
         expected = dedent(
             """\
             OwnerSerializer():
                 name = CharField(max_length=100, read_only=True)
-                group = GroupSerializer(read_only=True):
+                group = OwnerGroupSerializer(read_only=True):
                     name = CharField(max_length=100, read_only=True)
-                widget_set = WidgetSetSerializer(many=True, read_only=True):
+                widget_set = OwnerWidgetSetSerializer(many=True, read_only=True):
                     name = CharField(allow_null=True, max_length=100, read_only=True, required=False)
-                    category_set = CategorySetSerializer(many=True, read_only=True):
+                    category_set = OwnerWidgetSetCategorySetSerializer(many=True, read_only=True):
                         name = CharField(max_length=100, read_only=True)
-                    thing = ThingSerializer(read_only=True):
+                    thing = OwnerWidgetSetThingSerializer(read_only=True):
                         name = CharField(max_length=100, read_only=True)
-                        related_widget = WidgetSerializer(read_only=True, source='widget'):
+                        related_widget = OwnerWidgetSetThingWidgetSerializer(read_only=True, source='widget'):
                             name = CharField(allow_null=True, max_length=100, read_only=True, required=False)"""
         )
+        self.assertEqual(repr(cls()), expected)
 
+    def test_view_get_serializer_class(self):
+        class CategoryListView(SpecMixin, ListAPIView):
+            queryset = Category.objects.all()
+            spec = [
+                "name",
+                {
+                    "widget_set": [
+                        "name",
+                        {
+                            "owner": [
+                                "name",
+                            ]
+                        },
+                    ]
+                },
+            ]
+
+        cls = CategoryListView().get_serializer_class()
+
+        expected = dedent(
+            """\
+            CategoryListSerializer():
+                name = CharField(max_length=100, read_only=True)
+                widget_set = CategoryListWidgetSetSerializer(many=True, read_only=True):
+                    name = CharField(allow_null=True, max_length=100, read_only=True, required=False)
+                    owner = CategoryListWidgetSetOwnerSerializer(read_only=True):
+                        name = CharField(max_length=100, read_only=True)"""
+        )
         self.assertEqual(repr(cls()), expected)
 
 
@@ -206,7 +235,7 @@ class OutputFieldTestCase(TestCase):
             {"upper_name": out(serializers.CharField())(upper_name)},
         ]
 
-        cls = spec_to_serializer_class("CategorySerializer", Category, spec)
+        cls = spec_to_serializer_class("Category", Category, spec)
 
         expected = dedent(
             """\
@@ -222,7 +251,7 @@ class OutputFieldTestCase(TestCase):
             {"upper_name": upper_name >> out(serializers.CharField())},
         ]
 
-        cls = spec_to_serializer_class("CategorySerializer", Category, spec)
+        cls = spec_to_serializer_class("Category", Category, spec)
 
         expected = dedent(
             """\
@@ -237,7 +266,7 @@ class OutputFieldTestCase(TestCase):
             "name" >> out(serializers.IntegerField()),
         ]
 
-        cls = spec_to_serializer_class("CategorySerializer", Category, spec)
+        cls = spec_to_serializer_class("Category", Category, spec)
 
         expected = dedent(
             """\
@@ -308,7 +337,7 @@ class OutputFieldTestCase(TestCase):
             upper_name_and_name_length,
         ]
 
-        cls = spec_to_serializer_class("CategorySerializer", Category, spec)
+        cls = spec_to_serializer_class("Category", Category, spec)
 
         expected = dedent(
             """\
