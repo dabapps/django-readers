@@ -130,7 +130,7 @@ class _SpecToSerializerVisitor(SpecVisitor):
         # slightly differently to set the `source` correctly
         relationship_name, relationship_spec = next(iter(value.items()))
         rel_info = self.info.relations[relationship_name]
-        capfirst = self._snake_case_to_capfirst(relationship_name)
+        capfirst = self._snake_case_to_capfirst(key)
         child_serializer = spec_to_serializer_class(
             f"{self.name}{capfirst}",
             rel_info.related_model,

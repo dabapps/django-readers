@@ -197,8 +197,26 @@ class SpecToSerializerClassTestCase(TestCase):
                         name = CharField(max_length=100, read_only=True)
                     thing = OwnerWidgetSetThingSerializer(read_only=True):
                         name = CharField(max_length=100, read_only=True)
-                        related_widget = OwnerWidgetSetThingWidgetSerializer(read_only=True, source='widget'):
+                        related_widget = OwnerWidgetSetThingRelatedWidgetSerializer(read_only=True, source='widget'):
                             name = CharField(allow_null=True, max_length=100, read_only=True, required=False)"""
+        )
+        self.assertEqual(repr(cls()), expected)
+
+    def test_duplicate_relationship_naming(self):
+        spec = [
+            {"widget_set": ["name"]},
+            {"set_of_widgets": {"widget_set": ["name"]}},
+        ]
+
+        cls = spec_to_serializer_class("Category", Category, spec)
+
+        expected = dedent(
+            """\
+            CategorySerializer():
+                widget_set = CategoryWidgetSetSerializer(many=True, read_only=True):
+                    name = CharField(allow_null=True, max_length=100, read_only=True, required=False)
+                set_of_widgets = CategorySetOfWidgetsSerializer(many=True, read_only=True, source='widget_set'):
+                    name = CharField(allow_null=True, max_length=100, read_only=True, required=False)"""
         )
         self.assertEqual(repr(cls()), expected)
 
