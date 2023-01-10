@@ -1,6 +1,11 @@
 from django.test import TestCase
 from django_readers import pairs
-from django_readers.rest_framework import out, spec_to_serializer_class, SpecMixin
+from django_readers.rest_framework import (
+    out,
+    serializer_class_for_view,
+    spec_to_serializer_class,
+    SpecMixin,
+)
 from rest_framework import serializers
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.test import APIRequestFactory
@@ -197,7 +202,7 @@ class SpecToSerializerClassTestCase(TestCase):
         )
         self.assertEqual(repr(cls()), expected)
 
-    def test_view_get_serializer_class(self):
+    def test_serializer_class_for_view(self):
         class CategoryListView(SpecMixin, ListAPIView):
             queryset = Category.objects.all()
             spec = [
@@ -214,7 +219,7 @@ class SpecToSerializerClassTestCase(TestCase):
                 },
             ]
 
-        cls = CategoryListView().get_serializer_class()
+        cls = serializer_class_for_view(CategoryListView())
 
         expected = dedent(
             """\
