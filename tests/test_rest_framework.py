@@ -1,5 +1,5 @@
 from django.test import TestCase
-from django_readers import pairs
+from django_readers import pairs, qs
 from django_readers.rest_framework import (
     out,
     serializer_class_for_view,
@@ -268,6 +268,26 @@ class OutputFieldTestCase(TestCase):
         )
         self.assertEqual(repr(cls()), expected)
 
+    def test_output_field_decorator(self):
+        @out(serializers.CharField())
+        def hello():
+            return lambda qs: qs, lambda _: "Hello"
+
+        spec = [
+            "name",
+            {"hello": hello()},
+        ]
+
+        cls = spec_to_serializer_class("Category", Category, spec)
+
+        expected = dedent(
+            """\
+            CategorySerializer():
+                name = CharField(max_length=100, read_only=True)
+                hello = CharField(read_only=True)"""
+        )
+        self.assertEqual(repr(cls()), expected)
+
     def test_out_rrshift(self):
         spec = [
             "name",
@@ -342,22 +362,25 @@ class OutputFieldTestCase(TestCase):
             ],
         )
 
-    def test_out_with_producer_pair(self):
+    def test_out_with_projector_pair(self):
         @out(
             {
                 "upper_name": serializers.CharField(),
                 "name_length": serializers.IntegerField(),
             }
         )
-        def upper_name_and_name_length(instance):
-            return {
-                "upper_name": instance.name.upper(),
-                "name_length": len(instance.name),
-            }
+        def upper_name_and_name_length():
+            def project(instance):
+                return {
+                    "upper_name": instance.name.upper(),
+                    "name_length": len(instance.name),
+                }
+
+            return qs.include_fields("name"), project
 
         spec = [
             "name",
-            upper_name_and_name_length,
+            upper_name_and_name_length(),
         ]
 
         cls = spec_to_serializer_class("Category", Category, spec)

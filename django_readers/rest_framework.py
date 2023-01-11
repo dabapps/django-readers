@@ -3,6 +3,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import cached_property
 from django_readers import specs
 from django_readers.utils import SpecVisitor
+from functools import wraps
 from rest_framework import serializers
 from rest_framework.utils import model_meta
 
@@ -209,12 +210,21 @@ def out(field_or_dict):
 
     class ShiftableDecorator:
         def __call__(self, item):
-            if isinstance(item, str):
-                item = StringWithOutAttribute(item)
-            if isinstance(item, tuple):
-                item = PairWithOutAttribute(item)
-            item.out = field_or_dict
-            return item
+            if callable(item):
+
+                @wraps(item)
+                def wrapper(*args, **kwargs):
+                    result = item(*args, **kwargs)
+                    return self(result)
+
+                return wrapper
+            else:
+                if isinstance(item, str):
+                    item = StringWithOutAttribute(item)
+                if isinstance(item, tuple):
+                    item = PairWithOutAttribute(item)
+                item.out = field_or_dict
+                return item
 
         def __rrshift__(self, other):
             return self(other)
