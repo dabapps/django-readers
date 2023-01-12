@@ -145,9 +145,11 @@ class _SpecToSerializerVisitor(SpecVisitor):
         return key, value
 
     def visit_dict_item_tuple(self, key, value):
-        # The output field has been explicity configured in the spec.
-        if hasattr(value, "out"):
-            field = self._prepare_field(value.out)
+        # This is a producer pair.
+        # Either the pair itself or just the producer may have been decorated
+        out = getattr(value, "out", getattr(value[1], "out", None))
+        if out:
+            field = self._prepare_field(out)
             self.fields[key] = field
         else:
             # Fallback case: we don't know what field type to use
@@ -157,12 +159,16 @@ class _SpecToSerializerVisitor(SpecVisitor):
     visit_dict_item_callable = visit_dict_item_tuple
 
     def visit_tuple(self, item):
-        if hasattr(item, "out"):
-            # This must be a projector pair, so `out` is actually a
-            # dictionary mapping field names to Fields
-            for name, field in item.out.items():
+        # This is a projector pair.
+        # Either the pair itself or just the projector may have been decorated
+        out = getattr(item, "out", getattr(item[1], "out", None))
+        if out:
+            # `out` is a dictionary mapping field names to Fields
+            for name, field in out.items():
                 field = self._prepare_field(field)
                 self.fields[name] = field
+        # There is no fallback case because we have no way of knowing the shape
+        # of the returned dictionary, so the schema will be unavoidably incorrect.
         return item
 
     visit_callable = visit_tuple
@@ -217,6 +223,7 @@ def out(field_or_dict):
                     result = item(*args, **kwargs)
                     return self(result)
 
+                wrapper.out = field_or_dict
                 return wrapper
             else:
                 if isinstance(item, str):

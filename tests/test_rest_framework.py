@@ -288,6 +288,28 @@ class OutputFieldTestCase(TestCase):
         )
         self.assertEqual(repr(cls()), expected)
 
+    def test_output_field_decorator_producer(self):
+        @out(serializers.CharField())
+        def produce_hello(_):
+            return "Hello"
+
+        hello = qs.noop, produce_hello
+
+        spec = [
+            "name",
+            {"hello": hello},
+        ]
+
+        cls = spec_to_serializer_class("Category", Category, spec)
+
+        expected = dedent(
+            """\
+            CategorySerializer():
+                name = CharField(max_length=100, read_only=True)
+                hello = CharField(read_only=True)"""
+        )
+        self.assertEqual(repr(cls()), expected)
+
     def test_out_rrshift(self):
         spec = [
             "name",
@@ -381,6 +403,37 @@ class OutputFieldTestCase(TestCase):
         spec = [
             "name",
             upper_name_and_name_length(),
+        ]
+
+        cls = spec_to_serializer_class("Category", Category, spec)
+
+        expected = dedent(
+            """\
+            CategorySerializer():
+                name = CharField(max_length=100, read_only=True)
+                upper_name = CharField(read_only=True)
+                name_length = IntegerField(read_only=True)"""
+        )
+        self.assertEqual(repr(cls()), expected)
+
+    def test_out_with_projector_pair_projector_only(self):
+        @out(
+            {
+                "upper_name": serializers.CharField(),
+                "name_length": serializers.IntegerField(),
+            }
+        )
+        def project(instance):
+            return {
+                "upper_name": instance.name.upper(),
+                "name_length": len(instance.name),
+            }
+
+        upper_name_and_name_length = qs.include_fields("name"), project
+
+        spec = [
+            "name",
+            upper_name_and_name_length,
         ]
 
         cls = spec_to_serializer_class("Category", Category, spec)
