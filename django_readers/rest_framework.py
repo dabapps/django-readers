@@ -196,7 +196,10 @@ def serializer_class_for_spec(name_prefix, model, spec):
 
 
 def serializer_class_for_view(view):
-    name_prefix = view.__class__.__name__.replace("View", "")
+    name_prefix = view.__class__.__name__
+    if name_prefix.endswith("View"):
+        name_prefix = name_prefix[:-4]
+
     if hasattr(view, "model"):
         model = view.model
     else:
