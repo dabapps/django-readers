@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - In the Django REST framework layer, callables in a spec are now automatically called and passed the `request` object ([#76](https://github.com/dabapps/django-readers/pull/76))
-- Supported added for generating a Django REST framework serializers from a spec, and for annotating custom pairs in a spec with their output field types. This enables automatic schema generation. ([#76](https://github.com/dabapps/django-readers/pull/76))
+- Support for generating a Django REST framework serializer from a spec, and for annotating custom pairs in a spec with their output field types. This enables automatic schema generation. ([#76](https://github.com/dabapps/django-readers/pull/76))
 
 ## [2.0.0] - 2022-07-19
 
