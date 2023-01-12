@@ -44,11 +44,11 @@ class GoogleyAuthorListView(SpecMixin, ListAPIView):
 
 The `django-readers` `SpecMixin` bypasses the usual Django REST framework approach of serializing data using a `Serializer` in favour of using a projector function to generate a mapping of names to values based on a model instance. This is simpler, faster and less memory intensive than using a `Serializer`. However, some parts of REST framework rely on serializers to do their work; in particular, the [schema generation mechanism](https://www.django-rest-framework.org/api-guide/schemas/) introspects serializer fields to generate an OpenAPI schema.
 
-To enable schema generation (and any other requirements for a "real" serializer) for `django-readers` views, two utility functions are provided: `spec_to_serializer_class` and `serializer_class_for_view`.
+To enable schema generation (and any other requirements for a "real" serializer) for `django-readers` views, two utility functions are provided: `serializer_class_for_spec` and `serializer_class_for_view`.
 
 Note that the serializers created by these functions are not actually used at request time: they are useful only for introspection.
 
-## `rest_framework.spec_to_serializer_class(name_prefix, model, spec)` {: #spec-to-serializer-class}
+## `rest_framework.serializer_class_for_spec(name_prefix, model, spec)` {: #serializer-class-for-spec}
 
 This takes:
 
@@ -71,7 +71,7 @@ spec = [
     },
 ]
 
-cls = spec_to_serializer_class("Publisher", Publisher, spec)
+cls = serializer_class_for_spec("Publisher", Publisher, spec)
 print(cls())
 ```
 
@@ -105,7 +105,7 @@ Note that `django-readers` does not provide this view mixin: it is trivial to cr
 
 ## Customising serializer fields
 
-For named fields (strings) in a spec, `spec_to_serializer_class` uses the same mechanism as `ModelSerializer` to infer the field types for the model. However, for custom pairs in a spec, the serializer field to use must be specified explicitly. `django-readers` provides a utility called `out` which can be used in two ways: as a decorator, or inline in a spec.
+For named fields (strings) in a spec, `serializer_class_for_spec` uses the same mechanism as `ModelSerializer` to infer the field types for the model. However, for custom pairs in a spec, the serializer field to use must be specified explicitly. `django-readers` provides a utility called `out` which can be used in two ways: as a decorator, or inline in a spec.
 
 ### `out` as a decorator
 

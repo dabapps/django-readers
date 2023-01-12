@@ -114,7 +114,7 @@ class _SpecToSerializerVisitor(SpecVisitor):
         # a nested serializer to represent it
         rel_info = self.info.relations[key]
         capfirst = self._snake_case_to_capfirst(key)
-        child_serializer = spec_to_serializer_class(
+        child_serializer = serializer_class_for_spec(
             f"{self.name}{capfirst}",
             rel_info.related_model,
             value,
@@ -132,7 +132,7 @@ class _SpecToSerializerVisitor(SpecVisitor):
         relationship_name, relationship_spec = next(iter(value.items()))
         rel_info = self.info.relations[relationship_name]
         capfirst = self._snake_case_to_capfirst(key)
-        child_serializer = spec_to_serializer_class(
+        child_serializer = serializer_class_for_spec(
             f"{self.name}{capfirst}",
             rel_info.related_model,
             relationship_spec,
@@ -174,7 +174,7 @@ class _SpecToSerializerVisitor(SpecVisitor):
     visit_callable = visit_tuple
 
 
-def spec_to_serializer_class(name_prefix, model, spec):
+def serializer_class_for_spec(name_prefix, model, spec):
     visitor = _SpecToSerializerVisitor(model, name_prefix)
     visitor.visit(spec)
 
@@ -194,7 +194,7 @@ def serializer_class_for_view(view):
         model = view.model
     else:
         model = getattr(getattr(view, "queryset", None), "model", None)
-    return spec_to_serializer_class(name_prefix, model, view.spec)
+    return serializer_class_for_spec(name_prefix, model, view.spec)
 
 
 class PairWithOutAttribute(tuple):

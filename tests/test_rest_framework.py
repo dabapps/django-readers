@@ -2,8 +2,8 @@ from django.test import TestCase
 from django_readers import pairs, qs
 from django_readers.rest_framework import (
     out,
+    serializer_class_for_spec,
     serializer_class_for_view,
-    spec_to_serializer_class,
     SpecMixin,
 )
 from rest_framework import serializers
@@ -114,7 +114,7 @@ class SpecToSerializerClassTestCase(TestCase):
     def test_basic_spec(self):
         spec = ["name"]
 
-        cls = spec_to_serializer_class("Category", Category, spec)
+        cls = serializer_class_for_spec("Category", Category, spec)
 
         expected = dedent(
             """\
@@ -138,7 +138,7 @@ class SpecToSerializerClassTestCase(TestCase):
             },
         ]
 
-        cls = spec_to_serializer_class("Category", Category, spec)
+        cls = serializer_class_for_spec("Category", Category, spec)
 
         expected = dedent(
             """\
@@ -183,7 +183,7 @@ class SpecToSerializerClassTestCase(TestCase):
             },
         ]
 
-        cls = spec_to_serializer_class("Owner", Owner, spec)
+        cls = serializer_class_for_spec("Owner", Owner, spec)
 
         expected = dedent(
             """\
@@ -208,7 +208,7 @@ class SpecToSerializerClassTestCase(TestCase):
             {"set_of_widgets": {"widget_set": ["name"]}},
         ]
 
-        cls = spec_to_serializer_class("Category", Category, spec)
+        cls = serializer_class_for_spec("Category", Category, spec)
 
         expected = dedent(
             """\
@@ -258,7 +258,7 @@ class OutputFieldTestCase(TestCase):
             {"upper_name": out(serializers.CharField())(upper_name)},
         ]
 
-        cls = spec_to_serializer_class("Category", Category, spec)
+        cls = serializer_class_for_spec("Category", Category, spec)
 
         expected = dedent(
             """\
@@ -278,7 +278,7 @@ class OutputFieldTestCase(TestCase):
             {"hello": hello()},
         ]
 
-        cls = spec_to_serializer_class("Category", Category, spec)
+        cls = serializer_class_for_spec("Category", Category, spec)
 
         expected = dedent(
             """\
@@ -300,7 +300,7 @@ class OutputFieldTestCase(TestCase):
             {"hello": hello},
         ]
 
-        cls = spec_to_serializer_class("Category", Category, spec)
+        cls = serializer_class_for_spec("Category", Category, spec)
 
         expected = dedent(
             """\
@@ -316,7 +316,7 @@ class OutputFieldTestCase(TestCase):
             {"upper_name": upper_name >> out(serializers.CharField())},
         ]
 
-        cls = spec_to_serializer_class("Category", Category, spec)
+        cls = serializer_class_for_spec("Category", Category, spec)
 
         expected = dedent(
             """\
@@ -331,7 +331,7 @@ class OutputFieldTestCase(TestCase):
             "name" >> out(serializers.IntegerField()),
         ]
 
-        cls = spec_to_serializer_class("Category", Category, spec)
+        cls = serializer_class_for_spec("Category", Category, spec)
 
         expected = dedent(
             """\
@@ -405,7 +405,7 @@ class OutputFieldTestCase(TestCase):
             upper_name_and_name_length(),
         ]
 
-        cls = spec_to_serializer_class("Category", Category, spec)
+        cls = serializer_class_for_spec("Category", Category, spec)
 
         expected = dedent(
             """\
@@ -436,7 +436,7 @@ class OutputFieldTestCase(TestCase):
             upper_name_and_name_length,
         ]
 
-        cls = spec_to_serializer_class("Category", Category, spec)
+        cls = serializer_class_for_spec("Category", Category, spec)
 
         expected = dedent(
             """\
