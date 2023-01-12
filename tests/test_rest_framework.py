@@ -1,3 +1,4 @@
+from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
 from django_readers import pairs, qs
 from django_readers.rest_framework import (
@@ -249,6 +250,13 @@ class SpecToSerializerClassTestCase(TestCase):
                         name = CharField(max_length=100, read_only=True)"""
         )
         self.assertEqual(repr(cls()), expected)
+
+    def test_exception_raised_if_model_missing(self):
+        class SomeListView(SpecMixin, ListAPIView):
+            spec = ["name"]
+
+        with self.assertRaises(ImproperlyConfigured):
+            serializer_class_for_view(SomeListView())
 
 
 class OutputFieldTestCase(TestCase):

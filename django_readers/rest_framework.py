@@ -201,6 +201,12 @@ def serializer_class_for_view(view):
         model = view.model
     else:
         model = getattr(getattr(view, "queryset", None), "model", None)
+
+    if not model:
+        raise ImproperlyConfigured(
+            "View class must have either a 'queryset' or 'model' attribute"
+        )
+
     return serializer_class_for_spec(name_prefix, model, view.spec)
 
 
