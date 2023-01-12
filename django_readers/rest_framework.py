@@ -84,6 +84,13 @@ class _SpecToSerializerVisitor(SpecVisitor):
         field._kwargs["read_only"] = True
         return field
 
+    def _get_out_value(self, item):
+        if hasattr(item, "out"):
+            return item.out
+        if isinstance(item, tuple) and hasattr(item[1], "out"):
+            return item[1].out
+        return None
+
     def visit_str(self, item):
         return self.visit_dict_item_str(item, item)
 
@@ -147,7 +154,7 @@ class _SpecToSerializerVisitor(SpecVisitor):
     def visit_dict_item_tuple(self, key, value):
         # This is a producer pair.
         # Either the pair itself or just the producer may have been decorated
-        out = getattr(value, "out", getattr(value[1], "out", None))
+        out = self._get_out_value(value)
         if out:
             field = self._prepare_field(out)
             self.fields[key] = field
@@ -161,7 +168,7 @@ class _SpecToSerializerVisitor(SpecVisitor):
     def visit_tuple(self, item):
         # This is a projector pair.
         # Either the pair itself or just the projector may have been decorated
-        out = getattr(item, "out", getattr(item[1], "out", None))
+        out = self._get_out_value(item)
         if out:
             # `out` is a dictionary mapping field names to Fields
             for name, field in out.items():

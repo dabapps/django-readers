@@ -500,6 +500,17 @@ class CallableTestCase(TestCase):
             ],
         )
 
+    def test_undecorated_producer_pair(self):
+        def user_name(request):
+            return lambda qs: qs, lambda _: request.user.name
+
+        spec = [
+            "name",
+            {"user_name": user_name},
+        ]
+
+        serializer_class_for_spec("Widget", Widget, spec)
+
     def test_call_projector_pair_with_request(self):
         def user_name_and_id(request):
             return lambda qs: qs, lambda _: {
@@ -554,3 +565,17 @@ class CallableTestCase(TestCase):
                 }
             ],
         )
+
+    def test_undecorated_projector_pair(self):
+        def user_name_and_id(request):
+            return lambda qs: qs, lambda _: {
+                "user_name": request.user.name,
+                "user_id": request.user.id,
+            }
+
+        spec = [
+            "name",
+            user_name_and_id,
+        ]
+
+        serializer_class_for_spec("Widget", Widget, spec)
