@@ -85,6 +85,8 @@ class _SpecToSerializerVisitor(SpecVisitor):
         return field
 
     def _get_out_value(self, item):
+        # Either the item itself or (if this is a pair) just the
+        # producer/projector function may have been decorated
         if hasattr(item, "out"):
             return item.out
         if isinstance(item, tuple) and hasattr(item[1], "out"):
@@ -153,7 +155,6 @@ class _SpecToSerializerVisitor(SpecVisitor):
 
     def visit_dict_item_tuple(self, key, value):
         # This is a producer pair.
-        # Either the pair itself or just the producer may have been decorated
         out = self._get_out_value(value)
         if out:
             field = self._prepare_field(out)
@@ -167,7 +168,6 @@ class _SpecToSerializerVisitor(SpecVisitor):
 
     def visit_tuple(self, item):
         # This is a projector pair.
-        # Either the pair itself or just the projector may have been decorated
         out = self._get_out_value(item)
         if out:
             # `out` is a dictionary mapping field names to Fields
