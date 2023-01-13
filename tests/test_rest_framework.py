@@ -508,7 +508,7 @@ class CallableTestCase(TestCase):
             ],
         )
 
-    def test_undecorated_producer_pair(self):
+    def test_undecorated_producer_pair_does_not_cause_error(self):
         def user_name(request):
             return lambda qs: qs, lambda _: request.user.name
 
@@ -574,7 +574,7 @@ class CallableTestCase(TestCase):
             ],
         )
 
-    def test_undecorated_projector_pair(self):
+    def test_undecorated_projector_pair_does_not_cause_error(self):
         def user_name_and_id(request):
             return lambda qs: qs, lambda _: {
                 "user_name": request.user.name,
