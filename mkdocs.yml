@@ -40,7 +40,7 @@ nav:
       - Projectors: 'reference/projectors.md'
       - Pairs: 'reference/pairs.md'
       - Specs: 'reference/specs.md'
-      - SpecMixin: 'reference/specmixin.md'
+      - REST framework: 'reference/rest-framework.md'
   - Community:
       - Changelog: 'community/changelog.md'
       - License: 'community/license.md'
