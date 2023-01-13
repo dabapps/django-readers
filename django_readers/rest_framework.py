@@ -73,8 +73,8 @@ class _SpecToSerializerVisitor(SpecVisitor):
         self.info = model_meta.get_field_info(model)
         self.fields = {}
 
-    def _snake_case_to_capfirst(self, snake_case):
-        return "".join(part.title() for part in snake_case.split("_"))
+    def _lowercase_with_underscores_to_capitalized_words(self, string):
+        return "".join(part.title() for part in string.split("_"))
 
     def _prepare_field(self, field):
         # We copy the field so its _creation_counter is correct and
@@ -122,7 +122,7 @@ class _SpecToSerializerVisitor(SpecVisitor):
         # This is a relationship, so we recurse and create
         # a nested serializer to represent it
         rel_info = self.info.relations[key]
-        capfirst = self._snake_case_to_capfirst(key)
+        capfirst = self._lowercase_with_underscores_to_capitalized_words(key)
         child_serializer = serializer_class_for_spec(
             f"{self.name}{capfirst}",
             rel_info.related_model,
@@ -140,7 +140,7 @@ class _SpecToSerializerVisitor(SpecVisitor):
         # slightly differently to set the `source` correctly
         relationship_name, relationship_spec = next(iter(value.items()))
         rel_info = self.info.relations[relationship_name]
-        capfirst = self._snake_case_to_capfirst(key)
+        capfirst = self._lowercase_with_underscores_to_capitalized_words(key)
         child_serializer = serializer_class_for_spec(
             f"{self.name}{capfirst}",
             rel_info.related_model,

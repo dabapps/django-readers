@@ -52,7 +52,7 @@ Note that the serializers created by these functions are not actually used at re
 
 This takes:
 
-* A name prefix for the resulting top-level serializer class. This should be `CamelCase`, the word `Serializer` will be appended.
+* A name prefix for the resulting top-level serializer class. This should be `CapitalizedWords`, the word `Serializer` will be appended.
 * A model class
 * A spec
 
