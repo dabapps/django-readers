@@ -30,7 +30,7 @@ pip install django-readers
 
 ## What is django-readers?
 
-`django-readers` is both a **small library** (less than 500 lines of Python) and a **collection of recommended patterns** for structuring your code. It is intended to help with code that performs _reads_: querying your database and presenting the data to the user. It can be used with views that render HTML templates as well as [Django REST framework](https://www.django-rest-framework.org/) API views, and indeed anywhere else in your project where data is retrieved from the database.
+`django-readers` is both a **small library** and a **collection of recommended patterns** for structuring your code. It is intended to help with code that performs _reads_: querying your database and presenting the data to the user. It can be used with views that render HTML templates as well as [Django REST framework](https://www.django-rest-framework.org/) API views, and indeed anywhere else in your project where data is retrieved from the database.
 
 It lets you:
 

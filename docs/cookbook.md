@@ -219,3 +219,43 @@ spec = [
     },
 ]
 ```
+
+## Specify output fields for Django REST framework introspection
+
+The [Django REST framework layer](/reference/rest-framework/) supports generation of serializer classes based on a spec, for the purpose of introspection and schema generation. For custom behaviour like pairs and higher-order functions, the output field type must be explicitly specified. Below is an example covering a couple of use cases. See [the docs on serializer and schema generation](/reference/rest-framework/#serializer-and-schema-generation) for full details.
+
+```python
+from django_readers.rest_framework import out, serializer_class_for_view, SpecMixin
+from rest_framework.views import RetrieveAPIView
+from rest_framework import serializers
+
+
+class SpecSchema(AutoSchema):
+    def get_serializer(self, path, method):
+        return serializer_class_for_view(self.view)()
+
+
+@out(serializers.BooleanField())
+def request_user_is_author(request):
+    def produce(instance):
+        return instance.author.email == request.user.email
+
+    return (
+        qs.auto_prefetch_relationship(
+            "author",
+            prepare_related_queryset=qs.include_fields("email"),
+        ),
+        produce,
+    )
+
+
+class BookDetailView(SpecMixin, RetrieveAPIView):
+    schema = SpecSchema()
+    queryset = Book.objects.all()
+    spec = [
+        "id",
+        "title",
+        {"request_user_is_author": request_user_is_author},
+        {"format": pairs.field_display("format") >> out(serializers.CharField())},
+    ]
+```
