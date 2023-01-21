@@ -42,5 +42,6 @@ nav:
       - Specs: 'reference/specs.md'
       - REST framework: 'reference/rest-framework.md'
   - Community:
+      - Third Party Packages: 'community/third-party-packages.md'
       - Changelog: 'community/changelog.md'
       - License: 'community/license.md'
