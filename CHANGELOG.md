@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.1] - 2023-03-21
+
 ### Fixed
 - Correctly set the allow_null attribute on nested serializers ([#81](https://github.com/dabapps/django-readers/issues/81))
 
