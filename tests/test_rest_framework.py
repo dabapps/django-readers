@@ -147,7 +147,7 @@ class SpecToSerializerClassTestCase(TestCase):
                 name = CharField(max_length=100, read_only=True)
                 widget_set = CategoryWidgetSetSerializer(many=True, read_only=True):
                     name = CharField(allow_null=True, max_length=100, read_only=True, required=False)
-                    owner = CategoryWidgetSetOwnerSerializer(read_only=True):
+                    owner = CategoryWidgetSetOwnerSerializer(allow_null=True, read_only=True):
                         name = CharField(max_length=100, read_only=True)"""
         )
         self.assertEqual(repr(cls()), expected)
@@ -190,7 +190,7 @@ class SpecToSerializerClassTestCase(TestCase):
             """\
             OwnerSerializer():
                 name = CharField(max_length=100, read_only=True)
-                group = OwnerGroupSerializer(read_only=True):
+                group = OwnerGroupSerializer(allow_null=True, read_only=True):
                     name = CharField(max_length=100, read_only=True)
                 widget_set = OwnerWidgetSetSerializer(many=True, read_only=True):
                     name = CharField(allow_null=True, max_length=100, read_only=True, required=False)
@@ -198,8 +198,22 @@ class SpecToSerializerClassTestCase(TestCase):
                         name = CharField(max_length=100, read_only=True)
                     thing = OwnerWidgetSetThingSerializer(read_only=True):
                         name = CharField(max_length=100, read_only=True)
-                        related_widget = OwnerWidgetSetThingRelatedWidgetSerializer(read_only=True, source='widget'):
+                        related_widget = OwnerWidgetSetThingRelatedWidgetSerializer(allow_null=True, read_only=True, source='widget'):
                             name = CharField(allow_null=True, max_length=100, read_only=True, required=False)"""
+        )
+        self.assertEqual(repr(cls()), expected)
+
+    def test_nullable_relationship(self):
+        spec = ["name", {"owner": ["name"]}]
+
+        cls = serializer_class_for_spec("Widget", Widget, spec)
+
+        expected = dedent(
+            """\
+            WidgetSerializer():
+                name = CharField(allow_null=True, max_length=100, read_only=True, required=False)
+                owner = WidgetOwnerSerializer(allow_null=True, read_only=True):
+                    name = CharField(max_length=100, read_only=True)"""
         )
         self.assertEqual(repr(cls()), expected)
 
@@ -246,7 +260,7 @@ class SpecToSerializerClassTestCase(TestCase):
                 name = CharField(max_length=100, read_only=True)
                 widget_set = CategoryListWidgetSetSerializer(many=True, read_only=True):
                     name = CharField(allow_null=True, max_length=100, read_only=True, required=False)
-                    owner = CategoryListWidgetSetOwnerSerializer(read_only=True):
+                    owner = CategoryListWidgetSetOwnerSerializer(allow_null=True, read_only=True):
                         name = CharField(max_length=100, read_only=True)"""
         )
         self.assertEqual(repr(cls()), expected)

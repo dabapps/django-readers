@@ -118,20 +118,24 @@ class _SpecToSerializerVisitor(SpecVisitor):
         self.fields[key] = field_class(**field_kwargs)
         return key, value
 
+    def _get_child_serializer_kwargs(self, rel_info):
+        kwargs = {"read_only": True, "many": rel_info.to_many}
+        if rel_info.model_field and rel_info.model_field.null:
+            kwargs["allow_null"] = True
+        return kwargs
+
     def visit_dict_item_list(self, key, value):
         # This is a relationship, so we recurse and create
         # a nested serializer to represent it
         rel_info = self.info.relations[key]
         capfirst = self._lowercase_with_underscores_to_capitalized_words(key)
-        child_serializer = serializer_class_for_spec(
+        child_serializer_class = serializer_class_for_spec(
             f"{self.name}{capfirst}",
             rel_info.related_model,
             value,
         )
-        self.fields[key] = child_serializer(
-            read_only=True,
-            many=rel_info.to_many,
-        )
+        serializer_kwargs = self._get_child_serializer_kwargs(rel_info)
+        self.fields[key] = child_serializer_class(**serializer_kwargs)
         return key, value
 
     def visit_dict_item_dict(self, key, value):
@@ -141,16 +145,14 @@ class _SpecToSerializerVisitor(SpecVisitor):
         relationship_name, relationship_spec = next(iter(value.items()))
         rel_info = self.info.relations[relationship_name]
         capfirst = self._lowercase_with_underscores_to_capitalized_words(key)
-        child_serializer = serializer_class_for_spec(
+        child_serializer_class = serializer_class_for_spec(
             f"{self.name}{capfirst}",
             rel_info.related_model,
             relationship_spec,
         )
-        self.fields[key] = child_serializer(
-            read_only=True,
-            many=rel_info.to_many,
-            source=relationship_name,
-        )
+        serializer_kwargs = self._get_child_serializer_kwargs(rel_info)
+        serializer_kwargs["source"] = relationship_name
+        self.fields[key] = child_serializer_class(**serializer_kwargs)
         return key, value
 
     def visit_dict_item_tuple(self, key, value):
