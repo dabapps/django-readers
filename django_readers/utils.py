@@ -1,10 +1,12 @@
+from itertools import islice
+
 try:
     import zen_queries
 except ImportError:
     zen_queries = None
 
 
-def map_or_apply(obj, fn):
+def map_or_apply(obj, fn, slice=None, collapse=False):
     """
     If the first argument is iterable, map the function across each item in it and
     return the result. If it looks like a queryset or manager, call `.all()` and
@@ -16,11 +18,30 @@ def map_or_apply(obj, fn):
 
     try:
         # Is the object itself iterable?
-        return [fn(item) for item in iter(obj)]
+        iterable = iter(obj)
+
+        if slice:
+            iterable = islice(iterable, slice.start, slice.stop, slice.step)
+
+        res = [fn(item) for item in iterable]
+
+        if collapse and len(res) == 1:
+            return res[0]
+
+        return res
     except TypeError:
         try:
             # Does the object have a `.all()` method (is it a manager?)
-            return [fn(item) for item in obj.all()]
+            qs = obj.all()
+
+            if slice:
+                qs = qs.__gettiem__(slice)
+
+            res = [fn(item) for item in qs]
+
+            if collapse and len(res) == 1:
+                return res[0]
+            return res
         except AttributeError:
             # It must be a single object
             return fn(obj)

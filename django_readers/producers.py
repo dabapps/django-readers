@@ -16,7 +16,7 @@ def attr(name, *, transform_value=None, transform_value_if_none=False):
 method = methodcaller
 
 
-def relationship(name, related_projector):
+def relationship(name, related_projector, slice=None, collapse=False):
     """
     Given an attribute name and a projector, return a producer which plucks
     the attribute off the instance, figures out whether it represents a single
@@ -29,7 +29,7 @@ def relationship(name, related_projector):
             related = none_safe_attrgetter(name)(instance)
         except ObjectDoesNotExist:
             return None
-        return map_or_apply(related, related_projector)
+        return map_or_apply(related, related_projector, slice=slice, collapse=collapse)
 
     return producer
 
