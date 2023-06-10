@@ -16,7 +16,7 @@ def attr(name, *, transform_value=None, transform_value_if_none=False):
 method = methodcaller
 
 
-def relationship(name, related_projector, slice=None, collapse=False):
+def relationship(name, related_projector, post_fn=None):
     """
     Given an attribute name and a projector, return a producer which plucks
     the attribute off the instance, figures out whether it represents a single
@@ -24,12 +24,17 @@ def relationship(name, related_projector, slice=None, collapse=False):
     to the related object or objects.
     """
 
+    if not post_fn:
+
+        def post_fn(x):
+            return x
+
     def producer(instance):
         try:
             related = none_safe_attrgetter(name)(instance)
         except ObjectDoesNotExist:
             return None
-        return map_or_apply(related, related_projector, slice=slice, collapse=collapse)
+        return post_fn(map_or_apply(related, related_projector))
 
     return producer
 

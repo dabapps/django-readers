@@ -142,7 +142,12 @@ def prefetch_forward_relationship(
 
 
 def prefetch_reverse_relationship(
-    name, related_name, related_queryset, prepare_related_queryset=noop, to_attr=None
+    name,
+    related_name,
+    related_queryset,
+    prepare_related_queryset=noop,
+    to_attr=None,
+    slice=None,
 ):
     """
     Efficiently prefetch a reverse relationship: one where the field on the "parent"
@@ -152,41 +157,37 @@ def prefetch_reverse_relationship(
     as Django will need it when it comes to stitch them together when the query
     is executed.
     """
+
+    prefetch_qs = pipe(include_fields(related_name), prepare_related_queryset)(
+        related_queryset
+    )
+
+    if slice:
+        prefetch_qs = prefetch_qs.__getitem__(slice)
+
     return pipe(
         include_fields("pk"),
-        prefetch_related(
-            Prefetch(
-                name,
-                pipe(
-                    include_fields(related_name),
-                    prepare_related_queryset,
-                )(related_queryset),
-                to_attr,
-            )
-        ),
+        prefetch_related(Prefetch(name, prefetch_qs, to_attr)),
     )
 
 
 def prefetch_many_to_many_relationship(
-    name, related_queryset, prepare_related_queryset=noop, to_attr=None
+    name, related_queryset, prepare_related_queryset=noop, to_attr=None, slice=None
 ):
     """
     For many-to-many relationships, both sides of the relationship are non-concrete,
     so we don't need to do anything special with including fields. They are also
     symmetrical, so no need to differentiate between forward and reverse direction.
     """
+
+    prefetch_qs = pipe(include_fields("pk"), prepare_related_queryset)(related_queryset)
+
+    if slice:
+        prefetch_qs = prefetch_qs.__getitem__(slice)
+
     return pipe(
         include_fields("pk"),
-        prefetch_related(
-            Prefetch(
-                name,
-                pipe(
-                    include_fields("pk"),
-                    prepare_related_queryset,
-                )(related_queryset),
-                to_attr,
-            )
-        ),
+        prefetch_related(Prefetch(name, prefetch_qs, to_attr)),
     )
 
 

@@ -121,27 +121,27 @@ def reverse_relationship(
     related_queryset,
     relationship_pair,
     to_attr=None,
+    post_fn=None,
     slice=None,
-    collapse=False,
 ):
     prepare_related_queryset, project_relationship = relationship_pair
     prepare = qs.prefetch_reverse_relationship(
-        name, related_name, related_queryset, prepare_related_queryset, to_attr
+        name, related_name, related_queryset, prepare_related_queryset, to_attr, slice
     )
     return prepare, producers.relationship(
-        to_attr or name, project_relationship, slice=slice, collapse=collapse
+        to_attr or name, project_relationship, post_fn
     )
 
 
 def many_to_many_relationship(
-    name, related_queryset, relationship_pair, to_attr=None, slice=None, collapse=False
+    name, related_queryset, relationship_pair, to_attr=None, post_fn=None, slice=None
 ):
     prepare_related_queryset, project_relationship = relationship_pair
     prepare = qs.prefetch_many_to_many_relationship(
-        name, related_queryset, prepare_related_queryset, to_attr
+        name, related_queryset, prepare_related_queryset, to_attr, slice
     )
     return prepare, producers.relationship(
-        to_attr or name, project_relationship, slice=slice, collapse=collapse
+        to_attr or name, project_relationship, post_fn
     )
 
 

@@ -1,7 +1,7 @@
 from django.db.models import Count
 from django.db.models.functions import Length
 from django.test import TestCase
-from django_readers import pairs, producers, projectors, qs
+from django_readers import pairs, producers, projectors, qs, utils
 from tests.models import Category, Group, Owner, Thing, Widget
 from tests.test_producers import title_and_reverse
 
@@ -274,7 +274,7 @@ class PairsTestCase(TestCase):
             },
         )
 
-    def test_reverse_many_to_one_relationship_with_slice_collapsed(self):
+    def test_reverse_many_to_one_relationship_with_slice_post_fn(self):
         owner = Owner.objects.create(name="test owner")
         Widget.objects.create(name="widget 1", value=1, owner=owner)
         Widget.objects.create(name="widget 2", value=100, owner=owner)
@@ -292,8 +292,8 @@ class PairsTestCase(TestCase):
                         pairs.producer_to_projector("value", pairs.field("value")),
                     ),
                     to_attr="widget_set_attr",
+                    post_fn=utils.collapse_list,
                     slice=slice(1, 2),
-                    collapse=True,
                 ),
             ),
         )
@@ -501,7 +501,7 @@ class PairsTestCase(TestCase):
             },
         )
 
-    def test_many_to_many_relationship_with_to_attr_sliced_collapsed(self):
+    def test_many_to_many_relationship_with_to_attr_slice_post_fn(self):
         widget_1 = Widget.objects.create(name="test widget 1")
         widget_2 = Widget.objects.create(name="test widget 2")
         category = Category.objects.create(name="test category")
@@ -530,8 +530,8 @@ class PairsTestCase(TestCase):
                         ),
                     ),
                     to_attr="widget_set_attr",
+                    post_fn=utils.collapse_list,
                     slice=slice(1),
-                    collapse=True,
                 ),
             ),
         )
