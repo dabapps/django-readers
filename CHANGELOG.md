@@ -8,8 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-
 - Fix an error when using the `@out` decorator on producer functions that return values like booleans, that can't have arbitrary attributes added to them ([#86](https://github.com/dabapps/django-readers/issues/86)).
+
+### Changed
+- Add support for Django 4.2
+- Drop support for Python 3.7
 
 ## [2.1.1] - 2023-03-21
 
