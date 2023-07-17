@@ -246,9 +246,10 @@ def out(field_or_dict):
             else:
                 if isinstance(item, str):
                     item = StringWithOutAttribute(item)
+                    item.out = field_or_dict
                 if isinstance(item, tuple):
                     item = PairWithOutAttribute(item)
-                item.out = field_or_dict
+                    item.out = field_or_dict
                 return item
 
         def __rrshift__(self, other):

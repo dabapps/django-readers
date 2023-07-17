@@ -332,6 +332,32 @@ class OutputFieldTestCase(TestCase):
         )
         self.assertEqual(repr(cls()), expected)
 
+    def test_output_field_decorator_producer_boolean(self):
+        # this is a useful test case because booleans can't be subclassed
+        # or have arbitrary attributes added to them.
+
+        @out(serializers.BooleanField())
+        def produce_bool(_):
+            return True
+
+        bool_pair = qs.noop, produce_bool
+
+        spec = [
+            "name",
+            {"bool": bool_pair},
+        ]
+
+        cls = serializer_class_for_spec("Category", Category, spec)
+
+        expected = dedent(
+            """\
+            CategorySerializer():
+                name = CharField(max_length=100, read_only=True)
+                bool = BooleanField(read_only=True)"""
+        )
+        self.assertEqual(repr(cls()), expected)
+        self.assertTrue(produce_bool(None) is True)
+
     def test_out_rrshift(self):
         spec = [
             "name",
