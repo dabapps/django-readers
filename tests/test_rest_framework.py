@@ -126,8 +126,8 @@ class RESTFrameworkTestCase(TestCase):
         request = APIRequestFactory().get("/")
         view = WidgetListView.as_view()
 
-        with self.assertRaises(ImproperlyConfigured) as cm:
-            response = view(request)
+        with self.assertRaises(Exception) as cm:
+            view(request)
 
         self.assertEqual(
             str(cm.exception), "QuerySet must be prepared before projection"

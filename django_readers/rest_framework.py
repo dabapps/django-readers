@@ -22,23 +22,6 @@ class ProjectionSerializer:
         return project(self._data)
 
 
-def with_prepared_checker(reader_pair):
-    is_prepared = False
-    prepare, project = reader_pair
-
-    def wrapped_prepare(qs):
-        nonlocal is_prepared
-        is_prepared = True
-        return prepare(qs)
-
-    def wrapped_project(qs):
-        if not is_prepared:
-            raise ImproperlyConfigured("QuerySet must be prepared before projection")
-        return project(qs)
-
-    return (wrapped_prepare, wrapped_project)
-
-
 class SpecMixin:
     spec = None
 
@@ -56,7 +39,7 @@ class SpecMixin:
 
     @cached_property
     def reader_pair(self):
-        return with_prepared_checker(self.get_reader_pair())
+        return self.get_reader_pair()
 
     @property
     def prepare(self):
