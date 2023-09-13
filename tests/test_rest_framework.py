@@ -110,6 +110,29 @@ class RESTFrameworkTestCase(TestCase):
             },
         )
 
+    def test_override_getqueryset_must_call_prepare(self):
+        Widget.objects.create()
+
+        class WidgetListView(SpecMixin, ListAPIView):
+            spec = [
+                "name",
+            ]
+
+            def get_queryset(self):
+                queryset = Widget.objects.all()
+                # Should call self.prepare(queryset) here
+                return queryset
+
+        request = APIRequestFactory().get("/")
+        view = WidgetListView.as_view()
+
+        with self.assertRaises(ImproperlyConfigured) as cm:
+            response = view(request)
+
+        self.assertEqual(
+            str(cm.exception), "QuerySet must be prepared before projection"
+        )
+
 
 class SpecToSerializerClassTestCase(TestCase):
     def test_basic_spec(self):
