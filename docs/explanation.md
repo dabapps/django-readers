@@ -169,7 +169,7 @@ Note above that the second argument to `producers.relationship` is a projector f
 In the example used above, the `produce_age` producer depends on the `birth_year` field:
 
 ```python
-age_pair = (qs.include_fields("birth_year"), produce_age)
+age = (qs.include_fields("birth_year"), produce_age)
 ```
 
 `django-readers` includes [some useful functions that create pairs](reference/pairs.md). These attempt to generate the most efficient queries they can, which means loading only those database fields required to produce the value or values:
@@ -199,7 +199,7 @@ Relationships can automatically be loaded and projected, too:
 ```python
 prepare, project = pairs.combine(
     pairs.producer_to_projector("name", pairs.field("name")),
-    pairs.producer_to_projector("age", age_pair),
+    pairs.producer_to_projector("age", age),
     pairs.producer_to_projector(
         "book_set",
         pairs.relationship(
@@ -234,7 +234,7 @@ from django_readers import specs
 
 spec = [
     "name",
-    {"age": age_pair},
+    {"age": age},
     {
         "book_set": [
             "title",
