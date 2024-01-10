@@ -41,7 +41,7 @@ For example:
 from django.db.models.functions import ExtractYear
 from django_readers import pairs
 
-prepare, project = pairs.annotate(
+prepare, produce = pairs.annotate(
     publication_year=ExtractYear("publication_date"),
 )
 queryset = prepare(Book.objects.all())
