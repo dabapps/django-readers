@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.fields import ReverseGenericManyToOneDescriptor
 from django.db.models import Prefetch, QuerySet
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models.fields.related_descriptors import (
@@ -167,6 +168,37 @@ def prefetch_reverse_relationship(
     )
 
 
+def prefetch_reverse_generic_relationship(
+    name,
+    content_type_field_name,
+    object_id_field_name,
+    related_queryset,
+    prepare_related_queryset=noop,
+    to_attr=None,
+):
+    """
+    Efficiently prefetch a reverse generic relationship: one where the field on the "parent"
+    queryset is a `GenericRelation` field. We need to include this field in the query.
+    """
+    return pipe(
+        include_fields(name),
+        prefetch_related(
+            Prefetch(
+                name,
+                pipe(
+                    include_fields(
+                        "pk",
+                        content_type_field_name,
+                        object_id_field_name,
+                    ),
+                    prepare_related_queryset,
+                )(related_queryset),
+                to_attr,
+            )
+        ),
+    )
+
+
 def prefetch_many_to_many_relationship(
     name, related_queryset, prepare_related_queryset=noop, to_attr=None
 ):
@@ -243,6 +275,15 @@ def auto_prefetch_relationship(name, prepare_related_queryset=noop, to_attr=None
             return prefetch_many_to_many_relationship(
                 name,
                 related_queryset,
+                prepare_related_queryset,
+                to_attr,
+            )(queryset)
+        if type(related_descriptor) is ReverseGenericManyToOneDescriptor:
+            return prefetch_reverse_generic_relationship(
+                name,
+                related_descriptor.rel.field.content_type_field_name,
+                related_descriptor.rel.field.object_id_field_name,
+                related_descriptor.field.related_model.objects.all(),
                 prepare_related_queryset,
                 to_attr,
             )(queryset)

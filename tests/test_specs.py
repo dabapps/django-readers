@@ -1,6 +1,7 @@
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from django_readers import specs
-from tests.models import Category, Group, Owner, Thing, Widget
+from tests.models import Category, Group, LogEntry, Owner, Thing, Widget
 
 
 class SpecTestCase(TestCase):
@@ -28,6 +29,11 @@ class SpecTestCase(TestCase):
         category = Category.objects.create(name="test category")
         category.widget_set.add(widget)
         Thing.objects.create(name="test thing", widget=widget)
+        LogEntry.objects.create(
+            content_type=ContentType.objects.get_for_model(widget),
+            object_pk=widget.id,
+            event="CREATED",
+        )
 
         prepare, project = specs.process(
             [
@@ -35,13 +41,14 @@ class SpecTestCase(TestCase):
                 {"owner": ["name", {"widget_set": ["name"]}]},
                 {"category_set": ["name", {"widget_set": ["name"]}]},
                 {"thing": ["name", {"widget": ["name"]}]},
+                {"logs": ["event"]},
             ]
         )
 
         with self.assertNumQueries(0):
             queryset = prepare(Widget.objects.all())
 
-        with self.assertNumQueries(7):
+        with self.assertNumQueries(8):
             instance = queryset.first()
 
         with self.assertNumQueries(0):
@@ -59,6 +66,7 @@ class SpecTestCase(TestCase):
                     {"name": "test category", "widget_set": [{"name": "test widget"}]},
                 ],
                 "thing": {"name": "test thing", "widget": {"name": "test widget"}},
+                "logs": [{"event": "CREATED"}],
             },
         )
 

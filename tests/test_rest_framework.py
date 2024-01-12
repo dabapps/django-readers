@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
 from django_readers import pairs, qs
@@ -10,7 +11,7 @@ from django_readers.rest_framework import (
 from rest_framework import serializers
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.test import APIRequestFactory
-from tests.models import Category, Group, Owner, Widget
+from tests.models import Category, Group, LogEntry, Owner, Widget
 from textwrap import dedent
 
 
@@ -28,6 +29,7 @@ class WidgetListView(SpecMixin, ListAPIView):
                 },
             ]
         },
+        {"logs": ["event"]},
     ]
 
 
@@ -53,17 +55,32 @@ upper_name = pairs.field("name", transform_value=lambda value: value.upper())
 
 class RESTFrameworkTestCase(TestCase):
     def test_list(self):
-        Widget.objects.create(
+        widget = Widget.objects.create(
             name="test widget",
             owner=Owner.objects.create(
                 name="test owner", group=Group.objects.create(name="test group")
             ),
         )
+        LogEntry.objects.create(
+            content_type=ContentType.objects.get_for_model(widget),
+            object_pk=widget.id,
+            event="CREATED",
+        )
+        LogEntry.objects.create(
+            content_type=ContentType.objects.get_for_model(widget),
+            object_pk=widget.id,
+            event="UPDATED",
+        )
+        LogEntry.objects.create(
+            content_type=ContentType.objects.get_for_model(widget),
+            object_pk=widget.id,
+            event="DELETED",
+        )
 
         request = APIRequestFactory().get("/")
         view = WidgetListView.as_view()
 
-        with self.assertNumQueries(3):
+        with self.assertNumQueries(4):
             response = view(request)
 
         self.assertEqual(
@@ -77,6 +94,11 @@ class RESTFrameworkTestCase(TestCase):
                             "name": "test group",
                         },
                     },
+                    "logs": [
+                        {"event": "CREATED"},
+                        {"event": "UPDATED"},
+                        {"event": "DELETED"},
+                    ],
                 }
             ],
         )
@@ -180,12 +202,16 @@ class SpecToSerializerClassTestCase(TestCase):
                             },
                         ]
                     },
+                    {
+                        "logs": [
+                            "event",
+                        ]
+                    },
                 ]
             },
         ]
 
         cls = serializer_class_for_spec("Owner", Owner, spec)
-
         expected = dedent(
             """\
             OwnerSerializer():
@@ -199,7 +225,9 @@ class SpecToSerializerClassTestCase(TestCase):
                     thing = OwnerWidgetSetThingSerializer(read_only=True):
                         name = CharField(max_length=100, read_only=True)
                         related_widget = OwnerWidgetSetThingRelatedWidgetSerializer(allow_null=True, read_only=True, source='widget'):
-                            name = CharField(allow_null=True, max_length=100, read_only=True, required=False)"""
+                            name = CharField(allow_null=True, max_length=100, read_only=True, required=False)
+                    logs = OwnerWidgetSetLogsSerializer(allow_null=True, many=True, read_only=True):
+                        event = CharField(max_length=100, read_only=True)"""
         )
         self.assertEqual(repr(cls()), expected)
 
