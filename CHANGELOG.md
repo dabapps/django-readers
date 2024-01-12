@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added support for Django's reverse generic relations (`GenericRelation` model field) ([#93](https://github.com/dabapps/django-readers/pull/93)).
 
+### Changed
+- Add support for Django 5.0
+
 ## [2.1.2] - 2023-07-17
 
 ### Fixed
