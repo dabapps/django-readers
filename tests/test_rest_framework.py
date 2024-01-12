@@ -202,12 +202,16 @@ class SpecToSerializerClassTestCase(TestCase):
                             },
                         ]
                     },
+                    {
+                        "logs": [
+                            "event",
+                        ]
+                    },
                 ]
             },
         ]
 
         cls = serializer_class_for_spec("Owner", Owner, spec)
-
         expected = dedent(
             """\
             OwnerSerializer():
@@ -221,7 +225,9 @@ class SpecToSerializerClassTestCase(TestCase):
                     thing = OwnerWidgetSetThingSerializer(read_only=True):
                         name = CharField(max_length=100, read_only=True)
                         related_widget = OwnerWidgetSetThingRelatedWidgetSerializer(allow_null=True, read_only=True, source='widget'):
-                            name = CharField(allow_null=True, max_length=100, read_only=True, required=False)"""
+                            name = CharField(allow_null=True, max_length=100, read_only=True, required=False)
+                    logs = OwnerWidgetSetLogsSerializer(allow_null=True, many=True, read_only=True):
+                        event = CharField(max_length=100, read_only=True)"""
         )
         self.assertEqual(repr(cls()), expected)
 

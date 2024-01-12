@@ -1,4 +1,5 @@
 from copy import deepcopy
+from django.contrib.contenttypes.fields import ReverseGenericManyToOneDescriptor
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import cached_property
 from django_readers import specs
@@ -124,10 +125,25 @@ class _SpecToSerializerVisitor(SpecVisitor):
             kwargs["allow_null"] = True
         return kwargs
 
+    def _get_rel_info(self, rel_name):
+        descriptor = getattr(self.model, rel_name)
+        # Special case for reverse generic relations (GenericRelation field)
+        # as these don't appear in rest-framework's rel_info
+        if isinstance(descriptor, ReverseGenericManyToOneDescriptor):
+            return model_meta.RelationInfo(
+                model_field=descriptor.field,
+                related_model=descriptor.field.related_model,
+                to_many=True,
+                to_field=None,
+                has_through_model=False,
+                reverse=True,
+            )
+        return self.info.relations[rel_name]
+
     def visit_dict_item_list(self, key, value):
         # This is a relationship, so we recurse and create
         # a nested serializer to represent it
-        rel_info = self.info.relations[key]
+        rel_info = self._get_rel_info(key)
         capfirst = self._lowercase_with_underscores_to_capitalized_words(key)
         child_serializer_class = serializer_class_for_spec(
             f"{self.name}{capfirst}",
@@ -143,7 +159,7 @@ class _SpecToSerializerVisitor(SpecVisitor):
         # do the same as the previous case, but handled
         # slightly differently to set the `source` correctly
         relationship_name, relationship_spec = next(iter(value.items()))
-        rel_info = self.info.relations[relationship_name]
+        rel_info = self._get_rel_info(relationship_name)
         capfirst = self._lowercase_with_underscores_to_capitalized_words(key)
         child_serializer_class = serializer_class_for_spec(
             f"{self.name}{capfirst}",
