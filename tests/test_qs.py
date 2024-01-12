@@ -1,9 +1,10 @@
+from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 from django.db.models import Count
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
 from django_readers import qs
-from tests.models import Category, Owner, Widget
+from tests.models import Category, LogEntry, Owner, Widget
 from unittest import mock
 
 
@@ -188,6 +189,84 @@ class QuerySetTestCase(TestCase):
         with self.assertNumQueries(0):
             self.assertEqual(owners[0].widget_set.all()[0].name, "test widget")
 
+    def test_prefetch_reverse_generic_relationship(self):
+        widget = Widget.objects.create(name="test widget")
+        LogEntry.objects.create(
+            content_type=ContentType.objects.get_for_model(widget),
+            object_pk=widget.id,
+            event="CREATED",
+        )
+
+        prepare = qs.pipe(
+            qs.include_fields("name"),
+            qs.prefetch_reverse_generic_relationship(
+                "logs",
+                "content_type",
+                "object_pk",
+                LogEntry.objects.all(),
+                qs.include_fields("event"),
+            ),
+        )
+
+        with CaptureQueriesContext(connection) as capture:
+            widgets = list(prepare(Widget.objects.all()))
+
+        self.assertEqual(len(capture.captured_queries), 2)
+
+        self.assertEqual(
+            capture.captured_queries[0]["sql"],
+            "SELECT "
+            '"tests_widget"."id", '
+            '"tests_widget"."name" '
+            "FROM "
+            '"tests_widget"',
+        )
+
+        content_type_id = ContentType.objects.get_for_model(Widget).pk
+
+        self.assertEqual(
+            capture.captured_queries[1]["sql"],
+            "SELECT "
+            '"tests_logentry"."id", '
+            '"tests_logentry"."content_type_id", '
+            '"tests_logentry"."object_pk", '
+            '"tests_logentry"."event" '
+            "FROM "
+            '"tests_logentry" '
+            "WHERE "
+            f'("tests_logentry"."content_type_id" = {content_type_id} AND '
+            '"tests_logentry"."object_pk" IN '
+            "('1'))",
+        )
+
+        with self.assertNumQueries(0):
+            self.assertEqual(widgets[0].logs.all()[0].event, "CREATED")
+
+    def test_prefetch_reverse_generic_relationship_with_to_attr(self):
+        widget = Widget.objects.create(name="test widget")
+        LogEntry.objects.create(
+            content_type=ContentType.objects.get_for_model(widget),
+            object_pk=widget.id,
+            event="CREATED",
+        )
+
+        prepare = qs.pipe(
+            qs.include_fields("name"),
+            qs.prefetch_reverse_generic_relationship(
+                "logs",
+                "content_type",
+                "object_pk",
+                LogEntry.objects.all(),
+                qs.include_fields("event"),
+                to_attr="history",
+            ),
+        )
+
+        widgets = list(prepare(Widget.objects.all()))
+
+        with self.assertNumQueries(0):
+            self.assertEqual(widgets[0].history[0].event, "CREATED")
+
     def test_prefetch_reverse_relationship_only_loads_pk_and_related_name_by_default(
         self,
     ):
@@ -356,6 +435,12 @@ class QuerySetTestCase(TestCase):
             "django_readers.qs.prefetch_many_to_many_relationship"
         ) as mock_fn:
             qs.auto_prefetch_relationship("category_set")(Widget.objects.all())
+            mock_fn.assert_called_once()
+
+        with mock.patch(
+            "django_readers.qs.prefetch_reverse_generic_relationship"
+        ) as mock_fn:
+            qs.auto_prefetch_relationship("logs")(Widget.objects.all())
             mock_fn.assert_called_once()
 
     def test_annotate_only_includes_fk_by_default(self):

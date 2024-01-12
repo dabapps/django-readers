@@ -169,7 +169,12 @@ def prefetch_reverse_relationship(
 
 
 def prefetch_reverse_generic_relationship(
-    name, related_field, related_queryset, prepare_related_queryset=noop, to_attr=None
+    name,
+    content_type_field_name,
+    object_id_field_name,
+    related_queryset,
+    prepare_related_queryset=noop,
+    to_attr=None,
 ):
     """
     Efficiently prefetch a reverse generic relationship: one where the field on the "parent"
@@ -183,8 +188,8 @@ def prefetch_reverse_generic_relationship(
                 pipe(
                     include_fields(
                         "pk",
-                        related_field.content_type_field_name,
-                        related_field.object_id_field_name,
+                        content_type_field_name,
+                        object_id_field_name,
                     ),
                     prepare_related_queryset,
                 )(related_queryset),
@@ -276,7 +281,8 @@ def auto_prefetch_relationship(name, prepare_related_queryset=noop, to_attr=None
         if type(related_descriptor) is ReverseGenericManyToOneDescriptor:
             return prefetch_reverse_generic_relationship(
                 name,
-                related_descriptor.rel.field,
+                related_descriptor.rel.field.content_type_field_name,
+                related_descriptor.rel.field.object_id_field_name,
                 related_descriptor.field.related_model.objects.all(),
                 prepare_related_queryset,
                 to_attr,
