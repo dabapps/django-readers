@@ -84,7 +84,7 @@ class RelationshipTestCase(TestCase):
         self.assertEqual(result, None)
 
     def test_nullable_one_to_one(self):
-        widget = Widget.objects.create(thing=None)
+        widget = Widget.objects.create()
         produce = producers.relationship(
             "thing", projectors.producer_to_projector("name", producers.attr("name"))
         )
