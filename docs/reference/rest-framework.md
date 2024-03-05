@@ -90,7 +90,7 @@ PublisherSerializer():
 This higher-level function generates a serializer given a view instance. 
 
 * The name of the serializer is inferred from the view name (the word `View` is removed).
-* The model class is taken from either the `queryset` attribute of the view, or (if `get_queryset` has been overridden), explicitly from the `Model` attribute.
+* The model class is taken from either the `queryset` attribute of the view, or (if `get_queryset` has been overridden), explicitly from the `model` attribute.
 * The spec is taken from the `spec` attribute of the view.
 
 This can be used to create a simple [custom `AutoSchema` subclass](https://www.django-rest-framework.org/api-guide/schemas/#autoschema) to support schema generation:
