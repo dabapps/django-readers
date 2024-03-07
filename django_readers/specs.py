@@ -1,5 +1,5 @@
 from django_readers import pairs
-from django_readers.utils import queries_disabled
+from django_readers.utils import with_prepared_checker, with_queries_disabled
 
 
 def process_item(item):
@@ -16,7 +16,9 @@ def process_item(item):
 
 
 def process(spec):
-    return queries_disabled(pairs.combine(*(process_item(item) for item in spec)))
+    return with_prepared_checker(
+        with_queries_disabled(pairs.combine(*(process_item(item) for item in spec)))
+    )
 
 
 def relationship(name, relationship_spec, to_attr=None):
