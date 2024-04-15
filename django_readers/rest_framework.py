@@ -9,6 +9,15 @@ from rest_framework import serializers
 from rest_framework.utils import model_meta
 
 
+def add_annotation(obj, key, value):
+    obj._readers_annotation = getattr(obj, "_readers_annotation", None) or {}
+    obj._readers_annotation[key] = value
+
+
+def get_annotation(obj, key):
+    return getattr(obj, "_readers_annotation", {}).get(key)
+
+
 class ProjectionSerializer:
     def __init__(self, data=None, many=False, context=None):
         self.many = many
@@ -88,10 +97,11 @@ class _SpecToSerializerVisitor(SpecVisitor):
     def _get_out_value(self, item):
         # Either the item itself or (if this is a pair) just the
         # producer/projector function may have been decorated
-        if hasattr(item, "out"):
-            return item.out
-        if isinstance(item, tuple) and hasattr(item[1], "out"):
-            return item[1].out
+        if out := get_annotation(item, "out"):
+            return out
+        if isinstance(item, tuple):
+            if out := get_annotation(item[1], "out"):
+                return out
         return None
 
     def visit_str(self, item):
@@ -100,8 +110,8 @@ class _SpecToSerializerVisitor(SpecVisitor):
     def visit_dict_item_str(self, key, value):
         # This is a model field name. First, check if the
         # field has been explicitly overridden
-        if hasattr(value, "out"):
-            field = self._prepare_field(value.out)
+        if out := get_annotation(value, "out"):
+            field = self._prepare_field(out)
             self.fields[str(key)] = field
             return key, field
 
@@ -231,12 +241,12 @@ def serializer_class_for_view(view):
     return serializer_class_for_spec(name_prefix, model, view.spec)
 
 
-class PairWithOutAttribute(tuple):
-    out = None
+class PairWithAnnotation(tuple):
+    _readers_annotation = None
 
 
-class StringWithOutAttribute(str):
-    out = None
+class StringWithAnnotation(str):
+    _readers_annotation = None
 
 
 def out(field_or_dict):
@@ -257,15 +267,15 @@ def out(field_or_dict):
                     result = item(*args, **kwargs)
                     return self(result)
 
-                wrapper.out = field_or_dict
+                add_annotation(wrapper, "out", field_or_dict)
                 return wrapper
             else:
                 if isinstance(item, str):
-                    item = StringWithOutAttribute(item)
-                    item.out = field_or_dict
+                    item = StringWithAnnotation(item)
+                    add_annotation(item, "out", field_or_dict)
                 if isinstance(item, tuple):
-                    item = PairWithOutAttribute(item)
-                    item.out = field_or_dict
+                    item = PairWithAnnotation(item)
+                    add_annotation(item, "out", field_or_dict)
                 return item
 
         def __rrshift__(self, other):
