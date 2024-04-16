@@ -107,7 +107,7 @@ class _SpecToSerializerVisitor(SpecVisitor):
     def visit_dict_item_str(self, key, value):
         # This is a model field name. First, check if the
         # field has been explicitly overridden
-        if out := get_annotation(value, "out"):
+        if out := get_annotation(value, "field"):
             field = self._prepare_field(out, kwargs=get_annotation(value, "kwargs"))
 
         else:
@@ -184,7 +184,7 @@ class _SpecToSerializerVisitor(SpecVisitor):
 
     def visit_dict_item_tuple(self, key, value):
         # This is a producer pair.
-        out = get_annotation(value, "out")
+        out = get_annotation(value, "field")
         kwargs = get_annotation(value, "kwargs") or {}
         if out:
             field = self._prepare_field(out, kwargs)
@@ -198,7 +198,7 @@ class _SpecToSerializerVisitor(SpecVisitor):
 
     def visit_tuple(self, item):
         # This is a projector pair.
-        out = get_annotation(item, "out")
+        out = get_annotation(item, "field")
         kwargs = get_annotation(item, "kwargs") or {}
         if out:
             # `out` is a dictionary mapping field names to Fields
@@ -276,17 +276,17 @@ def out(*args, **kwargs):
                     result = item(*args, **kwargs)
                     return self(result)
 
-                add_annotation(wrapper, "out", field_or_dict)
+                add_annotation(wrapper, "field", field_or_dict)
                 add_annotation(wrapper, "kwargs", kwargs)
                 return wrapper
             else:
                 if isinstance(item, str):
                     item = StringWithAnnotation(item)
-                    add_annotation(item, "out", field_or_dict)
+                    add_annotation(item, "field", field_or_dict)
                     add_annotation(item, "kwargs", kwargs)
                 if isinstance(item, tuple):
                     item = PairWithAnnotation(item)
-                    add_annotation(item, "out", field_or_dict)
+                    add_annotation(item, "field", field_or_dict)
                     add_annotation(item, "kwargs", kwargs)
                 return item
 
