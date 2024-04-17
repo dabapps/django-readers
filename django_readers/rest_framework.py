@@ -9,6 +9,20 @@ from rest_framework import serializers
 from rest_framework.utils import model_meta
 
 
+def add_annotation(obj, key, value):
+    obj._readers_annotation = getattr(obj, "_readers_annotation", None) or {}
+    obj._readers_annotation[key] = value
+
+
+def get_annotation(obj, key):
+    # Either the item itself or (if this is a pair) just the
+    # producer/projector function may have been decorated
+    if value := getattr(obj, "_readers_annotation", {}).get(key):
+        return value
+    if isinstance(obj, tuple):
+        return get_annotation(obj[1], key)
+
+
 class ProjectionSerializer:
     def __init__(self, data=None, many=False, context=None):
         self.many = many
@@ -77,22 +91,15 @@ class _SpecToSerializerVisitor(SpecVisitor):
     def _lowercase_with_underscores_to_capitalized_words(self, string):
         return "".join(part.title() for part in string.split("_"))
 
-    def _prepare_field(self, field):
+    def _prepare_field(self, field, kwargs=None):
         # We copy the field so its _creation_counter is correct and
         # it appears in the right order in the resulting serializer.
         # We also force it to be read_only
         field = deepcopy(field)
+        if kwargs:
+            field._kwargs.update(kwargs)
         field._kwargs["read_only"] = True
         return field
-
-    def _get_out_value(self, item):
-        # Either the item itself or (if this is a pair) just the
-        # producer/projector function may have been decorated
-        if hasattr(item, "out"):
-            return item.out
-        if isinstance(item, tuple) and hasattr(item[1], "out"):
-            return item[1].out
-        return None
 
     def visit_str(self, item):
         return self.visit_dict_item_str(item, item)
@@ -100,23 +107,27 @@ class _SpecToSerializerVisitor(SpecVisitor):
     def visit_dict_item_str(self, key, value):
         # This is a model field name. First, check if the
         # field has been explicitly overridden
-        if hasattr(value, "out"):
-            field = self._prepare_field(value.out)
-            self.fields[str(key)] = field
-            return key, field
+        if out := get_annotation(value, "field"):
+            field = self._prepare_field(out, kwargs=get_annotation(value, "kwargs"))
 
-        # No explicit override, so we can use ModelSerializer
-        # machinery to figure out which field type to use
-        field_class, field_kwargs = self.field_builder.build_field(
-            value,
-            self.info,
-            self.model,
-            0,
-        )
-        if key != value:
-            field_kwargs["source"] = value
-        field_kwargs.setdefault("read_only", True)
-        self.fields[key] = field_class(**field_kwargs)
+        else:
+            # No explicit override, so we can use ModelSerializer
+            # machinery to figure out which field type to use
+            field_class, field_kwargs = self.field_builder.build_field(
+                value,
+                self.info,
+                self.model,
+                0,
+            )
+            if key != value:
+                field_kwargs["source"] = value
+            field_kwargs.setdefault("read_only", True)
+
+            if kwargs := get_annotation(value, "kwargs"):
+                field_kwargs.update(kwargs)
+            field = field_class(**field_kwargs)
+
+        self.fields[str(key)] = field
         return key, value
 
     def _get_child_serializer_kwargs(self, rel_info):
@@ -173,24 +184,26 @@ class _SpecToSerializerVisitor(SpecVisitor):
 
     def visit_dict_item_tuple(self, key, value):
         # This is a producer pair.
-        out = self._get_out_value(value)
+        out = get_annotation(value, "field")
+        kwargs = get_annotation(value, "kwargs") or {}
         if out:
-            field = self._prepare_field(out)
+            field = self._prepare_field(out, kwargs)
             self.fields[key] = field
         else:
             # Fallback case: we don't know what field type to use
-            self.fields[key] = serializers.ReadOnlyField()
+            self.fields[key] = serializers.ReadOnlyField(**kwargs)
         return key, value
 
     visit_dict_item_callable = visit_dict_item_tuple
 
     def visit_tuple(self, item):
         # This is a projector pair.
-        out = self._get_out_value(item)
+        out = get_annotation(item, "field")
+        kwargs = get_annotation(item, "kwargs") or {}
         if out:
             # `out` is a dictionary mapping field names to Fields
             for name, field in out.items():
-                field = self._prepare_field(field)
+                field = self._prepare_field(field, kwargs)
                 self.fields[name] = field
         # There is no fallback case because we have no way of knowing the shape
         # of the returned dictionary, so the schema will be unavoidably incorrect.
@@ -231,22 +244,28 @@ def serializer_class_for_view(view):
     return serializer_class_for_spec(name_prefix, model, view.spec)
 
 
-class PairWithOutAttribute(tuple):
-    out = None
+class PairWithAnnotation(tuple):
+    _readers_annotation = None
 
 
-class StringWithOutAttribute(str):
-    out = None
+class StringWithAnnotation(str):
+    _readers_annotation = None
 
 
-def out(field_or_dict):
-    if isinstance(field_or_dict, dict):
-        if not all(
-            isinstance(item, serializers.Field) for item in field_or_dict.values()
-        ):
-            raise TypeError("Each value must be an instance of Field")
-    elif not isinstance(field_or_dict, serializers.Field):
-        raise TypeError("Must be an instance of Field")
+def out(*args, **kwargs):
+    if args:
+        if len(args) != 1:
+            raise TypeError("Provide a single field or dictionary of fields")
+        field_or_dict = args[0]
+        if isinstance(field_or_dict, dict):
+            if not all(
+                isinstance(item, serializers.Field) for item in field_or_dict.values()
+            ):
+                raise TypeError("Each value must be an instance of Field")
+        elif not isinstance(field_or_dict, serializers.Field):
+            raise TypeError("Must be an instance of Field")
+    else:
+        field_or_dict = None
 
     class ShiftableDecorator:
         def __call__(self, item):
@@ -257,15 +276,18 @@ def out(field_or_dict):
                     result = item(*args, **kwargs)
                     return self(result)
 
-                wrapper.out = field_or_dict
+                add_annotation(wrapper, "field", field_or_dict)
+                add_annotation(wrapper, "kwargs", kwargs)
                 return wrapper
             else:
                 if isinstance(item, str):
-                    item = StringWithOutAttribute(item)
-                    item.out = field_or_dict
+                    item = StringWithAnnotation(item)
+                    add_annotation(item, "field", field_or_dict)
+                    add_annotation(item, "kwargs", kwargs)
                 if isinstance(item, tuple):
-                    item = PairWithOutAttribute(item)
-                    item.out = field_or_dict
+                    item = PairWithAnnotation(item)
+                    add_annotation(item, "field", field_or_dict)
+                    add_annotation(item, "kwargs", kwargs)
                 return item
 
         def __rrshift__(self, other):

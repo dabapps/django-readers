@@ -416,6 +416,34 @@ class OutputFieldTestCase(TestCase):
         )
         self.assertEqual(repr(cls()), expected)
 
+    def test_out_kwargs(self):
+        @out(serializers.CharField(), label="Hello label")
+        def produce_hello(_):
+            return "Hello"
+
+        hello = qs.noop, produce_hello
+
+        spec = [
+            "name" >> out(help_text="Help for name"),
+            {"aliased_name": "name" >> out(label="Label for aliased name")},
+            {"upper_name": out(help_text="Help for upper name")(upper_name)},
+            # This is a bit redundant (kwargs could just be passed to the field
+            # directly) but should still work.
+            {"hello": hello},
+        ]
+
+        cls = serializer_class_for_spec("Category", Category, spec)
+
+        expected = dedent(
+            """\
+            CategorySerializer():
+                name = CharField(help_text='Help for name', max_length=100, read_only=True)
+                aliased_name = CharField(label='Label for aliased name', max_length=100, read_only=True, source='name')
+                upper_name = ReadOnlyField(help_text='Help for upper name')
+                hello = CharField(label='Hello label', read_only=True)"""
+        )
+        self.assertEqual(repr(cls()), expected)
+
     def test_out_raises_with_field_class(self):
         with self.assertRaises(TypeError):
             out(serializers.CharField)
