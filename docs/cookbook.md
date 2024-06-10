@@ -90,6 +90,50 @@ spec = [
 ]
 ```
 
+## Alias a relationship
+
+To alias a relationship, nest the relationship spec inside another dictionary:
+
+```python
+spec = [
+    "name",
+    {
+        "books_2022": {
+            "book_set": [
+                pairs.filter(publication_date__year=2022),
+                "id",
+                "title",
+            ]
+        }
+    },
+]
+```
+
+## Alias a relationship with a custom `to_attr`
+
+The above example uses the default name (`book_set`) for the relationship when
+the related objects are prefetched. If you wish to load the same relationship
+multiple times with different filters, this won't work. To provide a `to_attr`
+for the relationship, drop down to the `specs.relationship` function:
+
+```python
+from django_readers import specs
+
+
+spec = [
+    "name",
+    specs.relationship(
+        "book_set",
+        [
+            pairs.filter(publication_date__year=2022),
+            "id",
+            "title",
+        ],
+        to_attr="books_2022",
+    )
+]
+```
+
 ## Apply arbitrary queryset operations
 
 ```python
