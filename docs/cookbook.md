@@ -122,17 +122,15 @@ from django_readers import specs
 
 spec = [
     "name",
-    {
-        "books_2022": specs.relationship(
-            "book_set",
-            [
-                pairs.filter(publication_date__year=2022),
-                "id",
-                "title",
-            ],
-            to_attr="books_2022",
-        )
-    },
+    specs.relationship(
+        "book_set",
+        [
+            pairs.filter(publication_date__year=2022),
+            "id",
+            "title",
+        ],
+        to_attr="books_2022",
+    )
 ]
 ```
 
