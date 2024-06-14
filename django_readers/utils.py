@@ -1,10 +1,12 @@
+from itertools import islice
+
 try:
     import zen_queries
 except ImportError:
     zen_queries = None
 
 
-def map_or_apply(obj, fn):
+def map_or_apply(obj, fn, slice=None):
     """
     If the first argument is iterable, map the function across each item in it and
     return the result. If it looks like a queryset or manager, call `.all()` and
@@ -16,11 +18,22 @@ def map_or_apply(obj, fn):
 
     try:
         # Is the object itself iterable?
-        return [fn(item) for item in iter(obj)]
+        print(obj)
+        if slice:
+            iterable = islice(obj, slice.start, slice.stop, slice.step)
+        else:
+            iterable = iter(obj)
+
+        return [fn(item) for item in iterable]
     except TypeError:
         try:
             # Does the object have a `.all()` method (is it a manager?)
-            return [fn(item) for item in obj.all()]
+            qs = obj.all()
+
+            if slice:
+                qs = qs.__gettiem__(slice)
+
+            return [fn(item) for item in qs]
         except AttributeError:
             # It must be a single object
             return fn(obj)
@@ -106,3 +119,13 @@ class SpecVisitor:
 
     def visit_dict_item_callable(self, key, value):
         return key, self.visit_callable(value)
+
+
+def collapse_list(res):
+    if not res:
+        return None
+
+    if len(res) == 1:
+        return res[0]
+
+    return res
