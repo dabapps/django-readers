@@ -8,26 +8,27 @@ from django_readers.utils import SpecVisitor
 from functools import wraps
 from rest_framework import serializers
 from rest_framework.utils import model_meta
+from typing import Optional
 
 import inspect
 
 TYPES_TO_SERIALIZER_FIELDS = {
     int: serializers.IntegerField(),
-    int | None: serializers.IntegerField(allow_null=True),
+    Optional[int]: serializers.IntegerField(allow_null=True),
     str: serializers.CharField(),
-    str | None: serializers.CharField(allow_null=True),
+    Optional[str]: serializers.CharField(allow_null=True),
     float: serializers.FloatField(),
-    float | None: serializers.FloatField(allow_null=True),
+    Optional[float]: serializers.FloatField(allow_null=True),
     bool: serializers.BooleanField(),
-    bool | None: serializers.BooleanField(allow_null=True),
+    Optional[bool]: serializers.BooleanField(allow_null=True),
     date: serializers.DateField(),
-    date | None: serializers.DateField(allow_null=True),
+    Optional[date]: serializers.DateField(allow_null=True),
     datetime: serializers.DateTimeField(),
-    datetime | None: serializers.DateTimeField(allow_null=True),
+    Optional[datetime]: serializers.DateTimeField(allow_null=True),
     time: serializers.TimeField(),
-    time | None: serializers.TimeField(allow_null=True),
+    Optional[time]: serializers.TimeField(allow_null=True),
     timedelta: serializers.DurationField(),
-    timedelta | None: serializers.DurationField(allow_null=True),
+    Optional[timedelta]: serializers.DurationField(allow_null=True),
 }
 
 
