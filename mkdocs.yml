@@ -24,6 +24,7 @@ markdown_extensions:
   - toc:
       permalink: true
   - attr_list
+  - tables
 
 repo_name: dabapps/django-readers
 repo_url: https://github.com/dabapps/django-readers/

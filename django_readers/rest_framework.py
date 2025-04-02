@@ -1,4 +1,5 @@
 from copy import deepcopy
+from datetime import date, datetime, time, timedelta
 from django.contrib.contenttypes.fields import ReverseGenericManyToOneDescriptor
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import cached_property
@@ -7,6 +8,37 @@ from django_readers.utils import SpecVisitor
 from functools import wraps
 from rest_framework import serializers
 from rest_framework.utils import model_meta
+
+import inspect
+
+TYPES_TO_SERIALIZER_FIELDS = {
+    int: serializers.IntegerField(),
+    int | None: serializers.IntegerField(allow_null=True),
+    str: serializers.CharField(),
+    str | None: serializers.CharField(allow_null=True),
+    float: serializers.FloatField(),
+    float | None: serializers.FloatField(allow_null=True),
+    bool: serializers.BooleanField(),
+    bool | None: serializers.BooleanField(allow_null=True),
+    date: serializers.DateField(),
+    date | None: serializers.DateField(allow_null=True),
+    datetime: serializers.DateTimeField(),
+    datetime | None: serializers.DateTimeField(allow_null=True),
+    time: serializers.TimeField(),
+    time | None: serializers.TimeField(allow_null=True),
+    timedelta: serializers.DurationField(),
+    timedelta | None: serializers.DurationField(allow_null=True),
+}
+
+
+def serializer_field_for_type(type_):
+    """
+    Returns a serializer field for the given type.
+    """
+    try:
+        return TYPES_TO_SERIALIZER_FIELDS[type_]
+    except (KeyError, TypeError):
+        pass
 
 
 def add_annotation(obj, key, value):
@@ -21,6 +53,28 @@ def get_annotation(obj, key):
         return value
     if isinstance(obj, tuple):
         return get_annotation(obj[1], key)
+
+
+def get_serializer_field(obj):
+    # if the object has been explicitly annotated, always
+    # prefer the annotation
+    annotation = get_annotation(obj, "field")
+    if annotation:
+        # the annotation might be a type, if so we need to map it to a field
+        field = serializer_field_for_type(annotation)
+        if field:
+            return field
+        # otherwise, we assume it's a field and return it as-is
+        return annotation
+
+    # if this is a pair, we're interested in the producer (or projector)
+    if isinstance(obj, tuple):
+        obj = obj[1]
+
+    # if it's a callable, does it have an return type annotation?
+    if callable(obj):
+        return_type = inspect.signature(obj).return_annotation
+        return serializer_field_for_type(return_type)
 
 
 class ProjectionSerializer:
@@ -107,7 +161,7 @@ class _SpecToSerializerVisitor(SpecVisitor):
     def visit_dict_item_str(self, key, value):
         # This is a model field name. First, check if the
         # field has been explicitly overridden
-        if out := get_annotation(value, "field"):
+        if out := get_serializer_field(value):
             field = self._prepare_field(out, kwargs=get_annotation(value, "kwargs"))
 
         else:
@@ -184,7 +238,7 @@ class _SpecToSerializerVisitor(SpecVisitor):
 
     def visit_dict_item_tuple(self, key, value):
         # This is a producer pair.
-        out = get_annotation(value, "field")
+        out = get_serializer_field(value)
         kwargs = get_annotation(value, "kwargs") or {}
         if out:
             field = self._prepare_field(out, kwargs)
@@ -201,8 +255,11 @@ class _SpecToSerializerVisitor(SpecVisitor):
         out = get_annotation(item, "field")
         kwargs = get_annotation(item, "kwargs") or {}
         if out:
-            # `out` is a dictionary mapping field names to Fields
+            # `out` is a dictionary mapping field names to either types or Fields
             for name, field in out.items():
+                mapped_field = serializer_field_for_type(field)
+                if mapped_field:
+                    field = mapped_field
                 field = self._prepare_field(field, kwargs)
                 self.fields[name] = field
         # There is no fallback case because we have no way of knowing the shape
@@ -259,11 +316,18 @@ def out(*args, **kwargs):
         field_or_dict = args[0]
         if isinstance(field_or_dict, dict):
             if not all(
-                isinstance(item, serializers.Field) for item in field_or_dict.values()
+                isinstance(item, serializers.Field)
+                or item in TYPES_TO_SERIALIZER_FIELDS.keys()
+                for item in field_or_dict.values()
             ):
-                raise TypeError("Each value must be an instance of Field")
-        elif not isinstance(field_or_dict, serializers.Field):
-            raise TypeError("Must be an instance of Field")
+                raise TypeError(
+                    "Each value must be an instance of Field or a supported type"
+                )
+        elif not (
+            isinstance(field_or_dict, serializers.Field)
+            or field_or_dict in TYPES_TO_SERIALIZER_FIELDS.keys()
+        ):
+            raise TypeError("Must be an instance of Field or a supported type")
     else:
         field_or_dict = None
 

@@ -199,3 +199,45 @@ class SomeView(SpecMixin, RetrieveAPIView):
         ...,
     ]
 ```
+
+### Using Python type annotations
+
+In simple cases, it's also possible to infer serializer field types from Python types. You can use a type object as an argument to `out` in place of a field:
+
+```python hl_lines="1"
+@out(str)
+def produce_hello_world(instance):
+    return "Hello world"
+```
+
+This works inline in a spec too:
+
+```python hl_lines="5"
+class SomeView(SpecMixin, RetrieveAPIView):
+    queryset = SomeModel.objects.all()
+    spec = [
+        ...,
+        {"genre": pairs.field_display("genre") >> out(str)},
+        ...,
+    ]
+```
+
+Or you can use a Python type hint on the producer function:
+
+```python hl_lines="1"
+def produce_hello_world(instance) -> str:
+    return "Hello world"
+```
+
+The table below shows which types are supported, and the resulting serializer field type. In all cases, adding `| None` or `Optional` will result in the `allow_null=True` argument being passed to the generated serializer field.
+
+| Type          | Serializer Field    |
+|---------------|---------------------|
+| `int`         | `IntegerField`      |
+| `str`         | `CharField`         |
+| `float`       | `FloatField`        |
+| `bool`        | `BooleanField`      |
+| `date`        | `DateField`         |
+| `datetime`    | `DateTimeField`     |
+| `time`        | `TimeField`         |
+| `timedelta`   | `DurationField`     |

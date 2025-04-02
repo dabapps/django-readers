@@ -318,6 +318,22 @@ class OutputFieldTestCase(TestCase):
         )
         self.assertEqual(repr(cls()), expected)
 
+    def test_output_field_python_type(self):
+        spec = [
+            "name",
+            {"upper_name": out(str)(upper_name)},
+        ]
+
+        cls = serializer_class_for_spec("Category", Category, spec)
+
+        expected = dedent(
+            """\
+            CategorySerializer():
+                name = CharField(max_length=100, read_only=True)
+                upper_name = CharField(read_only=True)"""
+        )
+        self.assertEqual(repr(cls()), expected)
+
     def test_output_field_decorator(self):
         @out(serializers.CharField())
         def hello():
@@ -338,9 +354,72 @@ class OutputFieldTestCase(TestCase):
         )
         self.assertEqual(repr(cls()), expected)
 
+    def test_output_field_decorator_python_type(self):
+        @out(str | None)
+        def hello():
+            return lambda qs: qs, lambda _: "Hello"
+
+        spec = [
+            "name",
+            {"hello": hello()},
+        ]
+
+        cls = serializer_class_for_spec("Category", Category, spec)
+
+        expected = dedent(
+            """\
+            CategorySerializer():
+                name = CharField(max_length=100, read_only=True)
+                hello = CharField(allow_null=True, read_only=True)"""
+        )
+        self.assertEqual(repr(cls()), expected)
+
     def test_output_field_decorator_producer(self):
         @out(serializers.CharField())
         def produce_hello(_):
+            return "Hello"
+
+        hello = qs.noop, produce_hello
+
+        spec = [
+            "name",
+            {"hello": hello},
+        ]
+
+        cls = serializer_class_for_spec("Category", Category, spec)
+
+        expected = dedent(
+            """\
+            CategorySerializer():
+                name = CharField(max_length=100, read_only=True)
+                hello = CharField(read_only=True)"""
+        )
+        self.assertEqual(repr(cls()), expected)
+
+    def test_output_field_decorator_producer_python_type(self):
+        @out(str)
+        def produce_hello(_):
+            return "Hello"
+
+        hello = qs.noop, produce_hello
+
+        spec = [
+            "name",
+            {"hello": hello},
+        ]
+
+        cls = serializer_class_for_spec("Category", Category, spec)
+
+        expected = dedent(
+            """\
+            CategorySerializer():
+                name = CharField(max_length=100, read_only=True)
+                hello = CharField(read_only=True)"""
+        )
+        self.assertEqual(repr(cls()), expected)
+
+    def test_output_field_producer_return_type(self):
+        def produce_hello() -> str:
             return "Hello"
 
         hello = qs.noop, produce_hello
@@ -386,6 +465,32 @@ class OutputFieldTestCase(TestCase):
         self.assertEqual(repr(cls()), expected)
         self.assertTrue(produce_bool(None) is True)
 
+    def test_output_field_decorator_producer_boolean_python_type(self):
+        # this is a useful test case because booleans can't be subclassed
+        # or have arbitrary attributes added to them.
+
+        @out(bool)
+        def produce_bool(_):
+            return True
+
+        bool_pair = qs.noop, produce_bool
+
+        spec = [
+            "name",
+            {"bool": bool_pair},
+        ]
+
+        cls = serializer_class_for_spec("Category", Category, spec)
+
+        expected = dedent(
+            """\
+            CategorySerializer():
+                name = CharField(max_length=100, read_only=True)
+                bool = BooleanField(read_only=True)"""
+        )
+        self.assertEqual(repr(cls()), expected)
+        self.assertTrue(produce_bool(None) is True)
+
     def test_out_rrshift(self):
         spec = [
             "name",
@@ -402,9 +507,39 @@ class OutputFieldTestCase(TestCase):
         )
         self.assertEqual(repr(cls()), expected)
 
+    def test_out_rrshift_python_type(self):
+        spec = [
+            "name",
+            {"upper_name": upper_name >> out(str)},
+        ]
+
+        cls = serializer_class_for_spec("Category", Category, spec)
+
+        expected = dedent(
+            """\
+            CategorySerializer():
+                name = CharField(max_length=100, read_only=True)
+                upper_name = CharField(read_only=True)"""
+        )
+        self.assertEqual(repr(cls()), expected)
+
     def test_field_name_override(self):
         spec = [
             "name" >> out(serializers.IntegerField()),
+        ]
+
+        cls = serializer_class_for_spec("Category", Category, spec)
+
+        expected = dedent(
+            """\
+            CategorySerializer():
+                name = IntegerField(read_only=True)"""
+        )
+        self.assertEqual(repr(cls()), expected)
+
+    def test_field_name_override_python_type(self):
+        spec = [
+            "name" >> out(int),
         ]
 
         cls = serializer_class_for_spec("Category", Category, spec)
@@ -520,11 +655,74 @@ class OutputFieldTestCase(TestCase):
         )
         self.assertEqual(repr(cls()), expected)
 
+    def test_out_with_projector_pair_python_type(self):
+        @out(
+            {
+                "upper_name": str,
+                "name_length": int,
+            }
+        )
+        def upper_name_and_name_length():
+            def project(instance):
+                return {
+                    "upper_name": instance.name.upper(),
+                    "name_length": len(instance.name),
+                }
+
+            return qs.include_fields("name"), project
+
+        spec = [
+            "name",
+            upper_name_and_name_length(),
+        ]
+
+        cls = serializer_class_for_spec("Category", Category, spec)
+
+        expected = dedent(
+            """\
+            CategorySerializer():
+                name = CharField(max_length=100, read_only=True)
+                upper_name = CharField(read_only=True)
+                name_length = IntegerField(read_only=True)"""
+        )
+        self.assertEqual(repr(cls()), expected)
+
     def test_out_with_projector_pair_projector_only(self):
         @out(
             {
                 "upper_name": serializers.CharField(),
                 "name_length": serializers.IntegerField(),
+            }
+        )
+        def project(instance):
+            return {
+                "upper_name": instance.name.upper(),
+                "name_length": len(instance.name),
+            }
+
+        upper_name_and_name_length = qs.include_fields("name"), project
+
+        spec = [
+            "name",
+            upper_name_and_name_length,
+        ]
+
+        cls = serializer_class_for_spec("Category", Category, spec)
+
+        expected = dedent(
+            """\
+            CategorySerializer():
+                name = CharField(max_length=100, read_only=True)
+                upper_name = CharField(read_only=True)
+                name_length = IntegerField(read_only=True)"""
+        )
+        self.assertEqual(repr(cls()), expected)
+
+    def test_out_with_projector_pair_projector_only_python_type(self):
+        @out(
+            {
+                "upper_name": str,
+                "name_length": int,
             }
         )
         def project(instance):
