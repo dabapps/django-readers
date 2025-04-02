@@ -13,6 +13,7 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.test import APIRequestFactory
 from tests.models import Category, Group, LogEntry, Owner, Widget
 from textwrap import dedent
+from typing import Optional
 
 
 class WidgetListView(SpecMixin, ListAPIView):
@@ -355,7 +356,7 @@ class OutputFieldTestCase(TestCase):
         self.assertEqual(repr(cls()), expected)
 
     def test_output_field_decorator_python_type(self):
-        @out(str | None)
+        @out(Optional[str])
         def hello():
             return lambda qs: qs, lambda _: "Hello"
 
