@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Added support for using Python type objects instead of serializer fields in schema generation code ([#106](https://github.com/dabapps/django-readers/pull/106))
+
 ## [2.3.0] - 2024-04-17
 
 ### Added
