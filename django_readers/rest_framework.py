@@ -32,9 +32,6 @@ TYPES_TO_SERIALIZER_FIELDS = {
 
 
 def serializer_field_for_type(type_):
-    """
-    Returns a serializer field for the given type.
-    """
     try:
         return TYPES_TO_SERIALIZER_FIELDS[type_]
     except (KeyError, TypeError):
