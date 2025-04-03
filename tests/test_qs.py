@@ -7,6 +7,10 @@ from django_readers import qs
 from tests.models import Category, LogEntry, Owner, Widget
 from unittest import mock
 
+import django
+
+IS_5_2_OR_GREATER = django.VERSION >= (5, 2)
+
 
 class QuerySetTestCase(TestCase):
     def test_filter(self):
@@ -97,7 +101,7 @@ class QuerySetTestCase(TestCase):
             "FROM "
             '"tests_owner" '
             "WHERE "
-            '"tests_owner"."id" IN (1)',
+            '"tests_owner"."id" ' + ("= 1" if IS_5_2_OR_GREATER else "IN (1)"),
         )
 
         with self.assertNumQueries(0):
@@ -131,7 +135,7 @@ class QuerySetTestCase(TestCase):
             "FROM "
             '"tests_owner" '
             "WHERE "
-            '"tests_owner"."id" IN (1)',
+            '"tests_owner"."id" ' + ("= 1" if IS_5_2_OR_GREATER else "IN (1)"),
         )
 
     def test_prefetch_forward_relationship_with_to_attr(self):
