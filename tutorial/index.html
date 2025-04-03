@@ -1,0 +1,1301 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A lightweight function-oriented toolkit for better organisation of business logic and efficient selection and projection of data in Django projects.">
+      
+      
+      
+      <link rel="icon" href="../img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-8.3.9">
+    
+    
+      
+        <title>Tutorial - django-readers</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.1d29e8d0.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#e92063">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="pink" data-md-color-accent="pink">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#installing-django-readers" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="django-readers" class="md-header__button md-logo" aria-label="django-readers" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 14.33c.79 0 1.63.08 2.5.24v1.5c-.62-.16-1.46-.24-2.5-.24-1.9 0-3.39.33-4.5.99v-1.69c1.17-.53 2.67-.8 4.5-.8M13 12.46c1.29-.53 2.79-.79 4.5-.79.79 0 1.63.07 2.5.23v1.5c-.62-.16-1.46-.24-2.5-.24-1.9 0-3.39.34-4.5.99m4.5-3.65c-1.9 0-3.39.32-4.5 1V9.84c1.23-.56 2.73-.84 4.5-.84.79 0 1.63.08 2.5.23v1.55c-.74-.19-1.59-.28-2.5-.28m3.5 8V7c-1.04-.33-2.21-.5-3.5-.5-2.05 0-3.88.5-5.5 1.5v11.5c1.62-1 3.45-1.5 5.5-1.5 1.19 0 2.36.16 3.5.5m-3.5-14c2.35 0 4.19.5 5.5 1.5v14.56c0 .12-.05.24-.16.35-.11.09-.23.17-.34.17-.11 0-.19-.02-.25-.05-1.28-.69-2.87-1.03-4.75-1.03-2.05 0-3.88.5-5.5 1.5-1.34-1-3.17-1.5-5.5-1.5-1.66 0-3.25.36-4.75 1.07-.03.01-.07.01-.12.03-.04.01-.08.02-.13.02-.11 0-.23-.04-.34-.12a.475.475 0 0 1-.16-.35V6c1.34-1 3.18-1.5 5.5-1.5 2.33 0 4.16.5 5.5 1.5 1.34-1 3.17-1.5 5.5-1.5Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            django-readers
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Tutorial
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/dabapps/django-readers/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    dabapps/django-readers
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="django-readers" class="md-nav__button md-logo" aria-label="django-readers" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 14.33c.79 0 1.63.08 2.5.24v1.5c-.62-.16-1.46-.24-2.5-.24-1.9 0-3.39.33-4.5.99v-1.69c1.17-.53 2.67-.8 4.5-.8M13 12.46c1.29-.53 2.79-.79 4.5-.79.79 0 1.63.07 2.5.23v1.5c-.62-.16-1.46-.24-2.5-.24-1.9 0-3.39.34-4.5.99m4.5-3.65c-1.9 0-3.39.32-4.5 1V9.84c1.23-.56 2.73-.84 4.5-.84.79 0 1.63.08 2.5.23v1.55c-.74-.19-1.59-.28-2.5-.28m3.5 8V7c-1.04-.33-2.21-.5-3.5-.5-2.05 0-3.88.5-5.5 1.5v11.5c1.62-1 3.45-1.5 5.5-1.5 1.19 0 2.36.16 3.5.5m-3.5-14c2.35 0 4.19.5 5.5 1.5v14.56c0 .12-.05.24-.16.35-.11.09-.23.17-.34.17-.11 0-.19-.02-.25-.05-1.28-.69-2.87-1.03-4.75-1.03-2.05 0-3.88.5-5.5 1.5-1.34-1-3.17-1.5-5.5-1.5-1.66 0-3.25.36-4.75 1.07-.03.01-.07.01-.12.03-.04.01-.08.02-.13.02-.11 0-.23-.04-.34-.12a.475.475 0 0 1-.16-.35V6c1.34-1 3.18-1.5 5.5-1.5 2.33 0 4.16.5 5.5 1.5 1.34-1 3.17-1.5 5.5-1.5Z"/></svg>
+
+    </a>
+    django-readers
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/dabapps/django-readers/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    dabapps/django-readers
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Tutorial
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Tutorial
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installing-django-readers" class="md-nav__link">
+    Installing django-readers
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-models" class="md-nav__link">
+    Example models
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirement-1-a-list-of-book-titles-without-django-readers" class="md-nav__link">
+    Requirement 1: a list of book titles (without django-readers)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirement-2-add-the-publisher-name-for-each-book-without-django-readers" class="md-nav__link">
+    Requirement 2: add the publisher name for each book (without django-readers)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirement-1-revisited-a-list-of-book-titles-with-django-readers" class="md-nav__link">
+    Requirement 1 revisited: a list of book titles (with django-readers)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirement-2-revisited-add-the-publisher-name-for-each-book-with-django-readers" class="md-nav__link">
+    Requirement 2 revisited: add the publisher name for each book (with django-readers)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirement-3-add-author-names-for-each-book" class="md-nav__link">
+    Requirement 3: Add author names for each book
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirement-4-include-a-count-of-published-books-with-each-publisher" class="md-nav__link">
+    Requirement 4: include a count of published books with each publisher
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirement-5-identifying-vintage-books" class="md-nav__link">
+    Requirement 5: identifying "vintage" books
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirement-6-add-an-api-endpoint-to-list-books" class="md-nav__link">
+    Requirement 6: add an API endpoint to list books
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-note-on-django-zen-queries" class="md-nav__link">
+    A note on django-zen-queries
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cookbook/" class="md-nav__link">
+        Cookbook
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../explanation/" class="md-nav__link">
+        Explanation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5">
+          Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/queryset-functions/" class="md-nav__link">
+        Queryset functions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/producers/" class="md-nav__link">
+        Producers
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/projectors/" class="md-nav__link">
+        Projectors
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/pairs/" class="md-nav__link">
+        Pairs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/specs/" class="md-nav__link">
+        Specs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/rest-framework/" class="md-nav__link">
+        REST framework
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6">
+          Community
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Community" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Community
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../community/third-party-packages/" class="md-nav__link">
+        Third Party Packages
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../community/changelog/" class="md-nav__link">
+        Changelog
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../community/license/" class="md-nav__link">
+        License
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installing-django-readers" class="md-nav__link">
+    Installing django-readers
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-models" class="md-nav__link">
+    Example models
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirement-1-a-list-of-book-titles-without-django-readers" class="md-nav__link">
+    Requirement 1: a list of book titles (without django-readers)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirement-2-add-the-publisher-name-for-each-book-without-django-readers" class="md-nav__link">
+    Requirement 2: add the publisher name for each book (without django-readers)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirement-1-revisited-a-list-of-book-titles-with-django-readers" class="md-nav__link">
+    Requirement 1 revisited: a list of book titles (with django-readers)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirement-2-revisited-add-the-publisher-name-for-each-book-with-django-readers" class="md-nav__link">
+    Requirement 2 revisited: add the publisher name for each book (with django-readers)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirement-3-add-author-names-for-each-book" class="md-nav__link">
+    Requirement 3: Add author names for each book
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirement-4-include-a-count-of-published-books-with-each-publisher" class="md-nav__link">
+    Requirement 4: include a count of published books with each publisher
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirement-5-identifying-vintage-books" class="md-nav__link">
+    Requirement 5: identifying "vintage" books
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirement-6-add-an-api-endpoint-to-list-books" class="md-nav__link">
+    Requirement 6: add an API endpoint to list books
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-note-on-django-zen-queries" class="md-nav__link">
+    A note on django-zen-queries
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+
+
+  <h1>Tutorial</h1>
+
+<h2 id="installing-django-readers">Installing django-readers<a class="headerlink" href="#installing-django-readers" title="Permanent link">&para;</a></h2>
+<p>Install from <a href="https://pypi.org/project/django-readers/">PyPI</a>:</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>django-readers
+</code></pre></div>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<p>This tutorial assumes you understand the basics of Django (models, views, templates etc). Make sure you've been through <a href="https://docs.djangoproject.com/">the Django tutorial</a> first. The section on Django REST framework assumes that you've read and understood <a href="https://www.django-rest-framework.org/">the docs</a>.</p>
+<h2 id="example-models">Example models<a class="headerlink" href="#example-models" title="Permanent link">&para;</a></h2>
+<p>For the purposes of this tutorial, we're going to use a set of models representing <strong>books</strong>, <strong>authors</strong> and <strong>publishers</strong>. A book has exactly one publisher, but can have many authors. Here are the Django models we're using:</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Publisher</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">address</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Author</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">email</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">EmailField</span><span class="p">()</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Book</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">authors</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Author</span><span class="p">)</span>
+    <span class="n">publisher</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Publisher</span><span class="p">)</span>
+    <span class="n">publication_date</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">()</span>
+</code></pre></div>
+<p>We're going to go through a step-by-step set of requirements from an imaginary client who has asked you to build a simple book listing application. We're going to assume the Django project itself has already been set up, and focus on a single view and a single template.</p>
+<h2 id="requirement-1-a-list-of-book-titles-without-django-readers">Requirement 1: a list of book titles (without <code>django-readers</code>)<a class="headerlink" href="#requirement-1-a-list-of-book-titles-without-django-readers" title="Permanent link">&para;</a></h2>
+<p>First, the client wants you to build a page containing a list of all of the books in the database, showing only their titles. The standard Django approach to this would be as follows:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">book_list</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="s2">&quot;book_list.html&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;books&quot;</span><span class="p">:</span> <span class="n">queryset</span><span class="p">})</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="x">&lt;ul&gt;</span>
+<span class="cp">{%</span> <span class="k">for</span> <span class="nv">book</span> <span class="k">in</span> <span class="nv">books</span> <span class="cp">%}</span>
+<span class="x">    &lt;li&gt;</span>
+<span class="x">        </span><span class="cp">{{</span> <span class="nv">book.title</span> <span class="cp">}}</span>
+<span class="x">    &lt;/li&gt;</span>
+<span class="cp">{%</span> <span class="k">endfor</span> <span class="cp">%}</span>
+<span class="x">&lt;/ul&gt;</span>
+</code></pre></div>
+<p>The queryset of books is passed into the template, and inside the <code>for</code> loop we have instances of the <code>Book</code> model. When the queryset is iterated, a database query something like this will be executed:</p>
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="ss">&quot;books_book&quot;</span><span class="p">.</span><span class="ss">&quot;id&quot;</span><span class="p">,</span>
+<span class="w">       </span><span class="ss">&quot;books_book&quot;</span><span class="p">.</span><span class="ss">&quot;title&quot;</span><span class="p">,</span>
+<span class="w">       </span><span class="ss">&quot;books_book&quot;</span><span class="p">.</span><span class="ss">&quot;publisher_id&quot;</span><span class="p">,</span>
+<span class="w">       </span><span class="ss">&quot;books_book&quot;</span><span class="p">.</span><span class="ss">&quot;publication_date&quot;</span>
+<span class="k">FROM</span><span class="w"> </span><span class="ss">&quot;books_book&quot;</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Notice that the <code>SELECT</code> part of the query is fetching more data than it really needs. We only actually need the <code>title</code> field, but we're also getting the <code>id</code>, <code>publisher_id</code> and <code>publication_date</code>. This is just how Django's ORM works: it has no way of knowing which fields you need when you run the query, so it just asks for all of them. This isn't normally a problem, but if your model has lots of fields (or large amounts of data in particular fields), it certainly can impact performance. You can control this behaviour with the <code>.only</code> and <code>.defer</code> queryset methods, but this is a manual optimisation and can be brittle.</p>
+</div>
+<h2 id="requirement-2-add-the-publisher-name-for-each-book-without-django-readers">Requirement 2: add the publisher name for each book (without <code>django-readers</code>)<a class="headerlink" href="#requirement-2-add-the-publisher-name-for-each-book-without-django-readers" title="Permanent link">&para;</a></h2>
+<p>Now, the client wants you to show the name of the publisher after the book title. This looks like it should just involve a tweak to the HTML template, so we pass this work over to our frontend developer, who changes the template so it looks like this:</p>
+<div class="highlight"><pre><span></span><code><span class="x">&lt;ul&gt;</span>
+<span class="cp">{%</span> <span class="k">for</span> <span class="nv">book</span> <span class="k">in</span> <span class="nv">books</span> <span class="cp">%}</span>
+<span class="x">    &lt;li&gt;</span>
+<span class="x">        </span><span class="cp">{{</span> <span class="nv">book.title</span> <span class="cp">}}</span>
+<span class="hll"><span class="x">        published by </span><span class="cp">{{</span> <span class="nv">book.publisher.name</span> <span class="cp">}}</span>
+</span><span class="x">    &lt;/li&gt;</span>
+<span class="cp">{%</span> <span class="k">endfor</span> <span class="cp">%}</span>
+<span class="x">&lt;/ul&gt;</span>
+</code></pre></div>
+<p>But there's a problem here. Django's ORM is being asked to <em>follow a relationship</em> (from <code>Book</code> to <code>Publisher</code> via the <code>publisher</code> foreign key). In order to do that, it has to issue another query to the database to fetch all the details of the publisher:</p>
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="ss">&quot;books_publisher&quot;</span><span class="p">.</span><span class="ss">&quot;id&quot;</span><span class="p">,</span>
+<span class="w">       </span><span class="ss">&quot;books_publisher&quot;</span><span class="p">.</span><span class="ss">&quot;name&quot;</span><span class="p">,</span>
+<span class="w">       </span><span class="ss">&quot;books_publisher&quot;</span><span class="p">.</span><span class="ss">&quot;address&quot;</span>
+<span class="k">FROM</span><span class="w"> </span><span class="ss">&quot;books_book&quot;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="ss">&quot;books_book&quot;</span><span class="p">.</span><span class="ss">&quot;id&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+</code></pre></div>
+<p>Because we're following this relationship inside a loop in the template, the ORM will issue a query like this <em>for each book in the list</em>. This is the "<a href="https://stackoverflow.com/questions/97197/what-is-the-n1-selects-problem-in-orm-object-relational-mapping">N+1 queries problem</a>": there's one query to fetch all the books, then N queries (where N is the number of books) to fetch the publisher for each book. This can be disastrous for performance.</p>
+<p>Django provides tools to fix this. In this case, we'd probably use the <code>select_related</code> queryset method in the view, like this:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">book_list</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s2">&quot;publisher&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="s2">&quot;book_list.html&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;books&quot;</span><span class="p">:</span> <span class="n">queryset</span><span class="p">})</span>
+</code></pre></div>
+<p>This tells the ORM to issue a <code>JOIN</code> to fetch all the data in one query:</p>
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="ss">&quot;books_book&quot;</span><span class="p">.</span><span class="ss">&quot;id&quot;</span><span class="p">,</span>
+<span class="w">       </span><span class="ss">&quot;books_book&quot;</span><span class="p">.</span><span class="ss">&quot;title&quot;</span><span class="p">,</span>
+<span class="w">       </span><span class="ss">&quot;books_book&quot;</span><span class="p">.</span><span class="ss">&quot;publisher_id&quot;</span><span class="p">,</span>
+<span class="w">       </span><span class="ss">&quot;books_book&quot;</span><span class="p">.</span><span class="ss">&quot;publication_date&quot;</span><span class="p">,</span>
+<span class="w">       </span><span class="ss">&quot;books_publisher&quot;</span><span class="p">.</span><span class="ss">&quot;id&quot;</span><span class="p">,</span>
+<span class="w">       </span><span class="ss">&quot;books_publisher&quot;</span><span class="p">.</span><span class="ss">&quot;name&quot;</span><span class="p">,</span>
+<span class="w">       </span><span class="ss">&quot;books_publisher&quot;</span><span class="p">.</span><span class="ss">&quot;address&quot;</span>
+<span class="k">FROM</span><span class="w"> </span><span class="ss">&quot;books_book&quot;</span>
+<span class="k">LEFT</span><span class="w"> </span><span class="k">OUTER</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="ss">&quot;books_publisher&quot;</span>
+<span class="k">ON</span><span class="w"> </span><span class="p">(</span><span class="ss">&quot;books_book&quot;</span><span class="p">.</span><span class="ss">&quot;publisher_id&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">&quot;books_publisher&quot;</span><span class="p">.</span><span class="ss">&quot;id&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>The problem with this is that the view code and the template code are now <em>coupled</em> in a very unpredictable and hard-to-reason-about way. A small, innocuous-looking change to the code in either the view or template can drastically impact the performance. This coupling problem only gets worse as the complexity of the application increases.</p>
+<p><code>django-readers</code> takes a different approach. We explicitly perform all data fetching in the view. The template then deals only with presentation: instead of passing a queryset into the template and allowing the template code to access arbitrary attributes or methods on the model instances, we instead extract precisely the data we need from the database, convert it into basic data structures (Python dictionaries) and pass those into the template instead. This means that template authors can't blindly follow relationships and incur extra queries, because the attributes that express those relationships simply don't exist in the template context.</p>
+<p>To mitigate the burden of having to fine-tune querysets by hand for efficiency, a high-level "spec" is used to describe exactly which fields and relationships are needed, and <code>django-readers</code> is responsible for building the queryset and converting the model instances into dictionaries.</p>
+<p>For more on the motivation behind <code>django-readers</code>, see the <a href="../explanation/">Explanation page</a>.</p>
+<h2 id="requirement-1-revisited-a-list-of-book-titles-with-django-readers">Requirement 1 revisited: a list of book titles (with <code>django-readers</code>)<a class="headerlink" href="#requirement-1-revisited-a-list-of-book-titles-with-django-readers" title="Permanent link">&para;</a></h2>
+<p>Let's go back to the initial requirement: just show a list of book titles. Remember that we only needed the <code>title</code> field, but Django wastefully extracted <em>all</em> of the fields on the <code>Book</code> model from the database. <code>django-readers</code> fixes this:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">django_readers</span><span class="w"> </span><span class="kn">import</span> <span class="n">specs</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">book_list</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">prepare</span><span class="p">,</span> <span class="n">project</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">prepare</span><span class="p">(</span><span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span>
+        <span class="s2">&quot;book_list.html&quot;</span><span class="p">,</span>
+        <span class="p">{</span><span class="s2">&quot;books&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">project</span><span class="p">(</span><span class="n">book</span><span class="p">)</span> <span class="k">for</span> <span class="n">book</span> <span class="ow">in</span> <span class="n">queryset</span><span class="p">]},</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>As you can see, at its simplest a <code>django-readers</code> spec is just a list of field names. <code>specs.process</code> takes the spec and returns <em>a pair of functions</em>. By convention, we call these functions <code>prepare</code> and <code>project</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><em>prepare</em> and <em>project</em> are <code>django-readers</code>-specific terms. There is one other <code>django-readers</code> concept beginning with P, <em>produce</em>, which will be introduced fully later, but here are their rough definitions to set the scene:</p>
+<p>A prepare function (a "queryset function") takes a queryset and returns a clone of the queryset with one or more modifications applied, such as <code>prefetch_related</code>, <code>filter</code>, <code>only</code> etc. This is called "preparing the queryset". Queryset functions can be composed, just like chaining queryset methods.</p>
+<p>A produce function (a "producer") takes a model instance and returns ("produces") a value derived from that instance. Often this is the value of an attribute on the model.</p>
+<p>A project function (a "projector") is similar to a producer in that it takes a model instance, but rather than returning just a value, it returns a dictionary (the "projection") mapping one or more names (the dictionary keys) to one or more values derived from the instance (often the values of one or more attributes and possibly nested dictionaries representing related models). It <em>projects</em> your data layer into your application's business logic domain. Think of the dictionary returned by a projector as the simplest possible domain object. Generally speaking, it's not necessary to write your own projector functions: <code>django-readers</code> comes with a <a href="../reference/projectors/#producer_to_projector"><code>producer_to_projector</code></a> utility that takes a producer function and a name, and creates a projector function that returns a dictionary mapping the name to the value returned by the producer.</p>
+</div>
+<p>The <code>prepare</code> function is responsible for building the queryset. It takes a queryset as an argument (in this case <code>Book.objects.all()</code>) and returns a new queryset that is fine-tuned to fetch only the data we're interested in.</p>
+<p>When we evaluate the prepared queryset, Django can now issue a much more optimised query to the database:</p>
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="ss">&quot;books_book&quot;</span><span class="p">.</span><span class="ss">&quot;id&quot;</span><span class="p">,</span>
+<span class="w">       </span><span class="ss">&quot;books_book&quot;</span><span class="p">.</span><span class="ss">&quot;title&quot;</span>
+<span class="k">FROM</span><span class="w"> </span><span class="ss">&quot;books_book&quot;</span>
+</code></pre></div>
+<p>We still need the <code>id</code> field (Django uses the primary key to track the identity of the model instance so it's always included) but apart from that, we only get the <code>title</code>: just what we need.</p>
+<p>The <code>project</code> function operates on model instances. It takes an instance as its argument and returns a dictionary containing only the fields we've asked for in the spec. So in this case, it might return:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Pro Django&quot;</span><span class="p">}</span>
+</code></pre></div>
+<p>We iterate over the queryset and call this <code>project</code> function on each model instance, and pass the resulting list of dictionaries into the template:</p>
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+    <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Pro Django&quot;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Two Scoops of Django&quot;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Speed Up Your Django Tests&quot;</span><span class="p">},</span>
+<span class="p">]</span>
+</code></pre></div>
+<h2 id="requirement-2-revisited-add-the-publisher-name-for-each-book-with-django-readers">Requirement 2 revisited: add the publisher name for each book (with <code>django-readers</code>)<a class="headerlink" href="#requirement-2-revisited-add-the-publisher-name-for-each-book-with-django-readers" title="Permanent link">&para;</a></h2>
+<p>Selecting only the required subset of fields from a model is a neat trick, but <code>django-readers</code> really comes into its own when dealing with relationships between models. A relationship in a <code>django-readers</code> spec is expressed as a dictionary with (usually) a single key and value, the key being the name of the relationship field on the model and the value being another spec, listing the fields we need from the model on the other side of the relationship.</p>
+<p>To include the publisher name, our spec would look like this:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">django_readers</span><span class="w"> </span><span class="kn">import</span> <span class="n">specs</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">book_list</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">,</span>
+<span class="hll">        <span class="p">{</span>
+</span><span class="hll">            <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span class="hll">                <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">]</span>
+</span><span class="hll">        <span class="p">},</span>
+</span>    <span class="p">]</span>
+    <span class="n">prepare</span><span class="p">,</span> <span class="n">project</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">prepare</span><span class="p">(</span><span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span>
+        <span class="s2">&quot;book_list.html&quot;</span><span class="p">,</span>
+        <span class="p">{</span><span class="s2">&quot;books&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">project</span><span class="p">(</span><span class="n">book</span><span class="p">)</span> <span class="k">for</span> <span class="n">book</span> <span class="ow">in</span> <span class="n">queryset</span><span class="p">]},</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>Now, the <code>prepare</code> function (as well as selecting only the <code>title</code> field) adds a <code>prefetch_related</code> to the <code>Book</code> queryset to fetch the related <code>Publisher</code>. By providing the list of fields we want from the <code>Publisher</code> too, <code>django-readers</code> can make sure it efficiently builds the related <code>Publisher</code> queryset in just the same way. Now we get two queries, one to fetch the books:</p>
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="ss">&quot;books_book&quot;</span><span class="p">.</span><span class="ss">&quot;id&quot;</span><span class="p">,</span>
+<span class="w">       </span><span class="ss">&quot;books_book&quot;</span><span class="p">.</span><span class="ss">&quot;title&quot;</span><span class="p">,</span>
+<span class="w">       </span><span class="ss">&quot;books_book&quot;</span><span class="p">.</span><span class="ss">&quot;publisher_id&quot;</span>
+<span class="k">FROM</span><span class="w"> </span><span class="ss">&quot;books_book&quot;</span>
+</code></pre></div>
+<p>And one to fetch all the publishers for those books:</p>
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="ss">&quot;books_publisher&quot;</span><span class="p">.</span><span class="ss">&quot;id&quot;</span><span class="p">,</span>
+<span class="w">       </span><span class="ss">&quot;books_publisher&quot;</span><span class="p">.</span><span class="ss">&quot;name&quot;</span>
+<span class="k">FROM</span><span class="w"> </span><span class="ss">&quot;books_publisher&quot;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="ss">&quot;books_publisher&quot;</span><span class="p">.</span><span class="ss">&quot;id&quot;</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Note that <code>django-readers</code> <em>always</em> uses <code>prefetch_related</code> to load relationships, even in circumstances where <code>select_related</code> would usually be used (i.e. <code>ForeignKey</code> and <code>OneToOneField</code>), resulting in one query per relationship. This approach allows the code to be "fractal": the tree of specs can be recursively applied to the tree of related querysets.</p>
+<p>Using <code>prefetch_related</code> for foreign key relationships does have some drawbacks: the "join" between books and publishers is performed in Python, rather than in the database. This can be can be slower and use more memory. Of course, using <code>prefetch_related</code> is (usually) still much better than doing nothing and emitting N queries!</p>
+<p>It is also quite possible to build queries with <code>django-readers</code> that <em>do</em> use <code>select_related</code> (i.e. perform joins in the database), but this must be done in a more manual way. We'll cover this elsewhere in the docs.</p>
+</div>
+<p>The <code>project</code> function then includes the fields we asked for from the related objects too, so after iterating over the queryset and projecting each instance, the value of the <code>books</code> variable in the template context will be:</p>
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Pro Django&quot;</span><span class="p">,</span>
+<span class="hll">        <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Apress&quot;</span><span class="p">},</span>
+</span>    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Two Scoops of Django&quot;</span><span class="p">,</span>
+<span class="hll">        <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Two Scoops Press&quot;</span><span class="p">},</span>
+</span>    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Speed Up Your Django Tests&quot;</span><span class="p">,</span>
+<span class="hll">        <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Gumroad&quot;</span><span class="p">},</span>
+</span>    <span class="p">},</span>
+<span class="p">]</span>
+</code></pre></div>
+<h2 id="requirement-3-add-author-names-for-each-book">Requirement 3: Add author names for each book<a class="headerlink" href="#requirement-3-add-author-names-for-each-book" title="Permanent link">&para;</a></h2>
+<p>This requirement is quite straightforward, as it's very similar to the previous requirement.</p>
+<div class="highlight"><pre><span></span><code><span class="x">&lt;ul&gt;</span>
+<span class="cp">{%</span> <span class="k">for</span> <span class="nv">book</span> <span class="k">in</span> <span class="nv">books</span> <span class="cp">%}</span>
+<span class="x">    &lt;li&gt;</span>
+<span class="x">        </span><span class="cp">{{</span> <span class="nv">book.title</span> <span class="cp">}}</span>
+<span class="x">        published by </span><span class="cp">{{</span> <span class="nv">book.publisher.name</span> <span class="cp">}}</span>
+<span class="hll"><span class="x">        Authors:</span>
+</span><span class="hll"><span class="x">        &lt;ul&gt;</span>
+</span><span class="hll"><span class="x">        </span><span class="cp">{%</span> <span class="k">for</span> <span class="nv">author</span> <span class="k">in</span> <span class="nv">book.authors</span> <span class="cp">%}</span>
+</span><span class="hll"><span class="x">            &lt;li&gt;</span><span class="cp">{{</span> <span class="nv">author.name</span> <span class="cp">}}</span><span class="x">&lt;/li&gt;</span>
+</span><span class="hll"><span class="x">        </span><span class="cp">{%</span> <span class="k">endfor</span> <span class="cp">%}</span>
+</span><span class="hll"><span class="x">        &lt;/ul&gt;</span>
+</span><span class="x">    &lt;/li&gt;</span>
+<span class="cp">{%</span> <span class="k">endfor</span> <span class="cp">%}</span>
+<span class="x">&lt;/ul&gt;</span>
+</code></pre></div>
+<p>The spec changes to include the new relationship:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">django_readers</span><span class="w"> </span><span class="kn">import</span> <span class="n">specs</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">book_list</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">},</span>
+<span class="hll">        <span class="p">{</span>
+</span><span class="hll">            <span class="s2">&quot;authors&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span class="hll">                <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">]</span>
+</span><span class="hll">        <span class="p">},</span>
+</span>    <span class="p">]</span>
+    <span class="n">prepare</span><span class="p">,</span> <span class="n">project</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">prepare</span><span class="p">(</span><span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span>
+        <span class="s2">&quot;book_list.html&quot;</span><span class="p">,</span>
+        <span class="p">{</span><span class="s2">&quot;books&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">project</span><span class="p">(</span><span class="n">book</span><span class="p">)</span> <span class="k">for</span> <span class="n">book</span> <span class="ow">in</span> <span class="n">queryset</span><span class="p">]},</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>As you can see, foreign key relationships and many-to-many relationships are represented in a spec in exactly the same way.</p>
+<p>The value of the <code>books</code> variable in the template context will now be:</p>
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Pro Django&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Apress&quot;</span><span class="p">},</span>
+<span class="hll">        <span class="s2">&quot;authors&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span class="hll">            <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Marty Alchin&quot;</span><span class="p">},</span>
+</span><span class="hll">        <span class="p">],</span>
+</span>    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Two Scoops of Django&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Two Scoops Press&quot;</span><span class="p">},</span>
+<span class="hll">        <span class="s2">&quot;authors&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span class="hll">            <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Daniel Roy Greenfeld&quot;</span><span class="p">},</span>
+</span><span class="hll">            <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Audrey Roy Greenfeld&quot;</span><span class="p">},</span>
+</span><span class="hll">        <span class="p">],</span>
+</span>    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Speed Up Your Django Tests&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Gumroad&quot;</span><span class="p">},</span>
+<span class="hll">        <span class="s2">&quot;authors&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span class="hll">            <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Adam Johnson&quot;</span><span class="p">},</span>
+</span><span class="hll">        <span class="p">],</span>
+</span>    <span class="p">},</span>
+<span class="p">]</span>
+</code></pre></div>
+<h2 id="requirement-4-include-a-count-of-published-books-with-each-publisher">Requirement 4: include a count of published books with each publisher<a class="headerlink" href="#requirement-4-include-a-count-of-published-books-with-each-publisher" title="Permanent link">&para;</a></h2>
+<p>Now, the client wants you to include a count of how many books each publisher has published alongside the name of the publisher. How would we accomplish this with <code>django-readers</code>?</p>
+<p>So far, we've only seen two types of value inside a spec: strings (representing the name of a field on the model) and dictionaries with string keys and list values (representing a relationship to another model).</p>
+<p>But we can also completely customise the spec to do whatever we want. This is how <code>django-readers</code> scales to accomodate to arbitrarily complex requirements.</p>
+<p><code>django-readers</code> comes with a library of functions that can be used to add commonly-used aggregations to a spec, such as counting related objects. These are included in a spec using the same single-key-dictionary syntax as we've already seen for relationships:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">django_readers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pairs</span><span class="p">,</span> <span class="n">specs</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">book_list</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+<span class="hll">                <span class="p">{</span><span class="s2">&quot;published_book_count&quot;</span><span class="p">:</span> <span class="n">pairs</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;book&quot;</span><span class="p">)},</span>
+</span>            <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;authors&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">},</span>
+    <span class="p">]</span>
+    <span class="n">prepare</span><span class="p">,</span> <span class="n">project</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">prepare</span><span class="p">(</span><span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span>
+        <span class="s2">&quot;book_list.html&quot;</span><span class="p">,</span>
+        <span class="p">{</span><span class="s2">&quot;books&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">project</span><span class="p">(</span><span class="n">book</span><span class="p">)</span> <span class="k">for</span> <span class="n">book</span> <span class="ow">in</span> <span class="n">queryset</span><span class="p">]},</span>
+    <span class="p">)</span>
+</code></pre></div>
+<h2 id="requirement-5-identifying-vintage-books">Requirement 5: identifying "vintage" books<a class="headerlink" href="#requirement-5-identifying-vintage-books" title="Permanent link">&para;</a></h2>
+<p>The client has a new requirement: for books that were published more than five years ago, they want to add a "vintage" label alongside the book title.</p>
+<p>There are a few places you could put the business logic to implement this requirement, including in the view and in the template. Common best practice in the Django community would be to put this logic in a method on the <code>Book</code> model, like this:</p>
+<div class="highlight"><pre><span></span><code><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
+</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Book</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">authors</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Author</span><span class="p">)</span>
+    <span class="n">publisher</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Publisher</span><span class="p">)</span>
+    <span class="n">publication_date</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">()</span>
+
+<span class="hll">    <span class="k">def</span><span class="w"> </span><span class="nf">is_vintage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class="hll">        <span class="n">years_since_publication</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">year</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">publication_date</span><span class="o">.</span><span class="n">year</span>
+</span><span class="hll">        <span class="k">return</span> <span class="n">years_since_publication</span> <span class="o">&gt;</span> <span class="mi">5</span>
+</span></code></pre></div>
+<p>Putting business logic on the model is known as a "fat models" approach. However, experience has shown that there are problems with this, particularly in larger codebases (see <a href="../explanation/">the Explanation page</a> for details).</p>
+<p>Instead, <code>django-readers</code> encourages you to put logic like this in a standalone function. This function takes a model instance as its argument and returns a value. As described above, we call this type of function a <code>producer</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">produce_is_vintage</span><span class="p">(</span><span class="n">book</span><span class="p">):</span>
+    <span class="n">years_since_publication</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">year</span> <span class="o">-</span> <span class="n">book</span><span class="o">.</span><span class="n">publication_date</span><span class="o">.</span><span class="n">year</span>
+    <span class="k">return</span> <span class="n">years_since_publication</span> <span class="o">&gt;</span> <span class="mi">5</span>
+</code></pre></div>
+<p>Now, in order to make the database query efficient, you need to identify the <em>data dependencies</em> of this producer function. Which fields from the model does it need to do its work? By looking at the code, you can see that it uses just one field from the model: the <code>publication_date</code>. So, as well as writing the producer function, you need to create a <em>queryset function</em> that prepares the queryset by including this <code>publication_date</code> field in the query.</p>
+<p><code>django-readers</code> comes with a library of functions under <code>django_readers.qs</code> that help with creating queryset functions. In this case, you need to use the <a href="../reference/queryset-functions/#include_fields"><code>include_fields</code></a> function:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">django_readers</span><span class="w"> </span><span class="kn">import</span> <span class="n">qs</span>
+</span>
+
+<span class="hll"><span class="n">prepare_is_vintage</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">include_fields</span><span class="p">(</span><span class="s2">&quot;publication_date&quot;</span><span class="p">)</span>
+</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">produce_is_vintage</span><span class="p">(</span><span class="n">book</span><span class="p">):</span>
+    <span class="n">years_since_publication</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">year</span> <span class="o">-</span> <span class="n">book</span><span class="o">.</span><span class="n">publication_date</span><span class="o">.</span><span class="n">year</span>
+    <span class="k">return</span> <span class="n">years_since_publication</span> <span class="o">&gt;</span> <span class="mi">5</span>
+</code></pre></div>
+<p>Finally, to express the dependency between the producer function and the queryset function, the two functions are put together in a tuple called a <em>reader pair</em> (or, commonly, just a "pair"):</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_readers</span><span class="w"> </span><span class="kn">import</span> <span class="n">qs</span>
+
+
+<span class="n">prepare_is_vintage</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">include_fields</span><span class="p">(</span><span class="s2">&quot;publication_date&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">produce_is_vintage</span><span class="p">(</span><span class="n">book</span><span class="p">):</span>
+    <span class="n">years_since_publication</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">year</span> <span class="o">-</span> <span class="n">book</span><span class="o">.</span><span class="n">publication_date</span><span class="o">.</span><span class="n">year</span>
+    <span class="k">return</span> <span class="n">years_since_publication</span> <span class="o">&gt;</span> <span class="mi">5</span>
+
+
+<span class="hll"><span class="n">is_vintage</span> <span class="o">=</span> <span class="p">(</span><span class="n">prepare_is_vintage</span><span class="p">,</span> <span class="n">produce_is_vintage</span><span class="p">)</span>
+</span></code></pre></div>
+<p>Now you've have a created your custom pair, you can use it in your spec. Again we use the dictionary syntax:</p>
+<div class="highlight"><pre><span></span><code><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
+</span><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">django_readers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pairs</span><span class="p">,</span> <span class="n">qs</span><span class="p">,</span> <span class="n">specs</span>
+</span><span class="hll">
+</span><span class="hll">
+</span><span class="hll"><span class="n">prepare_is_vintage</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">include_fields</span><span class="p">(</span><span class="s2">&quot;publication_date&quot;</span><span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">
+</span><span class="hll"><span class="k">def</span><span class="w"> </span><span class="nf">produce_is_vintage</span><span class="p">(</span><span class="n">book</span><span class="p">):</span>
+</span><span class="hll">    <span class="n">years_since_publication</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">year</span> <span class="o">-</span> <span class="n">book</span><span class="o">.</span><span class="n">publication_date</span><span class="o">.</span><span class="n">year</span>
+</span><span class="hll">    <span class="k">return</span> <span class="n">years_since_publication</span> <span class="o">&gt;</span> <span class="mi">5</span>
+</span><span class="hll">
+</span><span class="hll">
+</span><span class="hll"><span class="n">is_vintage</span> <span class="o">=</span> <span class="p">(</span><span class="n">prepare_is_vintage</span><span class="p">,</span> <span class="n">produce_is_vintage</span><span class="p">)</span>
+</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">book_list</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+                <span class="p">{</span><span class="s2">&quot;published_book_count&quot;</span><span class="p">:</span> <span class="n">pairs</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;book&quot;</span><span class="p">)},</span>
+            <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;authors&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">},</span>
+<span class="hll">        <span class="p">{</span><span class="s2">&quot;is_vintage&quot;</span><span class="p">:</span> <span class="n">is_vintage</span><span class="p">}</span>
+</span>    <span class="p">]</span>
+    <span class="n">prepare</span><span class="p">,</span> <span class="n">project</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">prepare</span><span class="p">(</span><span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span>
+        <span class="s2">&quot;book_list.html&quot;</span><span class="p">,</span>
+        <span class="p">{</span><span class="s2">&quot;books&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">project</span><span class="p">(</span><span class="n">book</span><span class="p">)</span> <span class="k">for</span> <span class="n">book</span> <span class="ow">in</span> <span class="n">queryset</span><span class="p">]},</span>
+    <span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For this example, we've put the code for the pair (the prepare and produce function) in the same Python file as the view function. You may choose to put your <code>django-readers</code> code in a separate file, perhaps called <code>readers.py</code>. You can follow whichever naming convention makes sense for your project layout.</p>
+</div>
+<p>The value of the <code>books</code> variable in the template context will now be:</p>
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Pro Django&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Apress&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;published_book_count&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;authors&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Marty Alchin&quot;</span><span class="p">},</span>
+        <span class="p">],</span>
+<span class="hll">        <span class="s2">&quot;is_vintage&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span>    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Two Scoops of Django&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Two Scoops Press&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;published_book_count&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;authors&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Daniel Roy Greenfeld&quot;</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Audrey Roy Greenfeld&quot;</span><span class="p">},</span>
+        <span class="p">],</span>
+<span class="hll">        <span class="s2">&quot;is_vintage&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span>    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Speed Up Your Django Tests&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Gumroad&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;published_book_count&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;authors&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Adam Johnson&quot;</span><span class="p">},</span>
+        <span class="p">],</span>
+<span class="hll">        <span class="s2">&quot;is_vintage&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+</span>    <span class="p">},</span>
+<span class="p">]</span>
+</code></pre></div>
+<h2 id="requirement-6-add-an-api-endpoint-to-list-books">Requirement 6: add an API endpoint to list books<a class="headerlink" href="#requirement-6-add-an-api-endpoint-to-list-books" title="Permanent link">&para;</a></h2>
+<p>The client has now decided that it's time to build a JavaScript frontend for their website, and wants to expose the book data via an API endpoint rather than rendering the HTML on the server.</p>
+<p>The best way to build APIs with Django is to use <a href="https://www.django-rest-framework.org/">Django REST framework</a>. <code>django-readers</code> provides a mixin that allows you to use a spec to define the "shape" of the data that the endpoint should return. As we've already seen, <code>django-readers</code> will extract this data from the database as efficiently as it can. This makes it very quick to build endpoints without compromising on performance.</p>
+<p>We're going to illustrate this by re-using the spec from the previous section. To avoid repeating the example code again, we're going to assume that the <code>is_vintage</code> pair is defined already.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">django_readers.rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpecMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.generics</span><span class="w"> </span><span class="kn">import</span> <span class="n">ListAPIView</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BookListView</span><span class="p">(</span><span class="n">SpecMixin</span><span class="p">,</span> <span class="n">ListAPIView</span><span class="p">):</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+                <span class="p">{</span><span class="s2">&quot;published_book_count&quot;</span><span class="p">:</span> <span class="n">pairs</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;book&quot;</span><span class="p">)},</span>
+            <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;authors&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;is_vintage&quot;</span><span class="p">:</span> <span class="n">is_vintage</span><span class="p">},</span>
+    <span class="p">]</span>
+</code></pre></div>
+<p>Once you've wired up this view in your <code>urls.py</code> you can start making requests to it. The JSON data returned from this endpoint will be exactly the same "shape" as the template context above:</p>
+<div class="highlight"><pre><span></span><code>GET /api/books/
+
+HTTP 200 OK
+Allow: GET, HEAD, OPTIONS
+Content-Type: application/json
+Vary: Accept
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;next&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;previous&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;results&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Pro Django&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;publisher&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Apress&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;published_book_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;authors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Marty Alchin&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;is_vintage&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Two Scoops of Django&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;publisher&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Two Scoops Press&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;published_book_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;authors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Daniel Roy Greenfeld&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Audrey Roy Greenfeld&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;is_vintage&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Speed Up Your Django Tests&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;publisher&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Gumroad&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;published_book_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;authors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Adam Johnson&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;is_vintage&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h2 id="a-note-on-django-zen-queries">A note on <code>django-zen-queries</code><a class="headerlink" href="#a-note-on-django-zen-queries" title="Permanent link">&para;</a></h2>
+<p>An important pattern to avoid inefficient database queries in Django projects is to isolate the <em>fetching of data</em> from the <em>rendering of data</em>. This pattern can be implemented with the help of <a href="https://github.com/dabapps/django-zen-queries"><code>django-zen-queries</code></a>, a library that allows you to mark blocks of code under which database queries are not allowed.</p>
+<p>In a project using <code>django-readers</code>, it is good practice to disallow queries in the <code>prepare</code> and <code>project</code> phases:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">zen_queries</span>
+
+<span class="n">prepare</span><span class="p">,</span> <span class="n">project</span> <span class="o">=</span> <span class="n">specs</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="c1"># some spec</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+
+<span class="k">with</span> <span class="n">zen_queries</span><span class="o">.</span><span class="n">queries_disabled</span><span class="p">():</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">prepare</span><span class="p">(</span><span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+
+<span class="n">queryset</span> <span class="o">=</span> <span class="n">zen_queries</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">queryset</span><span class="p">)</span>  <span class="c1"># execute the database queries</span>
+
+<span class="k">with</span> <span class="n">zen_queries</span><span class="o">.</span><span class="n">queries_disabled</span><span class="p">():</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">project</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span> <span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="n">queryset</span><span class="p">]</span>
+
+<span class="c1"># ...render result as JSON or in a template</span>
+</code></pre></div>
+<p>To enforce this, if <code>django-zen-queries</code> is installed (which is recommended!), <code>django-readers</code> will automatically apply
+<code>queries_disabled()</code> to the <code>prepare</code> and <code>project</code> functions returned by <code>specs.process</code>, <strong>so there is no need to apply it manually as in the above example</strong>.</p>
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href=".." class="md-footer__link md-footer__link--prev" aria-label="Previous: Introduction" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Introduction
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../cookbook/" class="md-footer__link md-footer__link--next" aria-label="Next: Cookbook" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Cookbook
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      <a href="https://www.dabapps.com">A DabApps project</a>
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.6c7ad80a.min.js"></script>
+      
+    
+  </body>
+</html>
