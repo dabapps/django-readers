@@ -44,10 +44,28 @@ def none_safe_attrgetter(attr):
     return none_safe_get_attr
 
 
-def queries_disabled(pair):
+def with_queries_disabled(pair):
     prepare, project = pair
     decorator = zen_queries.queries_disabled() if zen_queries else lambda fn: fn
     return decorator(prepare), decorator(project)
+
+
+def with_prepared_checker(pair):
+    prepare, project = pair
+
+    is_prepared = False
+
+    def wrapped_prepare(qs):
+        nonlocal is_prepared
+        is_prepared = True
+        return prepare(qs)
+
+    def wrapped_project(qs):
+        if not is_prepared:
+            raise Exception("QuerySet must be prepared before projection")
+        return project(qs)
+
+    return (wrapped_prepare, wrapped_project)
 
 
 class SpecVisitor:
