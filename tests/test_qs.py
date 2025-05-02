@@ -1,6 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
-from django.db.models import Count
+from django.db.models import Case, Count, Value, When
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
 from django_readers import qs
@@ -469,4 +469,30 @@ class QuerySetTestCase(TestCase):
             'ON ("tests_owner"."id" = "tests_widget"."owner_id") '
             "GROUP BY "
             '"tests_owner"."id"',
+        )
+
+    def test_alias(self):
+        owner = Owner.objects.create(name="test owner")
+        Widget.objects.create(name="first", owner=owner)
+        Widget.objects.create(name="second", owner=owner)
+
+        prepare = qs.pipe(
+            qs.alias(widget_count=Count("widget")),
+            qs.annotate(
+                widget_description=Case(
+                    When(widget_count=1, then=Value("has one widget")),
+                    When(widget_count__gt=1, then=Value("has multiple widgets")),
+                    default=Value("has no widgets"),
+                )
+            ),
+        )
+
+        with self.assertNumQueries(1):
+            results = list(prepare(Owner.objects.all()))
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].widget_description, "has multiple widgets")
+        self.assertFalse(
+            hasattr(results[0], "widget_count"),
+            "The widget_count alias should not be present in the result",
         )
