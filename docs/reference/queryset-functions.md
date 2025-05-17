@@ -16,6 +16,7 @@ Import like this: `from django_readers import qs`
 * `qs.only`
 * `qs.using`
 * `qs.annotate`
+* `qs.alias`
 
 These functions mirror the methods on the base `QuerySet` class that return new querysets. See [the Django documentation](https://docs.djangoproject.com/en/3.2/ref/models/querysets/#methods-that-return-new-querysets) for an explanation of these.
 
