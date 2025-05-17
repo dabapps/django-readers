@@ -33,7 +33,7 @@ The `pairs.field_display` function takes the field name as its single argument a
 
 Returns a pair that adds an annotation to the queryset and produces the annotated value. Like the `annotate` method on `QuerySet`, this can take either a positional argument (if the annotation function supports this) or a keyword argument. Unlike the annotate method, this can only handle a single annotation at a time.
 
-This function can optionally take `transform_value` and `tranform_value_if_none` keyword arguments, which are passed to the [producer](producers.md#attr).
+This function can optionally take `transform_value` and `transform_value_if_none` keyword arguments, which are passed to the [producer](producers.md#attr).
 
 For example:
 
