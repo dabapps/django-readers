@@ -50,6 +50,13 @@ def annotate(*args, **kwargs):
     return queryset_function
 
 
+def alias(*args, **kwargs):
+    def queryset_function(queryset):
+        return include_fields("pk")(queryset.alias(*args, **kwargs))
+
+    return queryset_function
+
+
 noop = all()  # a queryset function that does nothing
 
 
