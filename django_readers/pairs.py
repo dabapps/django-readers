@@ -96,6 +96,10 @@ def order_by(*args, **kwargs):
     return qs.order_by(*args, **kwargs), projectors.noop
 
 
+def alias(*args, **kwargs):
+    return qs.alias(*args, **kwargs), projectors.noop
+
+
 """
 Below are pair functions which return the various queryset functions that prefetch
 relationships of various types, and then produce those related objects.

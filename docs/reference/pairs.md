@@ -76,6 +76,10 @@ Returns a pair consisting of a [`qs.exclude`](queryset-functions.md#exclude) que
 
 Returns a pair consisting of a [`qs.order_by`](queryset-functions.md#functions-that-mirror-built-in-queryset-methods) queryset function, and a [no-op projector](projectors.md#noop). Most useful for ordering relationships.
 
+## `pairs.alias(*args, **kwargs)` {: #order_by}
+
+Returns a pair consisting of a [`qs.alias`](queryset-functions.md#functions-that-mirror-built-in-queryset-methods) queryset function, and a [no-op projector](projectors.md#noop). Most useful for creating expressions that are later used for filtering or ordering, but aren't needed in the final result.
+
 ## Relationships
 
 The following pair functions return the various [queryset functions that prefetch
