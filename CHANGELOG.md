@@ -5,7 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-- Added `qs.alias` function to support the `.alias()` QuerySet method ([#109](https://github.com/dabapps/django-readers/pull/109))
+- Added `qs.alias` function to support the `.alias()` QuerySet method ([#109](https://github.com/dabapps/django-readers/pull/109)).
+- Added `pairs.alias` function to support aliasing in a spec. ([#112](https://github.com/dabapps/django-readers/pull/112)).
 
 ## [2.4.0] - 2025-04-03
 

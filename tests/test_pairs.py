@@ -1,4 +1,4 @@
-from django.db.models import Count
+from django.db.models import Count, F
 from django.db.models.functions import Length
 from django.test import TestCase
 from django_readers import pairs, producers, projectors, qs
@@ -641,6 +641,23 @@ class OrderByTestCase(TestCase):
         queryset = prepare(Widget.objects.all())
         result = [project(item) for item in queryset]
         self.assertEqual(result, [{"name": "a"}, {"name": "b"}, {"name": "c"}])
+
+
+class AliasTestCase(TestCase):
+    def test_alias(self):
+        Widget.objects.create(name="a", value=1)
+        Widget.objects.create(name="b", value=1)
+        Widget.objects.create(name="c", value=2)
+
+        prepare, project = pairs.combine(
+            pairs.alias(aliased_value=F("value")),
+            pairs.filter(aliased_value=1),
+            pairs.producer_to_projector("name", pairs.field("name")),
+        )
+
+        queryset = prepare(Widget.objects.all())
+        result = [project(item) for item in queryset]
+        self.assertEqual(result, [{"name": "a"}, {"name": "b"}])
 
 
 class PKListTestCase(TestCase):
