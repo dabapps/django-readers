@@ -1,0 +1,982 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A lightweight function-oriented toolkit for better organisation of business logic and efficient selection and projection of data in Django projects.">
+      
+      
+      
+      <link rel="icon" href="../../img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-8.3.9">
+    
+    
+      
+        <title>Pairs - django-readers</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.1d29e8d0.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.cbb835fc.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#e92063">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="pink" data-md-color-accent="pink">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#field" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="django-readers" class="md-header__button md-logo" aria-label="django-readers" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 14.33c.79 0 1.63.08 2.5.24v1.5c-.62-.16-1.46-.24-2.5-.24-1.9 0-3.39.33-4.5.99v-1.69c1.17-.53 2.67-.8 4.5-.8M13 12.46c1.29-.53 2.79-.79 4.5-.79.79 0 1.63.07 2.5.23v1.5c-.62-.16-1.46-.24-2.5-.24-1.9 0-3.39.34-4.5.99m4.5-3.65c-1.9 0-3.39.32-4.5 1V9.84c1.23-.56 2.73-.84 4.5-.84.79 0 1.63.08 2.5.23v1.55c-.74-.19-1.59-.28-2.5-.28m3.5 8V7c-1.04-.33-2.21-.5-3.5-.5-2.05 0-3.88.5-5.5 1.5v11.5c1.62-1 3.45-1.5 5.5-1.5 1.19 0 2.36.16 3.5.5m-3.5-14c2.35 0 4.19.5 5.5 1.5v14.56c0 .12-.05.24-.16.35-.11.09-.23.17-.34.17-.11 0-.19-.02-.25-.05-1.28-.69-2.87-1.03-4.75-1.03-2.05 0-3.88.5-5.5 1.5-1.34-1-3.17-1.5-5.5-1.5-1.66 0-3.25.36-4.75 1.07-.03.01-.07.01-.12.03-.04.01-.08.02-.13.02-.11 0-.23-.04-.34-.12a.475.475 0 0 1-.16-.35V6c1.34-1 3.18-1.5 5.5-1.5 2.33 0 4.16.5 5.5 1.5 1.34-1 3.17-1.5 5.5-1.5Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            django-readers
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Pairs
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/dabapps/django-readers/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    dabapps/django-readers
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="django-readers" class="md-nav__button md-logo" aria-label="django-readers" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 14.33c.79 0 1.63.08 2.5.24v1.5c-.62-.16-1.46-.24-2.5-.24-1.9 0-3.39.33-4.5.99v-1.69c1.17-.53 2.67-.8 4.5-.8M13 12.46c1.29-.53 2.79-.79 4.5-.79.79 0 1.63.07 2.5.23v1.5c-.62-.16-1.46-.24-2.5-.24-1.9 0-3.39.34-4.5.99m4.5-3.65c-1.9 0-3.39.32-4.5 1V9.84c1.23-.56 2.73-.84 4.5-.84.79 0 1.63.08 2.5.23v1.55c-.74-.19-1.59-.28-2.5-.28m3.5 8V7c-1.04-.33-2.21-.5-3.5-.5-2.05 0-3.88.5-5.5 1.5v11.5c1.62-1 3.45-1.5 5.5-1.5 1.19 0 2.36.16 3.5.5m-3.5-14c2.35 0 4.19.5 5.5 1.5v14.56c0 .12-.05.24-.16.35-.11.09-.23.17-.34.17-.11 0-.19-.02-.25-.05-1.28-.69-2.87-1.03-4.75-1.03-2.05 0-3.88.5-5.5 1.5-1.34-1-3.17-1.5-5.5-1.5-1.66 0-3.25.36-4.75 1.07-.03.01-.07.01-.12.03-.04.01-.08.02-.13.02-.11 0-.23-.04-.34-.12a.475.475 0 0 1-.16-.35V6c1.34-1 3.18-1.5 5.5-1.5 2.33 0 4.16.5 5.5 1.5 1.34-1 3.17-1.5 5.5-1.5Z"/></svg>
+
+    </a>
+    django-readers
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/dabapps/django-readers/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    dabapps/django-readers
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial/" class="md-nav__link">
+        Tutorial
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cookbook/" class="md-nav__link">
+        Cookbook
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/" class="md-nav__link">
+        Explanation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5">
+          Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../queryset-functions/" class="md-nav__link">
+        Queryset functions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../producers/" class="md-nav__link">
+        Producers
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../projectors/" class="md-nav__link">
+        Projectors
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Pairs
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Pairs
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#field" class="md-nav__link">
+    pairs.field(name, *, transform_value=None, transform_value_if_none=False)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#field_display" class="md-nav__link">
+    pairs.field_display(name)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#annotate" class="md-nav__link">
+    pairs.annotate(*args, **kwargs)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#count" class="md-nav__link">
+    pairs.count(name, *args, **kwargs)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#has" class="md-nav__link">
+    pairs.has(name, *args, **kwargs)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sum" class="md-nav__link">
+    pairs.sum(name, *args, **kwargs)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filter" class="md-nav__link">
+    pairs.filter(*args, **kwargs)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exclude" class="md-nav__link">
+    pairs.exclude(*args, **kwargs)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#order_by" class="md-nav__link">
+    pairs.order_by(*args, **kwargs)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#order_by" class="md-nav__link">
+    pairs.alias(*args, **kwargs)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relationships" class="md-nav__link">
+    Relationships
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#forward_relationship" class="md-nav__link">
+    pairs.forward_relationship(name, related_queryset, relationship_pair, to_attr=None)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reverse_relationship" class="md-nav__link">
+    pairs.reverse_relationship(name, related_name, related_queryset, relationship_pair, to_attr=None)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#many_to_many_relationship" class="md-nav__link">
+    pairs.many_to_many_relationship(name, related_queryset, relationship_pair, to_attr=None)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relationship" class="md-nav__link">
+    pairs.relationship(name, relationship_pair, to_attr=None)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pk_list" class="md-nav__link">
+    pairs.pk_list(name, to_attr=None)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#utilities" class="md-nav__link">
+    Utilities
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#producer_to_projector" class="md-nav__link">
+    pairs.producer_to_projector(name, pair)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#combine" class="md-nav__link">
+    pairs.combine(*pairs)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#discard_projector" class="md-nav__link">
+    pairs.discard_projector(pair)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#discard_queryset_function" class="md-nav__link">
+    pairs.discard_queryset_function(pair)
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../specs/" class="md-nav__link">
+        Specs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rest-framework/" class="md-nav__link">
+        REST framework
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6">
+          Community
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Community" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Community
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../community/third-party-packages/" class="md-nav__link">
+        Third Party Packages
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../community/changelog/" class="md-nav__link">
+        Changelog
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../community/license/" class="md-nav__link">
+        License
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#field" class="md-nav__link">
+    pairs.field(name, *, transform_value=None, transform_value_if_none=False)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#field_display" class="md-nav__link">
+    pairs.field_display(name)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#annotate" class="md-nav__link">
+    pairs.annotate(*args, **kwargs)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#count" class="md-nav__link">
+    pairs.count(name, *args, **kwargs)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#has" class="md-nav__link">
+    pairs.has(name, *args, **kwargs)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sum" class="md-nav__link">
+    pairs.sum(name, *args, **kwargs)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filter" class="md-nav__link">
+    pairs.filter(*args, **kwargs)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exclude" class="md-nav__link">
+    pairs.exclude(*args, **kwargs)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#order_by" class="md-nav__link">
+    pairs.order_by(*args, **kwargs)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#order_by" class="md-nav__link">
+    pairs.alias(*args, **kwargs)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relationships" class="md-nav__link">
+    Relationships
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#forward_relationship" class="md-nav__link">
+    pairs.forward_relationship(name, related_queryset, relationship_pair, to_attr=None)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reverse_relationship" class="md-nav__link">
+    pairs.reverse_relationship(name, related_name, related_queryset, relationship_pair, to_attr=None)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#many_to_many_relationship" class="md-nav__link">
+    pairs.many_to_many_relationship(name, related_queryset, relationship_pair, to_attr=None)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relationship" class="md-nav__link">
+    pairs.relationship(name, relationship_pair, to_attr=None)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pk_list" class="md-nav__link">
+    pairs.pk_list(name, to_attr=None)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#utilities" class="md-nav__link">
+    Utilities
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#producer_to_projector" class="md-nav__link">
+    pairs.producer_to_projector(name, pair)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#combine" class="md-nav__link">
+    pairs.combine(*pairs)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#discard_projector" class="md-nav__link">
+    pairs.discard_projector(pair)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#discard_queryset_function" class="md-nav__link">
+    pairs.discard_queryset_function(pair)
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+
+
+  <h1>Pairs</h1>
+
+<p>Pair functions return a tuple of two functions: either <code>(prepare, produce)</code> (a "producer pair" consisting of a <a href="../queryset-functions/">queryset function</a> and a <a href="../producers/">producer function</a>) or <code>(prepare, project)</code> (a "projector pair" consisting of a <a href="../queryset-functions/">queryset function</a> and a <a href="../projectors/">projector function</a>). The grouping of these two types of function represents a dependency: <strong>in order to call the producer (or projector) function on a model instance, you must first call the queryset function on the queryset that was used to retrieve the instance</strong>.</p>
+<p>Remember that the difference between a producer and a projector is that the former returns a single value, whereas the latter returns a dictionary binding one or more names (keys) to one or more values. In order to use a pair in a <a href="../specs/">spec</a>, it must be a projector pair, so that the values returned by each projector in the spec are associated with names (the keys) that can be used in the final projection. However, at the point where a pair is created in your codebase, you often don't know what the output key should be: you are only interested in the value derived from the instance. So it's almost always the case that custom pairs will be written as producer pairs, and converted to projector pairs at the point where they are used in a spec, either by using the <a href="#producer_to_projector"><code>pairs.producer_to_projector</code></a> function or by using the shorthand syntax available in a <a href="../specs/">spec</a>.</p>
+<p>Import like this: <code>from django_readers import pairs</code></p>
+<h2 id="field"><code>pairs.field(name, *, transform_value=None, transform_value_if_none=False)</code><a class="headerlink" href="#field" title="Permanent link">&para;</a></h2>
+<p>Returns a pair which loads and produces the value of a model field.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">django_readers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pairs</span>
+
+<span class="n">prepare</span><span class="p">,</span> <span class="n">produce</span> <span class="o">=</span> <span class="n">pairs</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+<span class="n">queryset</span> <span class="o">=</span> <span class="n">prepare</span><span class="p">(</span><span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">queryset</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+<span class="c1">#  SELECT &quot;author&quot;.&quot;id&quot;, &quot;author&quot;.&quot;name&quot; FROM &quot;books_author&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">produce</span><span class="p">(</span><span class="n">queryset</span><span class="o">.</span><span class="n">first</span><span class="p">()))</span>
+<span class="c1">#  &#39;Some Author&#39;</span>
+</code></pre></div>
+<p>The <code>pairs.field</code> function takes the same <code>transform_value</code> and <code>transform_value_if_none</code> arguments as <a href="../producers/#attr"><code>producers.attr</code></a>.</p>
+<h2 id="field_display"><code>pairs.field_display(name)</code><a class="headerlink" href="#field_display" title="Permanent link">&para;</a></h2>
+<p>A pair function for working with Django's <code>get_FOO_display</code> mechanism. From the Django docs:</p>
+<blockquote>
+<p>For every field that has <code>choices</code> set, the object will have a <code>get_FOO_display()</code> method, where <code>FOO</code> is the name of the field. This method returns the “human-readable” value of the field.</p>
+</blockquote>
+<p>The <code>pairs.field_display</code> function takes the field name as its single argument and returns a pair which loads the field from the database, and then produces the result of calling <code>get_&lt;field&gt;_display</code>.</p>
+<h2 id="annotate"><code>pairs.annotate(*args, **kwargs)</code><a class="headerlink" href="#annotate" title="Permanent link">&para;</a></h2>
+<p>Returns a pair that adds an annotation to the queryset and produces the annotated value. Like the <code>annotate</code> method on <code>QuerySet</code>, this can take either a positional argument (if the annotation function supports this) or a keyword argument. Unlike the annotate method, this can only handle a single annotation at a time.</p>
+<p>This function can optionally take <code>transform_value</code> and <code>transform_value_if_none</code> keyword arguments, which are passed to the <a href="../producers/#attr">producer</a>.</p>
+<p>For example:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExtractYear</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_readers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pairs</span>
+
+<span class="n">prepare</span><span class="p">,</span> <span class="n">produce</span> <span class="o">=</span> <span class="n">pairs</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+    <span class="n">publication_year</span><span class="o">=</span><span class="n">ExtractYear</span><span class="p">(</span><span class="s2">&quot;publication_date&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">queryset</span> <span class="o">=</span> <span class="n">prepare</span><span class="p">(</span><span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">queryset</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+<span class="c1">#  SELECT &quot;book&quot;.&quot;id&quot;, EXTRACT(&#39;year&#39; FROM &quot;book&quot;.&quot;publication_date&quot;</span>
+<span class="c1">#  AT TIME ZONE &#39;UTC&#39;) AS &quot;publication_year&quot; FROM &quot;books_book&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">produce</span><span class="p">(</span><span class="n">queryset</span><span class="o">.</span><span class="n">first</span><span class="p">()))</span>
+<span class="c1">#  2013</span>
+</code></pre></div>
+<h2 id="count"><code>pairs.count(name, *args, **kwargs)</code><a class="headerlink" href="#count" title="Permanent link">&para;</a></h2>
+<p>Returns a pair which annotates a <code>Count</code> of the named relationship field onto the queryset, and produces its value. The <code>*args</code> and <code>**kwargs</code> parameters to this function are passed directly to the underlying <code>Count</code> annotation, so can be used to provide <code>distinct</code> and <code>filter</code> arguments.</p>
+<h2 id="has"><code>pairs.has(name, *args, **kwargs)</code><a class="headerlink" href="#has" title="Permanent link">&para;</a></h2>
+<p>Returns a pair which annotates a <code>Count</code> of the named relationship field onto the queryset, and produces a boolean representing whether or not that count is zero. The <code>*args</code> and <code>**kwargs</code> parameters to this function are passed directly to the underlying <code>Count</code> annotation, so can be used to provide <code>distinct</code> and <code>filter</code> arguments.</p>
+<h2 id="sum"><code>pairs.sum(name, *args, **kwargs)</code><a class="headerlink" href="#sum" title="Permanent link">&para;</a></h2>
+<p>Returns a pair which annotates a <code>Count</code> of the named relationship field onto the queryset, and produces its value. The <code>*args</code> and <code>**kwargs</code> parameters to this function are passed directly to the underlying <code>Sum</code> annotation, so can be used to provide <code>distinct</code> and <code>filter</code> arguments etc.</p>
+<h2 id="filter"><code>pairs.filter(*args, **kwargs)</code><a class="headerlink" href="#filter" title="Permanent link">&para;</a></h2>
+<p>Returns a pair consisting of a <a href="../queryset-functions/#functions-that-mirror-built-in-queryset-methods"><code>qs.filter</code></a> queryset function, and a <a href="../projectors/#noop">no-op projector</a>. Most useful for filtering relationships.</p>
+<h2 id="exclude"><code>pairs.exclude(*args, **kwargs)</code><a class="headerlink" href="#exclude" title="Permanent link">&para;</a></h2>
+<p>Returns a pair consisting of a <a href="../queryset-functions/#exclude"><code>qs.exclude</code></a> queryset function, and a <a href="../projectors/#noop">no-op projector</a>. Most useful for filtering relationships.</p>
+<h2 id="order_by"><code>pairs.order_by(*args, **kwargs)</code><a class="headerlink" href="#order_by" title="Permanent link">&para;</a></h2>
+<p>Returns a pair consisting of a <a href="../queryset-functions/#functions-that-mirror-built-in-queryset-methods"><code>qs.order_by</code></a> queryset function, and a <a href="../projectors/#noop">no-op projector</a>. Most useful for ordering relationships.</p>
+<h2 id="order_by"><code>pairs.alias(*args, **kwargs)</code><a class="headerlink" href="#order_by" title="Permanent link">&para;</a></h2>
+<p>Returns a pair consisting of a <a href="../queryset-functions/#functions-that-mirror-built-in-queryset-methods"><code>qs.alias</code></a> queryset function, and a <a href="../projectors/#noop">no-op projector</a>. Most useful for creating expressions that are later used for filtering or ordering, but aren't needed in the final result.</p>
+<h2 id="relationships">Relationships<a class="headerlink" href="#relationships" title="Permanent link">&para;</a></h2>
+<p>The following pair functions return the various <a href="../queryset-functions/#prefetching">queryset functions that prefetch
+relationships of various types</a>, and then <a href="../producers/#relationship">produce those related objects</a>.</p>
+<p>There are functions for forward, reverse or many-to-many relationships, and then
+a <code>relationship</code> function which selects the correct one by introspecting the
+model. It shouldn't usually be necessary to use the manual functions unless you're
+doing something weird, like providing a custom queryset.</p>
+<h2 id="forward_relationship"><code>pairs.forward_relationship(name, related_queryset, relationship_pair, to_attr=None)</code><a class="headerlink" href="#forward_relationship" title="Permanent link">&para;</a></h2>
+<p>See <a href="../queryset-functions/#prefetch_forward_relationship"><code>qs.prefetch_forward_relationship</code></a></p>
+<h2 id="reverse_relationship"><code>pairs.reverse_relationship(name, related_name, related_queryset, relationship_pair, to_attr=None)</code><a class="headerlink" href="#reverse_relationship" title="Permanent link">&para;</a></h2>
+<p>See <a href="../queryset-functions/#prefetch_reverse_relationship"><code>qs.prefetch_reverse_relationship</code></a></p>
+<h2 id="many_to_many_relationship"><code>pairs.many_to_many_relationship(name, related_queryset, relationship_pair, to_attr=None)</code><a class="headerlink" href="#many_to_many_relationship" title="Permanent link">&para;</a></h2>
+<p>See <a href="../queryset-functions/#prefetch_many_to_many_relationship"><code>qs.prefetch_many_to_many_relationship</code></a></p>
+<h2 id="relationship"><code>pairs.relationship(name, relationship_pair, to_attr=None)</code><a class="headerlink" href="#relationship" title="Permanent link">&para;</a></h2>
+<p>See <a href="../queryset-functions/#auto_prefetch_relationship"><code>qs.auto_prefetch_relationship</code></a></p>
+<h2 id="pk_list"><code>pairs.pk_list(name, to_attr=None)</code><a class="headerlink" href="#pk_list" title="Permanent link">&para;</a></h2>
+<p>Given an attribute name (which should be a relationship field), return a pair consisting of a queryset function which prefetches the relationship (including only the primary key of each related object) and a producer which returns a list of those primary keys (or just a single PK if this is a to-one field, but this is an inefficient way of doing it).</p>
+<p>See <a href="../producers/#pk_list"><code>producers.pk_list</code></a></p>
+<h2 id="utilities">Utilities<a class="headerlink" href="#utilities" title="Permanent link">&para;</a></h2>
+<p>The following functions are useful when working with pairs in your codebase.</p>
+<h2 id="producer_to_projector"><code>pairs.producer_to_projector(name, pair)</code><a class="headerlink" href="#producer_to_projector" title="Permanent link">&para;</a></h2>
+<p>Given a name (key) and a <em>producer pair</em> consisting of a queryset function and a producer function, returns a <em>projector pair</em> consisting of the same queryset function, and a projector function which returns a dictionary mapping the name to the value derived from the producer.</p>
+<h2 id="combine"><code>pairs.combine(*pairs)</code><a class="headerlink" href="#combine" title="Permanent link">&para;</a></h2>
+<p>Given a list of projector pairs as <code>*args</code>, return a pair which consists of a queryset function which pipes together the queryset function from each pair, and a projector which combines the projector function from each pair.</p>
+<h2 id="discard_projector"><code>pairs.discard_projector(pair)</code><a class="headerlink" href="#discard_projector" title="Permanent link">&para;</a></h2>
+<p>Given a pair, return only the first item in the pair (the queryset function). This is equivalent to <code>pairs[0]</code>, but using the function can make the intention clearer.</p>
+<h2 id="discard_queryset_function"><code>pairs.discard_queryset_function(pair)</code><a class="headerlink" href="#discard_queryset_function" title="Permanent link">&para;</a></h2>
+<p>Given a pair, return only the second item in the pair (the projector function). This is equivalent to <code>pairs[1]</code>, but using the function can make the intention clearer.</p>
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../projectors/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Projectors" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Projectors
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../specs/" class="md-footer__link md-footer__link--next" aria-label="Next: Specs" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Specs
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      <a href="https://www.dabapps.com">A DabApps project</a>
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6c7ad80a.min.js"></script>
+      
+    
+  </body>
+</html>
