@@ -186,6 +186,8 @@ class _SpecToSerializerVisitor(SpecVisitor):
         kwargs = {"read_only": True, "many": rel_info.to_many}
         if rel_info.model_field and rel_info.model_field.null:
             kwargs["allow_null"] = True
+        if rel_info.reverse and not rel_info.to_many:
+            kwargs["allow_null"] = True
         return kwargs
 
     def _get_rel_info(self, rel_name):
