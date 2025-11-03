@@ -26,24 +26,51 @@ jobs:
         set -euo pipefail
         python setup.py sdist bdist_wheel
         python <<'PY'
+import json
 import re
-import subprocess
 import sys
+import urllib.error
+import urllib.request
 from pathlib import Path
 
-wheels = sorted(Path("dist").glob("*.whl"))
-if wheels:
-    cmd = ["twine", "upload", *[str(path) for path in wheels]]
-    proc = subprocess.run(cmd, capture_output=True, text=True)
-    combined = (proc.stdout or "") + (proc.stderr or "")
-    sys.stdout.write(proc.stdout)
-    sys.stderr.write(proc.stderr)
-    if proc.returncode != 0:
-        cleaned = re.sub(r"\x1B\[[0-?]*[ -/]*[@-~]", "", combined)
-        if "File already exists" in cleaned:
-            print("Wheel already exists on PyPI; skipping re-upload.", flush=True)
-        else:
-            print("Wheel upload failed:\n{}".format(cleaned), file=sys.stderr)
-            sys.exit(proc.returncode)
+package = "django_readers"
+version = None
+init_path = Path(package) / "__init__.py"
+pattern = re.compile(r"__version__\s*=\s*['\"]([^'\"]+)['\"]")
+for line in init_path.read_text().splitlines():
+    match = pattern.search(line)
+    if match:
+        version = match.group(1)
+        break
+
+if not version:
+    print("Unable to determine package version", file=sys.stderr)
+    sys.exit(1)
+
+filename = f"{package}-{version}-py3-none-any.whl"
+url = f"https://pypi.org/pypi/{package.replace('_', '-')}/{version}/json"
+
+try:
+    with urllib.request.urlopen(url) as response:
+        metadata = json.load(response)
+except urllib.error.HTTPError as exc:
+    if exc.code == 404:
+        print(f"{package} {version} not yet on PyPI; wheel will be uploaded.")
+        raise SystemExit(0)
+    raise
+else:
+    published = {file["filename"] for file in metadata.get("urls", [])}
+    if filename in published:
+        wheel_path = Path("dist") / filename
+        if wheel_path.exists():
+            wheel_path.unlink()
+            print(f"Wheel already on PyPI, removed local copy: {filename}")
+    else:
+        print("Wheel not yet on PyPI; will upload freshly built wheel.")
 PY
+        if compgen -G "dist/*.whl" > /dev/null; then
+          twine upload dist/*.whl
+        else
+          echo "No wheel to upload (already published)."
+        fi
         twine upload dist/*.tar.gz
