@@ -1,0 +1,901 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A lightweight function-oriented toolkit for better organisation of business logic and efficient selection and projection of data in Django projects.">
+      
+      
+      
+      <link rel="icon" href="../../img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-8.3.9">
+    
+    
+      
+        <title>Queryset functions - django-readers</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.1d29e8d0.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.cbb835fc.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#e92063">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="pink" data-md-color-accent="pink">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#functions-that-mirror-built-in-queryset-methods" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="django-readers" class="md-header__button md-logo" aria-label="django-readers" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 14.33c.79 0 1.63.08 2.5.24v1.5c-.62-.16-1.46-.24-2.5-.24-1.9 0-3.39.33-4.5.99v-1.69c1.17-.53 2.67-.8 4.5-.8M13 12.46c1.29-.53 2.79-.79 4.5-.79.79 0 1.63.07 2.5.23v1.5c-.62-.16-1.46-.24-2.5-.24-1.9 0-3.39.34-4.5.99m4.5-3.65c-1.9 0-3.39.32-4.5 1V9.84c1.23-.56 2.73-.84 4.5-.84.79 0 1.63.08 2.5.23v1.55c-.74-.19-1.59-.28-2.5-.28m3.5 8V7c-1.04-.33-2.21-.5-3.5-.5-2.05 0-3.88.5-5.5 1.5v11.5c1.62-1 3.45-1.5 5.5-1.5 1.19 0 2.36.16 3.5.5m-3.5-14c2.35 0 4.19.5 5.5 1.5v14.56c0 .12-.05.24-.16.35-.11.09-.23.17-.34.17-.11 0-.19-.02-.25-.05-1.28-.69-2.87-1.03-4.75-1.03-2.05 0-3.88.5-5.5 1.5-1.34-1-3.17-1.5-5.5-1.5-1.66 0-3.25.36-4.75 1.07-.03.01-.07.01-.12.03-.04.01-.08.02-.13.02-.11 0-.23-.04-.34-.12a.475.475 0 0 1-.16-.35V6c1.34-1 3.18-1.5 5.5-1.5 2.33 0 4.16.5 5.5 1.5 1.34-1 3.17-1.5 5.5-1.5Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            django-readers
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Queryset functions
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/dabapps/django-readers/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    dabapps/django-readers
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="django-readers" class="md-nav__button md-logo" aria-label="django-readers" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 14.33c.79 0 1.63.08 2.5.24v1.5c-.62-.16-1.46-.24-2.5-.24-1.9 0-3.39.33-4.5.99v-1.69c1.17-.53 2.67-.8 4.5-.8M13 12.46c1.29-.53 2.79-.79 4.5-.79.79 0 1.63.07 2.5.23v1.5c-.62-.16-1.46-.24-2.5-.24-1.9 0-3.39.34-4.5.99m4.5-3.65c-1.9 0-3.39.32-4.5 1V9.84c1.23-.56 2.73-.84 4.5-.84.79 0 1.63.08 2.5.23v1.55c-.74-.19-1.59-.28-2.5-.28m3.5 8V7c-1.04-.33-2.21-.5-3.5-.5-2.05 0-3.88.5-5.5 1.5v11.5c1.62-1 3.45-1.5 5.5-1.5 1.19 0 2.36.16 3.5.5m-3.5-14c2.35 0 4.19.5 5.5 1.5v14.56c0 .12-.05.24-.16.35-.11.09-.23.17-.34.17-.11 0-.19-.02-.25-.05-1.28-.69-2.87-1.03-4.75-1.03-2.05 0-3.88.5-5.5 1.5-1.34-1-3.17-1.5-5.5-1.5-1.66 0-3.25.36-4.75 1.07-.03.01-.07.01-.12.03-.04.01-.08.02-.13.02-.11 0-.23-.04-.34-.12a.475.475 0 0 1-.16-.35V6c1.34-1 3.18-1.5 5.5-1.5 2.33 0 4.16.5 5.5 1.5 1.34-1 3.17-1.5 5.5-1.5Z"/></svg>
+
+    </a>
+    django-readers
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/dabapps/django-readers/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    dabapps/django-readers
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial/" class="md-nav__link">
+        Tutorial
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cookbook/" class="md-nav__link">
+        Cookbook
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/" class="md-nav__link">
+        Explanation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5">
+          Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Queryset functions
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Queryset functions
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#functions-that-mirror-built-in-queryset-methods" class="md-nav__link">
+    Functions that mirror built-in QuerySet methods
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#noop" class="md-nav__link">
+    qs.noop
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#include_fields" class="md-nav__link">
+    qs.include_fields(*fields)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pipe" class="md-nav__link">
+    qs.pipe(*fns)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#select_related_fields" class="md-nav__link">
+    qs.select_related_fields(*fields)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prefetching" class="md-nav__link">
+    Prefetching
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prefetch_forward_relationship" class="md-nav__link">
+    qs.prefetch_forward_relationship(name, related_queryset, prepare_related_queryset=noop, to_attr=None)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prefetch_reverse_relationship" class="md-nav__link">
+    prefetch_reverse_relationship(name, related_name, related_queryset, prepare_related_queryset=noop, to_attr=None)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prefetch_many_to_many_relationship" class="md-nav__link">
+    prefetch_many_to_many_relationship(name, related_queryset, prepare_related_queryset=noop, to_attr=None)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#auto_prefetch_relationship" class="md-nav__link">
+    qs.auto_prefetch_relationship(name, prepare_related_queryset=noop, to_attr=None)
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../producers/" class="md-nav__link">
+        Producers
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../projectors/" class="md-nav__link">
+        Projectors
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pairs/" class="md-nav__link">
+        Pairs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../specs/" class="md-nav__link">
+        Specs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rest-framework/" class="md-nav__link">
+        REST framework
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6">
+          Community
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Community" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Community
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../community/third-party-packages/" class="md-nav__link">
+        Third Party Packages
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../community/changelog/" class="md-nav__link">
+        Changelog
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../community/license/" class="md-nav__link">
+        License
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#functions-that-mirror-built-in-queryset-methods" class="md-nav__link">
+    Functions that mirror built-in QuerySet methods
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#noop" class="md-nav__link">
+    qs.noop
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#include_fields" class="md-nav__link">
+    qs.include_fields(*fields)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pipe" class="md-nav__link">
+    qs.pipe(*fns)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#select_related_fields" class="md-nav__link">
+    qs.select_related_fields(*fields)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prefetching" class="md-nav__link">
+    Prefetching
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prefetch_forward_relationship" class="md-nav__link">
+    qs.prefetch_forward_relationship(name, related_queryset, prepare_related_queryset=noop, to_attr=None)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prefetch_reverse_relationship" class="md-nav__link">
+    prefetch_reverse_relationship(name, related_name, related_queryset, prepare_related_queryset=noop, to_attr=None)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prefetch_many_to_many_relationship" class="md-nav__link">
+    prefetch_many_to_many_relationship(name, related_queryset, prepare_related_queryset=noop, to_attr=None)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#auto_prefetch_relationship" class="md-nav__link">
+    qs.auto_prefetch_relationship(name, prepare_related_queryset=noop, to_attr=None)
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+
+
+  <h1>Queryset functions</h1>
+
+<p>Queryset functions take a queryset as their single argument and return a modified queryset. The <code>qs</code> module contains higher-order functions that create queryset functions.</p>
+<p>Import like this: <code>from django_readers import qs</code></p>
+<h2 id="functions-that-mirror-built-in-queryset-methods">Functions that mirror built-in QuerySet methods<a class="headerlink" href="#functions-that-mirror-built-in-queryset-methods" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>qs.filter</code></li>
+<li><code>qs.all</code></li>
+<li><code>qs.exclude</code></li>
+<li><code>qs.select_related</code></li>
+<li><code>qs.prefetch_related</code></li>
+<li><code>qs.order_by</code></li>
+<li><code>qs.distinct</code></li>
+<li><code>qs.extra</code></li>
+<li><code>qs.defer</code></li>
+<li><code>qs.only</code></li>
+<li><code>qs.using</code></li>
+<li><code>qs.annotate</code></li>
+<li><code>qs.alias</code></li>
+</ul>
+<p>These functions mirror the methods on the base <code>QuerySet</code> class that return new querysets. See <a href="https://docs.djangoproject.com/en/3.2/ref/models/querysets/#methods-that-return-new-querysets">the Django documentation</a> for an explanation of these.</p>
+<p>An example of how to use them:</p>
+<div class="highlight"><pre><span></span><code><span class="n">prepare</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name__startswith</span><span class="o">=</span><span class="s2">&quot;Fred&quot;</span><span class="p">)</span>
+<span class="n">queryset</span> <span class="o">=</span> <span class="n">prepare</span><span class="p">(</span><span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+</code></pre></div>
+<p>This is equivalent to:</p>
+<div class="highlight"><pre><span></span><code><span class="n">queryset</span> <span class="o">=</span> <span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name__startswith</span><span class="o">=</span><span class="s2">&quot;Fred&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="noop"><code>qs.noop</code><a class="headerlink" href="#noop" title="Permanent link">&para;</a></h2>
+<p>This is a queryset function that does nothing: equivalent to calling <code>.all()</code> on a queryset. It is useful for creating pairs in which the producer function does not require any data from the database to return its value.</p>
+<h2 id="include_fields"><code>qs.include_fields(*fields)</code><a class="headerlink" href="#include_fields" title="Permanent link">&para;</a></h2>
+<p>Returns a queryset function that tells the queryset to return the specified fields from the database and defer the rest. This is like the built-in <code>.only(*fields)</code> method, but is <em>composable</em>. On a standard queryset, repeated calls to <code>.only</code> will override each other, so calling <code>Author.objects.only("name").only("email")</code> is equivalent to just calling <code>Author.objects.only("email")</code>. On the other hand, <code>include_fields</code> <em>adds</em> the provided fields to the set of fields to load:</p>
+<div class="highlight"><pre><span></span><code><span class="n">queryset</span> <span class="o">=</span> <span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<span class="n">queryset</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">include_fields</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)(</span><span class="n">queryset</span><span class="p">)</span>
+<span class="n">queryset</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">include_fields</span><span class="p">(</span><span class="s2">&quot;email&quot;</span><span class="p">)(</span><span class="n">queryset</span><span class="p">)</span>
+</code></pre></div>
+<p>This is equivalent to <code>Author.objects.only("name", "email")</code>.</p>
+<h2 id="pipe"><code>qs.pipe(*fns)</code><a class="headerlink" href="#pipe" title="Permanent link">&para;</a></h2>
+<p>Queryset functions can be composed with the <code>pipe</code> function (named following standard functional programming parlance). <code>qs.pipe</code> returns a new queryset function that calls each function in its argument list in turn, passing the return value of the first as the argument of the second, and so on. It literally "pipes" your queryset through its list of functions.</p>
+<div class="highlight"><pre><span></span><code><span class="n">prepare</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+    <span class="n">qs</span><span class="o">.</span><span class="n">include_fields</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">),</span>
+    <span class="n">qs</span><span class="o">.</span><span class="n">include_fields</span><span class="p">(</span><span class="s2">&quot;email&quot;</span><span class="p">),</span>
+    <span class="n">qs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name__startswith</span><span class="o">=</span><span class="s2">&quot;Fred&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">queryset</span> <span class="o">=</span> <span class="n">prepare</span><span class="p">(</span><span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+</code></pre></div>
+<p>Think of <code>pipe</code> as being a nicer way to nest queryset function calls:</p>
+<div class="highlight"><pre><span></span><code><span class="n">queryset</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name__startswith</span><span class="o">=</span><span class="s2">&quot;Fred&quot;</span><span class="p">)(</span>
+    <span class="n">qs</span><span class="o">.</span><span class="n">include_fields</span><span class="p">(</span><span class="s2">&quot;email&quot;</span><span class="p">)(</span>
+        <span class="n">qs</span><span class="o">.</span><span class="n">include_fields</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)(</span>
+            <span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+<h2 id="select_related_fields"><code>qs.select_related_fields(*fields)</code><a class="headerlink" href="#select_related_fields" title="Permanent link">&para;</a></h2>
+<p>Combines <code>select_related</code> with <code>include_fields</code> to allow you to specify exactly which fields you need from the related objects.</p>
+<div class="highlight"><pre><span></span><code><span class="n">prepare</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+    <span class="n">qs</span><span class="o">.</span><span class="n">include_fields</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">),</span>
+    <span class="n">qs</span><span class="o">.</span><span class="n">select_related_fields</span><span class="p">(</span><span class="s2">&quot;publisher__name&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+</code></pre></div>
+<h2 id="prefetching">Prefetching<a class="headerlink" href="#prefetching" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The below functions return functions that use <code>prefetch_related</code> to efficiently load related objects. We use <code>prefetch_related</code> to load all relationship types because this means our functions can be recursive: we can apply pairs to the related querysets, all the way down the tree.</p>
+</div>
+<p>There are six types of relationship from the point of view of the "main" object:</p>
+<ul>
+<li>Forward one-to-one - a OneToOneField on the main object</li>
+<li>Reverse one-to-one - a OneToOneField on the related object</li>
+<li>Forward many-to-one - a ForeignKey on the main object</li>
+<li>Reverse many-to-one - a ForeignKey on the related object</li>
+<li>Forward many-to-many - a ManyToManyField on the main object</li>
+<li>Reverse many-to-many - a ManyToManyField on the related object</li>
+</ul>
+<p>ManyToManyFields are symmetrical, so the latter two collapse down to the same thing.
+The forward one-to-one and many-to-one are identical as they both relate a single
+related object to the main object. The reverse one-to-one and many-to-one are identical
+except the former relates the main object to a single related object, and the latter
+relates the main object to many related objects. Because the <code>projectors.relationship</code>
+function already infers whether to iterate or project a single instance, we can collapse
+these two functions into one as well.</p>
+<p>There are functions for forward, reverse or many-to-many relationships, and then
+an "auto" function which selects the correct relationship type by introspecting the
+model. It shouldn't usually be necessary to use the manual functions unless you're
+doing something weird, like providing a custom queryset.</p>
+<h2 id="prefetch_forward_relationship"><code>qs.prefetch_forward_relationship(name, related_queryset, prepare_related_queryset=noop, to_attr=None)</code><a class="headerlink" href="#prefetch_forward_relationship" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It shouldn't usually be necessary to use this function directly: <code>auto_prefetch_relationship</code> (see below) is almost always a better option.</p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">prepare</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">prefetch_forward_relationship</span><span class="p">(</span>
+    <span class="s2">&quot;publisher&quot;</span><span class="p">,</span>
+    <span class="n">Publisher</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+    <span class="n">qs</span><span class="o">.</span><span class="n">include_fields</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">queryset</span> <span class="o">=</span> <span class="n">prepare</span><span class="p">(</span><span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+</code></pre></div>
+<p>This is equivalent to:</p>
+<div class="highlight"><pre><span></span><code><span class="n">queryset</span> <span class="o">=</span> <span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span>
+    <span class="n">Prefetch</span><span class="p">(</span><span class="s2">&quot;publisher&quot;</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">Publisher</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">only</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">))</span>
+<span class="p">)</span>
+</code></pre></div>
+<h2 id="prefetch_reverse_relationship"><code>prefetch_reverse_relationship(name, related_name, related_queryset, prepare_related_queryset=noop, to_attr=None)</code><a class="headerlink" href="#prefetch_reverse_relationship" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It shouldn't usually be necessary to use this function directly: <code>auto_prefetch_relationship</code> (see below) is almost always a better option.</p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">prepare</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">prefetch_reverse_relationship</span><span class="p">(</span>
+    <span class="s2">&quot;book_set&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;publisher&quot;</span><span class="p">,</span>
+    <span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+    <span class="n">qs</span><span class="o">.</span><span class="n">include_fields</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">queryset</span> <span class="o">=</span> <span class="n">prepare</span><span class="p">(</span><span class="n">Publisher</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+</code></pre></div>
+<p>This is equivalent to:</p>
+<div class="highlight"><pre><span></span><code><span class="n">queryset</span> <span class="o">=</span> <span class="n">Publisher</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span>
+    <span class="n">Prefetch</span><span class="p">(</span><span class="s2">&quot;book_set&quot;</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">only</span><span class="p">(</span><span class="s2">&quot;publisher&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">))</span>
+<span class="p">)</span>
+</code></pre></div>
+<h2 id="prefetch_many_to_many_relationship"><code>prefetch_many_to_many_relationship(name, related_queryset, prepare_related_queryset=noop, to_attr=None)</code><a class="headerlink" href="#prefetch_many_to_many_relationship" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It shouldn't usually be necessary to use this function directly: <code>auto_prefetch_relationship</code> (see below) is almost always a better option.</p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">prepare</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">prefetch_many_to_many_relationship</span><span class="p">(</span>
+    <span class="s2">&quot;authors&quot;</span><span class="p">,</span>
+    <span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+    <span class="n">qs</span><span class="o">.</span><span class="n">include_fields</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>This is equivalent to:</p>
+<div class="highlight"><pre><span></span><code><span class="n">queryset</span> <span class="o">=</span> <span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span>
+    <span class="n">Prefetch</span><span class="p">(</span><span class="s2">&quot;authors&quot;</span><span class="p">,</span> <span class="n">queryset</span><span class="o">=</span><span class="n">Author</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">only</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">))</span>
+<span class="p">)</span>
+</code></pre></div>
+<h2 id="auto_prefetch_relationship"><code>qs.auto_prefetch_relationship(name, prepare_related_queryset=noop, to_attr=None)</code><a class="headerlink" href="#auto_prefetch_relationship" title="Permanent link">&para;</a></h2>
+<p>Usually, the above functions do not need to be used directly. Instead, <code>auto_prefetch_relationship</code> can figure out which one to use by looking at the model:</p>
+<div class="highlight"><pre><span></span><code><span class="n">prepare</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+    <span class="n">qs</span><span class="o">.</span><span class="n">auto_prefetch_relationship</span><span class="p">(</span>
+        <span class="s2">&quot;authors&quot;</span><span class="p">,</span>
+        <span class="n">prepare_related_queryset</span><span class="o">=</span><span class="n">qs</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+            <span class="n">qs</span><span class="o">.</span><span class="n">include_fields</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">),</span>
+            <span class="n">qs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">email__icontains</span><span class="o">=</span><span class="s2">&quot;google.com&quot;</span><span class="p">),</span>
+            <span class="n">to_attr</span><span class="o">=</span><span class="s2">&quot;googley_authors&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">qs</span><span class="o">.</span><span class="n">auto_prefetch_relationship</span><span class="p">(</span>
+        <span class="s2">&quot;publisher&quot;</span><span class="p">,</span> <span class="n">prepare_related_queryset</span><span class="o">=</span><span class="n">qs</span><span class="o">.</span><span class="n">include_fields</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="n">queryset</span> <span class="o">=</span> <span class="n">prepare</span><span class="p">(</span><span class="n">Book</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+</code></pre></div>
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../../explanation/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Explanation" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Explanation
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../producers/" class="md-footer__link md-footer__link--next" aria-label="Next: Producers" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Producers
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      <a href="https://www.dabapps.com">A DabApps project</a>
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6c7ad80a.min.js"></script>
+      
+    
+  </body>
+</html>
