@@ -42,6 +42,7 @@ if wheels:
         if "File already exists" in cleaned:
             print("Wheel already exists on PyPI; skipping re-upload.", flush=True)
         else:
+            print("Wheel upload failed:\n{}".format(cleaned), file=sys.stderr)
             sys.exit(proc.returncode)
 PY
         twine upload dist/*.tar.gz
