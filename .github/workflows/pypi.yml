@@ -33,9 +33,10 @@ wheels = sorted(Path("dist").glob("*.whl"))
 if wheels:
     cmd = ["twine", "upload", *[str(path) for path in wheels]]
     proc = subprocess.run(cmd, capture_output=True, text=True)
+    combined = (proc.stdout or "") + (proc.stderr or "")
     sys.stdout.write(proc.stdout)
     sys.stderr.write(proc.stderr)
-    if proc.returncode != 0 and "File already exists" not in proc.stderr:
+    if proc.returncode != 0 and "File already exists" not in combined:
         sys.exit(proc.returncode)
 PY
         twine upload dist/*.tar.gz
