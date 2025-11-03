@@ -8,7 +8,9 @@ import os
 import sys
 
 
-name = "django-readers"
+# Use underscore for the distribution name so sdists follow PyPI's
+# normalized filename rules (PEP 625).
+name = "django_readers"
 package = "django_readers"
 description = "A lightweight function-oriented toolkit for better organisation of business logic and efficient selection and projection of data in Django projects."
 url = "https://www.django-readers.org"
