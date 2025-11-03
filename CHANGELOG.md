@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.1] - 2025-11-03
+
+### Fixed
+- Correct serializer generation to add `allow_null=True` to reverse 1-to-1 relationships ([#114](https://github.com/dabapps/django-readers/pull/114))
+
 ## [2.5.0] - 2025-05-23
 
 ### Added
