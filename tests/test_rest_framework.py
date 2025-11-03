@@ -223,7 +223,7 @@ class SpecToSerializerClassTestCase(TestCase):
                     name = CharField(allow_null=True, max_length=100, read_only=True, required=False)
                     category_set = OwnerWidgetSetCategorySetSerializer(many=True, read_only=True):
                         name = CharField(max_length=100, read_only=True)
-                    thing = OwnerWidgetSetThingSerializer(read_only=True):
+                    thing = OwnerWidgetSetThingSerializer(allow_null=True, read_only=True):
                         name = CharField(max_length=100, read_only=True)
                         related_widget = OwnerWidgetSetThingRelatedWidgetSerializer(allow_null=True, read_only=True, source='widget'):
                             name = CharField(allow_null=True, max_length=100, read_only=True, required=False)
