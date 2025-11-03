@@ -25,6 +25,7 @@ jobs:
         set -euo pipefail
         python setup.py sdist bdist_wheel
         python <<'PY'
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -36,7 +37,11 @@ if wheels:
     combined = (proc.stdout or "") + (proc.stderr or "")
     sys.stdout.write(proc.stdout)
     sys.stderr.write(proc.stderr)
-    if proc.returncode != 0 and "File already exists" not in combined:
-        sys.exit(proc.returncode)
+    if proc.returncode != 0:
+        cleaned = re.sub(r"\x1B\[[0-?]*[ -/]*[@-~]", "", combined)
+        if "File already exists" in cleaned:
+            print("Wheel already exists on PyPI; skipping re-upload.", flush=True)
+        else:
+            sys.exit(proc.returncode)
 PY
         twine upload dist/*.tar.gz
