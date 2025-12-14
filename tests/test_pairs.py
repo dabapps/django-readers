@@ -1,7 +1,7 @@
 from django.db.models import Count, F
 from django.db.models.functions import Length
 from django.test import TestCase
-from django_readers import pairs, producers, projectors, qs
+from django_readers import pairs, producers, projectors, qs, utils
 from tests.models import Category, Group, Owner, Thing, Widget
 from tests.test_producers import title_and_reverse
 
@@ -231,6 +231,90 @@ class PairsTestCase(TestCase):
             },
         )
 
+    def test_reverse_many_to_one_relationship_with_slice(self):
+        group = Group.objects.create(name="test group")
+        owner = Owner.objects.create(name="test owner", group=group)
+        Widget.objects.create(name="widget 1", value=1, owner=owner)
+        Widget.objects.create(name="widget 2", value=100, owner=owner)
+
+        prepare, project = pairs.combine(
+            pairs.producer_to_projector("name", pairs.field("name")),
+            pairs.producer_to_projector(
+                "widget_set_attr",
+                pairs.reverse_relationship(
+                    "widget_set",
+                    "owner",
+                    Widget.objects.all().order_by("value"),
+                    pairs.combine(
+                        pairs.producer_to_projector("name", pairs.field("name")),
+                        pairs.producer_to_projector("value", pairs.field("value")),
+                    ),
+                    to_attr="widget_set_attr",
+                    slice=slice(0, 1),
+                ),
+            ),
+        )
+
+        with self.assertNumQueries(0):
+            queryset = prepare(Owner.objects.all())
+
+        with self.assertNumQueries(2):
+            instance = queryset.first()
+
+        with self.assertNumQueries(0):
+            result = project(instance)
+
+        self.assertEqual(
+            result,
+            {
+                "name": "test owner",
+                "widget_set_attr": [
+                    {"name": "widget 1", "value": 1},
+                ],
+            },
+        )
+
+    def test_reverse_many_to_one_relationship_with_slice_post_fn(self):
+        owner = Owner.objects.create(name="test owner")
+        Widget.objects.create(name="widget 1", value=1, owner=owner)
+        Widget.objects.create(name="widget 2", value=100, owner=owner)
+
+        prepare, project = pairs.combine(
+            pairs.producer_to_projector("name", pairs.field("name")),
+            pairs.producer_to_projector(
+                "widget_set_attr",
+                pairs.reverse_relationship(
+                    "widget_set",
+                    "owner",
+                    Widget.objects.all().order_by("value"),
+                    pairs.combine(
+                        pairs.producer_to_projector("name", pairs.field("name")),
+                        pairs.producer_to_projector("value", pairs.field("value")),
+                    ),
+                    to_attr="widget_set_attr",
+                    post_fn=utils.collapse_list,
+                    slice=slice(1, 2),
+                ),
+            ),
+        )
+
+        with self.assertNumQueries(0):
+            queryset = prepare(Owner.objects.all())
+
+        with self.assertNumQueries(2):
+            instance = queryset.first()
+
+        with self.assertNumQueries(0):
+            result = project(instance)
+
+        self.assertEqual(
+            result,
+            {
+                "name": "test owner",
+                "widget_set_attr": {"name": "widget 2", "value": 100},
+            },
+        )
+
     def test_one_to_one_relationship(self):
         widget = Widget.objects.create(name="test widget")
         Thing.objects.create(name="test thing", widget=widget)
@@ -414,6 +498,55 @@ class PairsTestCase(TestCase):
                         "category_set_attr": [{"name": "test category"}],
                     }
                 ],
+            },
+        )
+
+    def test_many_to_many_relationship_with_to_attr_slice_post_fn(self):
+        widget_1 = Widget.objects.create(name="test widget 1")
+        widget_2 = Widget.objects.create(name="test widget 2")
+        category = Category.objects.create(name="test category")
+        category.widget_set.add(widget_1)
+        category.widget_set.add(widget_2)
+
+        prepare, project = pairs.combine(
+            pairs.producer_to_projector("name", pairs.field("name")),
+            pairs.producer_to_projector(
+                "widget_set_attr",
+                pairs.many_to_many_relationship(
+                    "widget_set",
+                    Widget.objects.all().order_by("-name"),
+                    pairs.combine(
+                        pairs.producer_to_projector("name", pairs.field("name")),
+                        pairs.producer_to_projector(
+                            "category_set_attr",
+                            pairs.many_to_many_relationship(
+                                "category_set",
+                                Category.objects.all().order_by("-name"),
+                                pairs.producer_to_projector(
+                                    "name", pairs.field("name")
+                                ),
+                                to_attr="category_set_attr",
+                            ),
+                        ),
+                    ),
+                    to_attr="widget_set_attr",
+                    post_fn=utils.collapse_list,
+                    slice=slice(1),
+                ),
+            ),
+        )
+
+        instance = prepare(Category.objects.all()).first()
+        result = project(instance)
+
+        self.assertEqual(
+            result,
+            {
+                "name": "test category",
+                "widget_set_attr": {
+                    "name": "test widget 2",
+                    "category_set_attr": [{"name": "test category"}],
+                },
             },
         )
 
